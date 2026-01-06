@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:bongpal/domain/model/subscription.dart';
+import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
+import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
+import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
 
 class SubscriptionEditScreen extends StatefulWidget {
   final String subscriptionId;
+  final GetSubscriptionByIdUseCase getSubscriptionById;
+  final UpdateSubscriptionUseCase updateSubscription;
+  final DeleteSubscriptionUseCase deleteSubscription;
 
   const SubscriptionEditScreen({
     super.key,
     required this.subscriptionId,
+    required this.getSubscriptionById,
+    required this.updateSubscription,
+    required this.deleteSubscription,
   });
 
   @override
@@ -24,6 +34,9 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
   int _billingDay = 1;
   String _period = 'MONTHLY';
   String? _category;
+  DateTime _createdAt = DateTime.now();
+
+  bool _isLoading = true;
 
   final List<String> _categories = ['영상', '음악', '게임', '소프트웨어', '기타'];
 
@@ -33,14 +46,22 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
     _loadSubscription();
   }
 
-  void _loadSubscription() {
-    // TODO: DB에서 subscriptionId로 데이터 로드
-    _nameController.text = 'Netflix';
-    _amountController.text = '15.99';
-    _currency = 'USD';
-    _billingDay = 15;
-    _period = 'MONTHLY';
-    _category = '영상';
+  Future<void> _loadSubscription() async {
+    final subscription = await widget.getSubscriptionById(widget.subscriptionId);
+    if (subscription != null && mounted) {
+      setState(() {
+        _nameController.text = subscription.name;
+        _amountController.text = subscription.amount.toString();
+        _currency = subscription.currency;
+        _billingDay = subscription.billingDay;
+        _period = subscription.period;
+        _category = subscription.category;
+        _memoController.text = subscription.memo ?? '';
+        _feeController.text = subscription.feeRatePercent?.toString() ?? '';
+        _createdAt = subscription.createdAt;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -54,6 +75,13 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('구독 수정')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('구독 수정'),
@@ -227,10 +255,25 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
     );
   }
 
-  void _onSave() {
+  Future<void> _onSave() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: DB 업데이트 로직
-      Navigator.pop(context);
+      final subscription = Subscription(
+        id: widget.subscriptionId,
+        name: _nameController.text,
+        amount: double.parse(_amountController.text),
+        currency: _currency,
+        billingDay: _billingDay,
+        period: _period,
+        category: _category,
+        memo: _memoController.text.isEmpty ? null : _memoController.text,
+        feeRatePercent: _feeController.text.isEmpty
+            ? null
+            : double.tryParse(_feeController.text),
+        createdAt: _createdAt,
+      );
+
+      await widget.updateSubscription(subscription);
+      if (mounted) Navigator.pop(context);
     }
   }
 
@@ -246,10 +289,12 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
             child: const Text('취소'),
           ),
           TextButton(
-            onPressed: () {
-              // TODO: DB 삭제 로직
-              Navigator.pop(context);
-              Navigator.pop(context);
+            onPressed: () async {
+              await widget.deleteSubscription(widget.subscriptionId);
+              if (mounted) {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              }
             },
             child: const Text('삭제', style: TextStyle(color: Colors.red)),
           ),

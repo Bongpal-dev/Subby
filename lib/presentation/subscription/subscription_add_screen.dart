@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:bongpal/domain/model/subscription.dart';
+import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
 
 class SubscriptionAddScreen extends StatefulWidget {
-  const SubscriptionAddScreen({super.key});
+  final AddSubscriptionUseCase addSubscription;
+
+  const SubscriptionAddScreen({super.key, required this.addSubscription});
 
   @override
   State<SubscriptionAddScreen> createState() => _SubscriptionAddScreenState();
@@ -9,12 +14,12 @@ class SubscriptionAddScreen extends StatefulWidget {
 
 class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
   final _memoController = TextEditingController();
   final _feeController = TextEditingController();
-  
+
   String _currency = 'KRW';
   int _billingDay = 1;
   String _period = 'MONTHLY';
@@ -42,7 +47,6 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // 서비스명
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -59,7 +63,6 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             ),
             const SizedBox(height: 16),
 
-            // 금액 + 통화
             Row(
               children: [
                 Expanded(
@@ -106,7 +109,6 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             ),
             const SizedBox(height: 16),
 
-            // 결제일 + 주기
             Row(
               children: [
                 Expanded(
@@ -152,7 +154,6 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             ),
             const SizedBox(height: 16),
 
-            // 카테고리
             DropdownButtonFormField<String>(
               initialValue: _category,
               decoration: const InputDecoration(
@@ -170,7 +171,6 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             ),
             const SizedBox(height: 16),
 
-            // 메모
             TextFormField(
               controller: _memoController,
               decoration: const InputDecoration(
@@ -181,7 +181,6 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             ),
             const SizedBox(height: 16),
 
-            // 수수료
             TextFormField(
               controller: _feeController,
               decoration: const InputDecoration(
@@ -193,7 +192,6 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             ),
             const SizedBox(height: 24),
 
-            // 저장 버튼
             FilledButton(
               onPressed: _onSave,
               child: const Padding(
@@ -207,10 +205,25 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
     );
   }
 
-  void _onSave() {
+  Future<void> _onSave() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: DB 저장 로직
-      Navigator.pop(context);
+      final subscription = Subscription(
+        id: const Uuid().v4(),
+        name: _nameController.text,
+        amount: double.parse(_amountController.text),
+        currency: _currency,
+        billingDay: _billingDay,
+        period: _period,
+        category: _category,
+        memo: _memoController.text.isEmpty ? null : _memoController.text,
+        feeRatePercent: _feeController.text.isEmpty
+            ? null
+            : double.tryParse(_feeController.text),
+        createdAt: DateTime.now(),
+      );
+
+      await widget.addSubscription(subscription);
+      if (mounted) Navigator.pop(context);
     }
   }
 }

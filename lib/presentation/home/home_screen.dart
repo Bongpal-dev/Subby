@@ -1,22 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:bongpal/domain/model/subscription.dart';
+import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
+import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
+import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
+import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
+import 'package:bongpal/domain/usecase/watch_subscriptions_usecase.dart';
 import 'package:bongpal/presentation/subscription/subscription_add_screen.dart';
 import 'package:bongpal/presentation/subscription/subscription_edit_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final WatchSubscriptionsUseCase watchSubscriptions;
+  final AddSubscriptionUseCase addSubscription;
+  final GetSubscriptionByIdUseCase getSubscriptionById;
+  final UpdateSubscriptionUseCase updateSubscription;
+  final DeleteSubscriptionUseCase deleteSubscription;
 
-  // TODO: 나중에 DB에서 가져올 더미 데이터
-  static const _dummySubscriptions = [
-    {'id': '1', 'name': 'Netflix', 'amount': 15.99, 'currency': 'USD', 'billingDay': 15},
-    {'id': '2', 'name': 'Spotify', 'amount': 10900, 'currency': 'KRW', 'billingDay': 20},
-    {'id': '3', 'name': 'YouTube Premium', 'amount': 14900, 'currency': 'KRW', 'billingDay': 5},
-  ];
+  const HomeScreen({
+    super.key,
+    required this.watchSubscriptions,
+    required this.addSubscription,
+    required this.getSubscriptionById,
+    required this.updateSubscription,
+    required this.deleteSubscription,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final subscriptions = _dummySubscriptions;
-    final isEmpty = subscriptions.isEmpty;
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -26,46 +35,105 @@ class HomeScreen extends StatelessWidget {
             children: [
               const Text('이번 달 고정비', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
-              const _SummaryCard(),
+              StreamBuilder<List<Subscription>>(
+                stream: watchSubscriptions(),
+                builder: (context, snapshot) {
+                  final subscriptions = snapshot.data ?? [];
+                  final total = _calculateTotal(subscriptions);
+                  return _SummaryCard(total: total);
+                },
+              ),
               const SizedBox(height: 16),
               const Text('구독 목록', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Expanded(
-                child: isEmpty
-                    ? const _EmptyState()
-                    : _SubscriptionList(subscriptions: subscriptions),
+                child: StreamBuilder<List<Subscription>>(
+                  stream: watchSubscriptions(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final subscriptions = snapshot.data ?? [];
+                    if (subscriptions.isEmpty) {
+                      return const _EmptyState();
+                    }
+                    return _SubscriptionList(
+                      subscriptions: subscriptions,
+                      onTap: (sub) => _navigateToEdit(context, sub.id),
+                    );
+                  },
+                ),
               ),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SubscriptionAddScreen()),
-          );
-        },
+        onPressed: () => _navigateToAdd(context),
         label: const Text('구독 추가'),
         icon: const Icon(Icons.add),
       ),
     );
   }
+
+  void _navigateToAdd(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubscriptionAddScreen(
+          addSubscription: addSubscription,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToEdit(BuildContext context, String id) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubscriptionEditScreen(
+          subscriptionId: id,
+          getSubscriptionById: getSubscriptionById,
+          updateSubscription: updateSubscription,
+          deleteSubscription: deleteSubscription,
+        ),
+      ),
+    );
+  }
+
+  double _calculateTotal(List<Subscription> subscriptions) {
+    double total = 0;
+    for (final sub in subscriptions) {
+      if (sub.currency == 'KRW') {
+        total += sub.amount;
+      } else {
+        total += sub.amount * 1450;
+      }
+    }
+    return total;
+  }
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard();
+  final double total;
+
+  const _SummaryCard({required this.total});
 
   @override
   Widget build(BuildContext context) {
+    final formatted = total.toInt().toString().replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]},',
+        );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text('예상 합계'),
-            Text('₩ 40,800', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          children: [
+            const Text('예상 합계'),
+            Text('₩ $formatted', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
           ],
         ),
       ),
@@ -88,69 +156,54 @@ class _EmptyState extends StatelessWidget {
 }
 
 class _SubscriptionList extends StatelessWidget {
-  final List<Map<String, dynamic>> subscriptions;
+  final List<Subscription> subscriptions;
+  final void Function(Subscription) onTap;
 
-  const _SubscriptionList({required this.subscriptions});
+  const _SubscriptionList({
+    required this.subscriptions,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: subscriptions.length,
       itemBuilder: (context, index) {
-        final item = subscriptions[index];
-        return _SubscriptionTile(
-          id: item['id'] as String,
-          name: item['name'] as String,
-          amount: item['amount'] as num,
-          currency: item['currency'] as String,
-          billingDay: item['billingDay'] as int,
-        );
+        final sub = subscriptions[index];
+        return _SubscriptionTile(subscription: sub, onTap: () => onTap(sub));
       },
     );
   }
 }
 
 class _SubscriptionTile extends StatelessWidget {
-  final String id;
-  final String name;
-  final num amount;
-  final String currency;
-  final int billingDay;
+  final Subscription subscription;
+  final VoidCallback onTap;
 
   const _SubscriptionTile({
-    required this.id,
-    required this.name,
-    required this.amount,
-    required this.currency,
-    required this.billingDay,
+    required this.subscription,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final currencySymbol = currency == 'USD' ? '\$' : '₩';
-    final formattedAmount = currency == 'USD'
-        ? amount.toStringAsFixed(2)
-        : amount.toInt().toString().replaceAllMapped(
+    final currencySymbol = subscription.currency == 'USD' ? '\$' : '₩';
+    final formattedAmount = subscription.currency == 'USD'
+        ? subscription.amount.toStringAsFixed(2)
+        : subscription.amount.toInt().toString().replaceAllMapped(
               RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
               (m) => '${m[1]},',
             );
 
     return Card(
       child: ListTile(
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text('매월 $billingDay일 결제'),
+        title: Text(subscription.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text('매월 ${subscription.billingDay}일 결제'),
         trailing: Text(
           '$currencySymbol$formattedAmount',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SubscriptionEditScreen(subscriptionId: id),
-            ),
-          );
-        },
+        onTap: onTap,
       ),
     );
   }
