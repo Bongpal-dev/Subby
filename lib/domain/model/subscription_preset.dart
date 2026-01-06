@@ -1,3 +1,5 @@
+import 'dart:ui' show Locale;
+
 enum PresetCategory {
   VIDEO,
   MUSIC,
@@ -33,4 +35,15 @@ class SubscriptionPreset {
     this.notes,
     this.includes,
   });
+
+  /// Locale에 따라 적절한 이름 반환
+  /// - ko: displayNameKo 우선, 없으면 displayNameEn
+  /// - 그 외: displayNameEn 우선, 없으면 displayNameKo
+  String displayName(Locale locale) {
+    if (locale.languageCode == 'ko') {
+      return displayNameKo.isNotEmpty ? displayNameKo : (displayNameEn ?? brandKey);
+    } else {
+      return (displayNameEn?.isNotEmpty == true) ? displayNameEn! : displayNameKo;
+    }
+  }
 }

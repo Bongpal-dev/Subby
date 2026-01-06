@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: const SubbyAppBar(title: ''),
+      appBar: const SubbyAppBar(title: '', showBackButton: false),
       body: StreamBuilder<List<Subscription>>(
           stream: watchSubscriptions(),
           builder: (context, snapshot) {

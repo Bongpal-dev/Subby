@@ -41,10 +41,11 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
   }
 
   void _selectPreset(SubscriptionPreset preset) {
+    final locale = Localizations.localeOf(context);
     setState(() {
       _selectedPreset = preset;
       _isServiceSelected = true;
-      _nameController.text = preset.displayNameKo;
+      _nameController.text = preset.displayName(locale);
       _currency = preset.defaultCurrency;
       _amount = 0;
       _period = preset.defaultPeriod;
@@ -316,7 +317,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                       color: colorScheme.primary,
                     ),
                     title: Text(
-                      _selectedPreset?.displayNameKo ?? '직접 입력',
+                      _selectedPreset?.displayName(Localizations.localeOf(context)) ?? '직접 입력',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     subtitle: _selectedPreset != null
@@ -753,10 +754,15 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
   PresetCategory? _selectedCategory;
   List<SubscriptionPreset> _filteredPresets = [];
 
+  bool _initialized = false;
+
   @override
-  void initState() {
-    super.initState();
-    _filterAndSort();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _filterAndSort();
+    }
   }
 
   @override
@@ -767,19 +773,21 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
 
   void _filterAndSort() {
     final query = _searchController.text.toLowerCase();
+    final locale = Localizations.localeOf(context);
 
     var filtered = subscriptionPresets.where((preset) {
       final matchesCategory =
           _selectedCategory == null || preset.category == _selectedCategory;
       final matchesQuery = query.isEmpty ||
+          preset.displayName(locale).toLowerCase().contains(query) ||
           preset.displayNameKo.toLowerCase().contains(query) ||
           (preset.displayNameEn?.toLowerCase().contains(query) ?? false) ||
           preset.aliases.any((a) => a.toLowerCase().contains(query));
       return matchesCategory && matchesQuery;
     }).toList();
 
-    // 가나다순 정렬
-    filtered.sort((a, b) => a.displayNameKo.compareTo(b.displayNameKo));
+    // 정렬: 현재 로케일 기준 이름으로
+    filtered.sort((a, b) => a.displayName(locale).compareTo(b.displayName(locale)));
 
     setState(() {
       _filteredPresets = filtered;
@@ -886,8 +894,9 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
                   itemCount: _filteredPresets.length,
                   itemBuilder: (context, index) {
                     final preset = _filteredPresets[index];
+                    final locale = Localizations.localeOf(context);
                     return ListTile(
-                      title: Text(preset.displayNameKo),
+                      title: Text(preset.displayName(locale)),
                       subtitle: Text(
                         '${_categoryLabel(preset.category)} · ${preset.defaultCurrency}',
                         style: TextStyle(

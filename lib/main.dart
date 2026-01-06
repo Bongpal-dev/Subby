@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:bongpal/core/theme/app_theme.dart';
 import 'package:bongpal/data/database/database.dart';
 import 'package:bongpal/data/repository/subscription_repository_impl.dart';
@@ -51,6 +52,15 @@ class SubbyApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko', 'KR'),
+        Locale('en', 'US'),
+      ],
       home: HomeScreen(
         watchSubscriptions: watchSubscriptions,
         addSubscription: addSubscription,
