@@ -1,130 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bongpal/domain/model/subscription.dart';
-import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/get_presets_usecase.dart';
-import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
-import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/watch_subscriptions_usecase.dart';
 import 'package:bongpal/presentation/common/subby_app_bar.dart';
+import 'package:bongpal/presentation/home/home_view_model.dart';
 import 'package:bongpal/presentation/subscription/subscription_add_screen.dart';
 import 'package:bongpal/presentation/subscription/subscription_edit_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  final WatchSubscriptionsUseCase watchSubscriptions;
-  final AddSubscriptionUseCase addSubscription;
-  final GetSubscriptionByIdUseCase getSubscriptionById;
-  final UpdateSubscriptionUseCase updateSubscription;
-  final DeleteSubscriptionUseCase deleteSubscription;
-  final GetPresetsUseCase getPresets;
-
-  const HomeScreen({
-    super.key,
-    required this.watchSubscriptions,
-    required this.addSubscription,
-    required this.getSubscriptionById,
-    required this.updateSubscription,
-    required this.deleteSubscription,
-    required this.getPresets,
-  });
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(homeViewModelProvider);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: const SubbyAppBar(title: '', showBackButton: false),
-      body: StreamBuilder<List<Subscription>>(
-          stream: watchSubscriptions(),
-          builder: (context, snapshot) {
-            final subscriptions = snapshot.data ?? [];
-            final total = _calculateTotal(subscriptions);
+      body: Column(
+        children: [
+          // 상단 헤더
+          _HeaderCard(total: state.totalKrw),
 
-            return Column(
-              children: [
-                // 상단 헤더
-                _HeaderCard(total: total),
-
-                // 구독 목록
-                Expanded(
-                  child: snapshot.connectionState == ConnectionState.waiting
-                      ? const Center(child: CircularProgressIndicator())
-                      : subscriptions.isEmpty
-                          ? const _EmptyState()
-                          : _SubscriptionList(
-                              subscriptions: subscriptions,
-                              onTap: (sub) => _navigateToEdit(context, sub.id),
-                            ),
-                ),
-
-                // 하단 추가 버튼
-                SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () => _navigateToAdd(context),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: colorScheme.secondary,
-                          foregroundColor: colorScheme.onSecondary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          '+ 구독 추가하기',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
+          // 구독 목록
+          Expanded(
+            child: state.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : state.subscriptions.isEmpty
+                    ? const _EmptyState()
+                    : _SubscriptionList(
+                        subscriptions: state.subscriptions,
+                        onTap: (sub) => _navigateToEdit(context, ref, sub.id),
                       ),
+          ),
+
+          // 하단 추가 버튼
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => _navigateToAdd(context, ref),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.secondary,
+                    foregroundColor: colorScheme.onSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  child: const Text(
+                    '+ 구독 추가하기',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ],
-            );
-          },
-        ),
-    );
-  }
-
-  void _navigateToAdd(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubscriptionAddScreen(
-          addSubscription: addSubscription,
-          getPresets: getPresets,
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  void _navigateToEdit(BuildContext context, String id) {
+  void _navigateToAdd(BuildContext context, WidgetRef ref) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SubscriptionEditScreen(
-          subscriptionId: id,
-          getSubscriptionById: getSubscriptionById,
-          updateSubscription: updateSubscription,
-          deleteSubscription: deleteSubscription,
-        ),
+        builder: (context) => const SubscriptionAddScreen(),
       ),
     );
   }
 
-  double _calculateTotal(List<Subscription> subscriptions) {
-    double total = 0;
-    for (final sub in subscriptions) {
-      if (sub.currency == 'KRW') {
-        total += sub.amount;
-      } else {
-        total += sub.amount * 1450;
-      }
-    }
-    return total;
+  void _navigateToEdit(BuildContext context, WidgetRef ref, String id) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubscriptionEditScreen(subscriptionId: id),
+      ),
+    );
   }
 }
 
@@ -158,7 +112,7 @@ class _HeaderCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '₩$formatted',
+            '\u20a9$formatted',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
@@ -253,7 +207,7 @@ class _SubscriptionTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isUsd = subscription.currency == 'USD';
 
-    final currencySymbol = isUsd ? '\$' : '₩';
+    final currencySymbol = isUsd ? '\$' : '\u20a9';
     final formattedAmount = isUsd
         ? subscription.amount.toStringAsFixed(2)
         : _formatKrw(subscription.amount.toInt());
@@ -306,7 +260,7 @@ class _SubscriptionTile extends StatelessWidget {
                   if (krwConverted != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      '≈ ₩${_formatKrw(krwConverted)}',
+                      '\u2248 \u20a9${_formatKrw(krwConverted)}',
                       style: TextStyle(
                         fontSize: 13,
                         color: colorScheme.onSurface.withValues(alpha: 0.6),

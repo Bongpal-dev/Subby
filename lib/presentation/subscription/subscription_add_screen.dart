@@ -1,42 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-import 'package:bongpal/domain/model/subscription.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bongpal/domain/model/subscription_preset.dart';
-import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/get_presets_usecase.dart';
 import 'package:bongpal/presentation/common/subby_app_bar.dart';
+import 'package:bongpal/presentation/subscription/subscription_add_view_model.dart';
 
-class SubscriptionAddScreen extends StatefulWidget {
-  final AddSubscriptionUseCase addSubscription;
-  final GetPresetsUseCase getPresets;
-
-  const SubscriptionAddScreen({
-    super.key,
-    required this.addSubscription,
-    required this.getPresets,
-  });
+class SubscriptionAddScreen extends ConsumerStatefulWidget {
+  const SubscriptionAddScreen({super.key});
 
   @override
-  State<SubscriptionAddScreen> createState() => _SubscriptionAddScreenState();
+  ConsumerState<SubscriptionAddScreen> createState() => _SubscriptionAddScreenState();
 }
 
-class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
+class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _nameController = TextEditingController();
   final _memoController = TextEditingController();
-
-  String _currency = 'KRW';
-  double _amount = 0;
-  int _amountStepKRW = 1000;
-  double _amountStepUSD = 1;
-  int _billingDay = 15;
-  String _period = 'MONTHLY';
-  String? _category;
-
-  // null: 아직 선택 안함, preset: 프리셋 선택됨
-  SubscriptionPreset? _selectedPreset;
-  bool _isServiceSelected = false;
 
   @override
   void dispose() {
@@ -45,266 +23,33 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
     super.dispose();
   }
 
-  void _selectPreset(SubscriptionPreset preset) {
-    final locale = Localizations.localeOf(context);
-    setState(() {
-      _selectedPreset = preset;
-      _isServiceSelected = true;
-      _nameController.text = preset.displayName(locale);
-      _currency = preset.defaultCurrency;
-      _amount = 0;
-      _period = preset.defaultPeriod;
-      _category = _mapPresetCategory(preset.category);
-    });
-  }
-
-  void _selectManualInput() {
-    setState(() {
-      _selectedPreset = null;
-      _isServiceSelected = true;
-      _nameController.clear();
-      _currency = 'KRW';
-      _amount = 0;
-      _period = 'MONTHLY';
-      _category = null;
-    });
-  }
-
-  void _resetSelection() {
-    setState(() {
-      _selectedPreset = null;
-      _isServiceSelected = false;
-      _nameController.clear();
-      _memoController.clear();
-      _currency = 'KRW';
-      _amount = 0;
-      _billingDay = 15;
-      _period = 'MONTHLY';
-      _category = null;
-    });
-  }
-
-  void _changeAmount(int direction) {
-    setState(() {
-      if (_currency == 'KRW') {
-        _amount = (_amount + direction * _amountStepKRW).clamp(0, double.infinity);
-      } else {
-        _amount = ((_amount + direction * _amountStepUSD) * 100).round() / 100;
-        _amount = _amount.clamp(0, double.infinity);
-      }
-    });
-  }
-
-  String _formatAmount() {
-    if (_currency == 'KRW') {
-      return '₩${_amount.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
-    } else {
-      return '\$${_amount.toStringAsFixed(2)}';
-    }
-  }
-
-  void _showAmountInput() {
-    final controller = TextEditingController(
-      text: _amount > 0 ? (_currency == 'KRW' ? _amount.toInt().toString() : _amount.toString()) : '',
-    );
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('금액 입력'),
-        content: TextField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          autofocus: true,
-          decoration: InputDecoration(
-            prefixText: _currency == 'KRW' ? '₩ ' : '\$ ',
-            hintText: _currency == 'KRW' ? '0' : '0.00',
-          ),
-          style: const TextStyle(fontSize: 20),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final value = double.tryParse(controller.text) ?? 0;
-              setState(() {
-                if (_currency == 'KRW') {
-                  _amount = value.roundToDouble();
-                } else {
-                  _amount = (value * 100).round() / 100;
-                }
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('확인'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDayPicker() {
-    int tempDay = _billingDay;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '결제일 선택',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // 날짜 그리드
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 7,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    mainAxisExtent: 44,
-                  ),
-                  itemCount: 31,
-                  itemBuilder: (context, index) {
-                    final day = index + 1;
-                    final isSelected = tempDay == day;
-                    return GestureDetector(
-                      onTap: () => setDialogState(() => tempDay = day),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$day',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                              color: isSelected ? Colors.white : colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                // 선택된 날짜 표시
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '매월 $tempDay일',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // 버튼들
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('취소'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          setState(() => _billingDay = tempDay);
-                          Navigator.pop(context);
-                        },
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('확인'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _mapPresetCategory(PresetCategory category) {
-    switch (category) {
-      case PresetCategory.VIDEO:
-        return '영상';
-      case PresetCategory.MUSIC:
-        return '음악';
-      case PresetCategory.GAME:
-        return '게임';
-      case PresetCategory.AI:
-      case PresetCategory.DEV:
-      case PresetCategory.CLOUD:
-      case PresetCategory.PRODUCTIVITY:
-        return '소프트웨어';
-      case PresetCategory.EDUCATION:
-        return '교육';
-      case PresetCategory.DESIGN:
-        return '디자인';
-      case PresetCategory.FINANCE:
-        return '금융';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(subscriptionAddViewModelProvider);
+    final vm = ref.read(subscriptionAddViewModelProvider.notifier);
+
     return Scaffold(
       appBar: const SubbyAppBar(title: '구독 추가'),
-      body: _isServiceSelected
-          ? _buildForm()
+      body: state.isServiceSelected
+          ? _buildForm(state, vm)
           : _ServicePickerContent(
-              onSelectPreset: _selectPreset,
-              onSelectManual: _selectManualInput,
-              getPresets: widget.getPresets,
+              state: state,
+              vm: vm,
             ),
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(SubscriptionAddState state, SubscriptionAddViewModel vm) {
     final colorScheme = Theme.of(context).colorScheme;
+    final locale = Localizations.localeOf(context);
+
+    // Sync controllers with state
+    if (_nameController.text != state.name) {
+      _nameController.text = state.name;
+    }
+    if (_memoController.text != state.memo) {
+      _memoController.text = state.memo;
+    }
 
     return Form(
       key: _formKey,
@@ -319,18 +64,18 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(
-                      _selectedPreset != null ? Icons.check_circle : Icons.edit,
+                      state.selectedPreset != null ? Icons.check_circle : Icons.edit,
                       color: colorScheme.primary,
                     ),
                     title: Text(
-                      _selectedPreset?.displayName(Localizations.localeOf(context)) ?? '직접 입력',
+                      state.selectedPreset?.displayName(locale) ?? '직접 입력',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    subtitle: _selectedPreset != null
-                        ? Text(_categoryLabel(_selectedPreset!.category))
+                    subtitle: state.selectedPreset != null
+                        ? Text(_categoryLabel(state.selectedPreset!.category))
                         : const Text('서비스 정보를 직접 입력합니다'),
                     trailing: TextButton(
-                      onPressed: _resetSelection,
+                      onPressed: () => vm.resetSelection(),
                       child: const Text('변경'),
                     ),
                   ),
@@ -338,7 +83,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                 const SizedBox(height: 12),
 
                 // 직접 입력인 경우에만 서비스명 입력 가능
-                if (_selectedPreset == null) ...[
+                if (state.selectedPreset == null) ...[
                   _buildCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,6 +98,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                             contentPadding: EdgeInsets.zero,
                           ),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          onChanged: vm.setName,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return '서비스명을 입력해주세요';
@@ -376,14 +122,9 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                       const SizedBox(height: 8),
                       _buildSegmentedButton(
                         options: const ['KRW', 'USD'],
-                        labels: const ['₩ 원화', '\$ 달러'],
-                        selected: _currency,
-                        onChanged: (value) {
-                          setState(() {
-                            _currency = value;
-                            _amount = 0;
-                          });
-                        },
+                        labels: const ['\u20a9 원화', '\$ 달러'],
+                        selected: state.currency,
+                        onChanged: vm.setCurrency,
                       ),
                       const SizedBox(height: 20),
 
@@ -395,14 +136,14 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                           // 마이너스 버튼
                           _buildAmountButton(
                             icon: Icons.remove,
-                            onTap: () => _changeAmount(-1),
+                            onTap: () => vm.changeAmount(-1),
                             isPrimary: false,
                           ),
                           const SizedBox(width: 12),
                           // 금액 표시 (터치하면 직접 입력)
                           Expanded(
                             child: GestureDetector(
-                              onTap: _showAmountInput,
+                              onTap: () => _showAmountInput(state, vm),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 decoration: BoxDecoration(
@@ -411,7 +152,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    _formatAmount(),
+                                    vm.formatAmount(),
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -426,7 +167,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                           // 플러스 버튼
                           _buildAmountButton(
                             icon: Icons.add,
-                            onTap: () => _changeAmount(1),
+                            onTap: () => vm.changeAmount(1),
                             isPrimary: true,
                           ),
                         ],
@@ -434,7 +175,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                       const SizedBox(height: 12),
 
                       // 단위 선택
-                      _buildStepSelector(),
+                      _buildStepSelector(state, vm),
                     ],
                   ),
                 ),
@@ -452,7 +193,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                             _buildLabel('결제일'),
                             const SizedBox(height: 8),
                             GestureDetector(
-                              onTap: _showDayPicker,
+                              onTap: () => _showDayPicker(state, vm),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 decoration: BoxDecoration(
@@ -461,7 +202,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    '매월 $_billingDay일',
+                                    '매월 ${state.billingDay}일',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -485,8 +226,8 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                             _buildSegmentedButton(
                               options: const ['MONTHLY', 'YEARLY'],
                               labels: const ['매월', '매년'],
-                              selected: _period,
-                              onChanged: (value) => setState(() => _period = value),
+                              selected: state.period,
+                              onChanged: vm.setPeriod,
                               compact: true,
                             ),
                           ],
@@ -512,6 +253,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
                           contentPadding: EdgeInsets.zero,
                         ),
                         maxLines: 3,
+                        onChanged: vm.setMemo,
                       ),
                     ],
                   ),
@@ -526,14 +268,20 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             padding: const EdgeInsets.all(16),
             child: SafeArea(
               child: FilledButton(
-                onPressed: _onSave,
+                onPressed: state.isSaving ? null : () => _onSave(vm),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: state.isSaving
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
           ),
@@ -634,12 +382,12 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
     );
   }
 
-  Widget _buildStepSelector() {
+  Widget _buildStepSelector(SubscriptionAddState state, SubscriptionAddViewModel vm) {
     final colorScheme = Theme.of(context).colorScheme;
-    final steps = _currency == 'KRW'
+    final steps = state.currency == 'KRW'
         ? [100, 1000, 10000]
         : [0.1, 1.0, 10.0];
-    final currentStep = _currency == 'KRW' ? _amountStepKRW : _amountStepUSD;
+    final currentStep = state.currency == 'KRW' ? state.amountStepKRW : state.amountStepUSD;
 
     return Container(
       padding: const EdgeInsets.all(4),
@@ -649,23 +397,15 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
       ),
       child: Row(
         children: steps.map((step) {
-          final isSelected = (_currency == 'KRW' && step == currentStep) ||
-              (_currency == 'USD' && step == currentStep);
-          final label = _currency == 'KRW'
-              ? '₩${(step as int).toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}'
+          final isSelected = (state.currency == 'KRW' && step == currentStep) ||
+              (state.currency == 'USD' && step == currentStep);
+          final label = state.currency == 'KRW'
+              ? '\u20a9${(step as int).toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}'
               : '\$${(step as double).toString().replaceAll(RegExp(r'\.0$'), '')}';
 
           return Expanded(
             child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (_currency == 'KRW') {
-                    _amountStepKRW = step as int;
-                  } else {
-                    _amountStepUSD = step as double;
-                  }
-                });
-              },
+              onTap: () => vm.setAmountStep(step),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
@@ -686,6 +426,168 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  void _showAmountInput(SubscriptionAddState state, SubscriptionAddViewModel vm) {
+    final controller = TextEditingController(
+      text: state.amount > 0 ? (state.currency == 'KRW' ? state.amount.toInt().toString() : state.amount.toString()) : '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('금액 입력'),
+        content: TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          autofocus: true,
+          decoration: InputDecoration(
+            prefixText: state.currency == 'KRW' ? '\u20a9 ' : '\$ ',
+            hintText: state.currency == 'KRW' ? '0' : '0.00',
+          ),
+          style: const TextStyle(fontSize: 20),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = double.tryParse(controller.text) ?? 0;
+              if (state.currency == 'KRW') {
+                vm.setAmount(value.roundToDouble());
+              } else {
+                vm.setAmount((value * 100).round() / 100);
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDayPicker(SubscriptionAddState state, SubscriptionAddViewModel vm) {
+    int tempDay = state.billingDay;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '결제일 선택',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // 날짜 그리드
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    mainAxisExtent: 44,
+                  ),
+                  itemCount: 31,
+                  itemBuilder: (context, index) {
+                    final day = index + 1;
+                    final isSelected = tempDay == day;
+                    return GestureDetector(
+                      onTap: () => setDialogState(() => tempDay = day),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$day',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected ? Colors.white : colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                // 선택된 날짜 표시
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '매월 $tempDay일',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // 버튼들
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('취소'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          vm.setBillingDay(tempDay);
+                          Navigator.pop(context);
+                        },
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('확인'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -715,60 +617,38 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
     }
   }
 
-  Future<void> _onSave() async {
+  Future<void> _onSave(SubscriptionAddViewModel vm) async {
     if (_formKey.currentState!.validate()) {
-      if (_amount <= 0) {
+      if (ref.read(subscriptionAddViewModelProvider).amount <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('금액을 입력해주세요')),
         );
         return;
       }
 
-      final subscription = Subscription(
-        id: const Uuid().v4(),
-        name: _nameController.text,
-        amount: _amount,
-        currency: _currency,
-        billingDay: _billingDay,
-        period: _period,
-        category: _category,
-        memo: _memoController.text.isEmpty ? null : _memoController.text,
-        createdAt: DateTime.now(),
-      );
-
-      await widget.addSubscription(subscription);
-      if (mounted) Navigator.pop(context);
+      final success = await vm.save();
+      if (success && mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 }
 
-class _ServicePickerContent extends StatefulWidget {
-  final void Function(SubscriptionPreset) onSelectPreset;
-  final VoidCallback onSelectManual;
-  final GetPresetsUseCase getPresets;
+class _ServicePickerContent extends ConsumerStatefulWidget {
+  final SubscriptionAddState state;
+  final SubscriptionAddViewModel vm;
 
   const _ServicePickerContent({
-    required this.onSelectPreset,
-    required this.onSelectManual,
-    required this.getPresets,
+    required this.state,
+    required this.vm,
   });
 
   @override
-  State<_ServicePickerContent> createState() => _ServicePickerContentState();
+  ConsumerState<_ServicePickerContent> createState() => _ServicePickerContentState();
 }
 
-class _ServicePickerContentState extends State<_ServicePickerContent> {
+class _ServicePickerContentState extends ConsumerState<_ServicePickerContent> {
   final _searchController = TextEditingController();
-  PresetCategory? _selectedCategory;
-  List<SubscriptionPreset> _allPresets = [];
-  List<SubscriptionPreset> _filteredPresets = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPresets();
-  }
 
   @override
   void dispose() {
@@ -776,45 +656,10 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
     super.dispose();
   }
 
-  Future<void> _loadPresets() async {
-    final presets = await widget.getPresets();
-    if (mounted) {
-      setState(() {
-        _allPresets = presets;
-        _isLoading = false;
-      });
-      _filterAndSort();
-    }
-  }
-
-  void _filterAndSort() {
-    if (_allPresets.isEmpty) return;
-
-    final query = _searchController.text.toLowerCase();
-    final locale = Localizations.localeOf(context);
-
-    var filtered = _allPresets.where((preset) {
-      final matchesCategory =
-          _selectedCategory == null || preset.category == _selectedCategory;
-      final matchesQuery = query.isEmpty ||
-          preset.displayName(locale).toLowerCase().contains(query) ||
-          preset.displayNameKo.toLowerCase().contains(query) ||
-          (preset.displayNameEn?.toLowerCase().contains(query) ?? false) ||
-          preset.aliases.any((a) => a.toLowerCase().contains(query));
-      return matchesCategory && matchesQuery;
-    }).toList();
-
-    // 정렬: 현재 로케일 기준 이름으로
-    filtered.sort((a, b) => a.displayName(locale).compareTo(b.displayName(locale)));
-
-    setState(() {
-      _filteredPresets = filtered;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final locale = Localizations.localeOf(context);
 
     return Column(
       children: [
@@ -831,12 +676,12 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
                       icon: const Icon(Icons.clear),
                       onPressed: () {
                         _searchController.clear();
-                        _filterAndSort();
+                        widget.vm.filterPresets('', locale);
                       },
                     )
                   : null,
             ),
-            onChanged: (_) => _filterAndSort(),
+            onChanged: (value) => widget.vm.filterPresets(value, locale),
           ),
         ),
 
@@ -849,19 +694,13 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
             children: [
               _CategoryChip(
                 label: '전체',
-                selected: _selectedCategory == null,
-                onTap: () {
-                  setState(() => _selectedCategory = null);
-                  _filterAndSort();
-                },
+                selected: widget.state.selectedCategory == null,
+                onTap: () => widget.vm.selectCategory(null, locale),
               ),
               ...PresetCategory.values.map((cat) => _CategoryChip(
                     label: _categoryLabel(cat),
-                    selected: _selectedCategory == cat,
-                    onTap: () {
-                      setState(() => _selectedCategory = cat);
-                      _filterAndSort();
-                    },
+                    selected: widget.state.selectedCategory == cat,
+                    onTap: () => widget.vm.selectCategory(cat, locale),
                   )),
             ],
           ),
@@ -882,16 +721,16 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
                 color: colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
-            onTap: widget.onSelectManual,
+            onTap: () => widget.vm.selectManualInput(),
           ),
         ),
         const SizedBox(height: 12),
 
         // 결과 목록
         Expanded(
-          child: _isLoading
+          child: widget.state.isLoadingPresets
               ? const Center(child: CircularProgressIndicator())
-              : _filteredPresets.isEmpty
+              : widget.state.filteredPresets.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -904,21 +743,20 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
                           ),
                           const SizedBox(height: 8),
                           TextButton(
-                            onPressed: widget.onSelectManual,
+                            onPressed: () => widget.vm.selectManualInput(),
                             child: const Text('직접 입력하기'),
                           ),
                         ],
                       ),
                     )
                   : ListView.builder(
-                      itemCount: _filteredPresets.length,
+                      itemCount: widget.state.filteredPresets.length,
                       itemBuilder: (context, index) {
-                        final preset = _filteredPresets[index];
-                        final locale = Localizations.localeOf(context);
+                        final preset = widget.state.filteredPresets[index];
                         return ListTile(
                           title: Text(preset.displayName(locale)),
                           subtitle: Text(
-                            '${_categoryLabel(preset.category)} · ${preset.defaultCurrency}',
+                            '${_categoryLabel(preset.category)} \u00b7 ${preset.defaultCurrency}',
                             style: TextStyle(
                               fontSize: 12,
                               color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -928,7 +766,7 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
                             Icons.add_circle_outline,
                             color: colorScheme.primary,
                           ),
-                          onTap: () => widget.onSelectPreset(preset),
+                          onTap: () => widget.vm.selectPreset(preset, locale),
                         );
                       },
                     ),

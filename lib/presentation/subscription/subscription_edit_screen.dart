@@ -1,262 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:bongpal/domain/model/subscription.dart';
-import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
-import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bongpal/presentation/common/subby_app_bar.dart';
+import 'package:bongpal/presentation/subscription/subscription_edit_view_model.dart';
 
-class SubscriptionEditScreen extends StatefulWidget {
+class SubscriptionEditScreen extends ConsumerStatefulWidget {
   final String subscriptionId;
-  final GetSubscriptionByIdUseCase getSubscriptionById;
-  final UpdateSubscriptionUseCase updateSubscription;
-  final DeleteSubscriptionUseCase deleteSubscription;
 
   const SubscriptionEditScreen({
     super.key,
     required this.subscriptionId,
-    required this.getSubscriptionById,
-    required this.updateSubscription,
-    required this.deleteSubscription,
   });
 
   @override
-  State<SubscriptionEditScreen> createState() => _SubscriptionEditScreenState();
+  ConsumerState<SubscriptionEditScreen> createState() => _SubscriptionEditScreenState();
 }
 
-class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
+class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  final _nameController = TextEditingController();
   final _memoController = TextEditingController();
-
-  String _currency = 'KRW';
-  double _amount = 0;
-  int _amountStepKRW = 1000;
-  double _amountStepUSD = 1;
-  int _billingDay = 15;
-  String _period = 'MONTHLY';
-  String? _category;
-  DateTime _createdAt = DateTime.now();
-
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSubscription();
-  }
-
-  Future<void> _loadSubscription() async {
-    final subscription = await widget.getSubscriptionById(widget.subscriptionId);
-    if (subscription != null && mounted) {
-      setState(() {
-        _nameController.text = subscription.name;
-        _amount = subscription.amount;
-        _currency = subscription.currency;
-        _billingDay = subscription.billingDay;
-        _period = subscription.period;
-        _category = subscription.category;
-        _memoController.text = subscription.memo ?? '';
-        _createdAt = subscription.createdAt;
-        _isLoading = false;
-      });
-    }
-  }
 
   @override
   void dispose() {
-    _nameController.dispose();
     _memoController.dispose();
     super.dispose();
   }
 
-  void _changeAmount(int direction) {
-    setState(() {
-      if (_currency == 'KRW') {
-        _amount = (_amount + direction * _amountStepKRW).clamp(0, double.infinity);
-      } else {
-        _amount = ((_amount + direction * _amountStepUSD) * 100).round() / 100;
-        _amount = _amount.clamp(0, double.infinity);
-      }
-    });
-  }
-
-  String _formatAmount() {
-    if (_currency == 'KRW') {
-      return '₩${_amount.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
-    } else {
-      return '\$${_amount.toStringAsFixed(2)}';
-    }
-  }
-
-  void _showAmountInput() {
-    final controller = TextEditingController(
-      text: _amount > 0 ? (_currency == 'KRW' ? _amount.toInt().toString() : _amount.toString()) : '',
-    );
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('금액 입력'),
-        content: TextField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          autofocus: true,
-          decoration: InputDecoration(
-            prefixText: _currency == 'KRW' ? '₩ ' : '\$ ',
-            hintText: _currency == 'KRW' ? '0' : '0.00',
-          ),
-          style: const TextStyle(fontSize: 20),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final value = double.tryParse(controller.text) ?? 0;
-              setState(() {
-                if (_currency == 'KRW') {
-                  _amount = value.roundToDouble();
-                } else {
-                  _amount = (value * 100).round() / 100;
-                }
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('확인'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDayPicker() {
-    int tempDay = _billingDay;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '결제일 선택',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 7,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    mainAxisExtent: 44,
-                  ),
-                  itemCount: 31,
-                  itemBuilder: (context, index) {
-                    final day = index + 1;
-                    final isSelected = tempDay == day;
-                    return GestureDetector(
-                      onTap: () => setDialogState(() => tempDay = day),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$day',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                              color: isSelected ? Colors.white : colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '매월 $tempDay일',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('취소'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          setState(() => _billingDay = tempDay);
-                          Navigator.pop(context);
-                        },
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('확인'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    final state = ref.watch(subscriptionEditViewModelProvider(widget.subscriptionId));
+    final vm = ref.read(subscriptionEditViewModelProvider(widget.subscriptionId).notifier);
+
+    if (state.isLoading) {
       return Scaffold(
         appBar: const SubbyAppBar(title: '구독 수정'),
         body: const Center(child: CircularProgressIndicator()),
       );
+    }
+
+    // Sync memo controller
+    if (_memoController.text != state.memo) {
+      _memoController.text = state.memo;
     }
 
     final colorScheme = Theme.of(context).colorScheme;
@@ -267,7 +50,7 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            onPressed: _onDelete,
+            onPressed: () => _onDelete(vm),
           ),
         ],
       ),
@@ -286,7 +69,7 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                         Icon(Icons.subscriptions_outlined, color: colorScheme.primary),
                         const SizedBox(width: 12),
                         Text(
-                          _nameController.text,
+                          state.name,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                         ),
                       ],
@@ -303,14 +86,9 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                         const SizedBox(height: 8),
                         _buildSegmentedButton(
                           options: const ['KRW', 'USD'],
-                          labels: const ['₩ 원화', '\$ 달러'],
-                          selected: _currency,
-                          onChanged: (value) {
-                            setState(() {
-                              _currency = value;
-                              _amount = 0;
-                            });
-                          },
+                          labels: const ['\u20a9 원화', '\$ 달러'],
+                          selected: state.currency,
+                          onChanged: vm.setCurrency,
                         ),
                         const SizedBox(height: 20),
 
@@ -320,13 +98,13 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                           children: [
                             _buildAmountButton(
                               icon: Icons.remove,
-                              onTap: () => _changeAmount(-1),
+                              onTap: () => vm.changeAmount(-1),
                               isPrimary: false,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: GestureDetector(
-                                onTap: _showAmountInput,
+                                onTap: () => _showAmountInput(state, vm),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 16),
                                   decoration: BoxDecoration(
@@ -335,7 +113,7 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      _formatAmount(),
+                                      vm.formatAmount(),
                                       style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold,
@@ -349,13 +127,13 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                             const SizedBox(width: 12),
                             _buildAmountButton(
                               icon: Icons.add,
-                              onTap: () => _changeAmount(1),
+                              onTap: () => vm.changeAmount(1),
                               isPrimary: true,
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _buildStepSelector(),
+                        _buildStepSelector(state, vm),
                       ],
                     ),
                   ),
@@ -372,7 +150,7 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                               _buildLabel('결제일'),
                               const SizedBox(height: 8),
                               GestureDetector(
-                                onTap: _showDayPicker,
+                                onTap: () => _showDayPicker(state, vm),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   decoration: BoxDecoration(
@@ -381,7 +159,7 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      '매월 $_billingDay일',
+                                      '매월 ${state.billingDay}일',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -404,8 +182,8 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                               _buildSegmentedButton(
                                 options: const ['MONTHLY', 'YEARLY'],
                                 labels: const ['매월', '매년'],
-                                selected: _period,
-                                onChanged: (value) => setState(() => _period = value),
+                                selected: state.period,
+                                onChanged: vm.setPeriod,
                                 compact: true,
                               ),
                             ],
@@ -431,6 +209,7 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
                             contentPadding: EdgeInsets.zero,
                           ),
                           maxLines: 3,
+                          onChanged: vm.setMemo,
                         ),
                       ],
                     ),
@@ -445,14 +224,20 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
               padding: const EdgeInsets.all(16),
               child: SafeArea(
                 child: FilledButton(
-                  onPressed: _onSave,
+                  onPressed: state.isSaving ? null : () => _onSave(state, vm),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size.fromHeight(56),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: state.isSaving
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),
@@ -554,12 +339,12 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
     );
   }
 
-  Widget _buildStepSelector() {
+  Widget _buildStepSelector(SubscriptionEditState state, SubscriptionEditViewModel vm) {
     final colorScheme = Theme.of(context).colorScheme;
-    final steps = _currency == 'KRW'
+    final steps = state.currency == 'KRW'
         ? [100, 1000, 10000]
         : [0.1, 1.0, 10.0];
-    final currentStep = _currency == 'KRW' ? _amountStepKRW : _amountStepUSD;
+    final currentStep = state.currency == 'KRW' ? state.amountStepKRW : state.amountStepUSD;
 
     return Container(
       padding: const EdgeInsets.all(4),
@@ -569,23 +354,15 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
       ),
       child: Row(
         children: steps.map((step) {
-          final isSelected = (_currency == 'KRW' && step == currentStep) ||
-              (_currency == 'USD' && step == currentStep);
-          final label = _currency == 'KRW'
-              ? '₩${(step as int).toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}'
+          final isSelected = (state.currency == 'KRW' && step == currentStep) ||
+              (state.currency == 'USD' && step == currentStep);
+          final label = state.currency == 'KRW'
+              ? '\u20a9${(step as int).toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}'
               : '\$${(step as double).toString().replaceAll(RegExp(r'\.0$'), '')}';
 
           return Expanded(
             child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (_currency == 'KRW') {
-                    _amountStepKRW = step as int;
-                  } else {
-                    _amountStepUSD = step as double;
-                  }
-                });
-              },
+              onTap: () => vm.setAmountStep(step),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
@@ -610,48 +387,197 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
     );
   }
 
-  Future<void> _onSave() async {
+  void _showAmountInput(SubscriptionEditState state, SubscriptionEditViewModel vm) {
+    final controller = TextEditingController(
+      text: state.amount > 0 ? (state.currency == 'KRW' ? state.amount.toInt().toString() : state.amount.toString()) : '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('금액 입력'),
+        content: TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          autofocus: true,
+          decoration: InputDecoration(
+            prefixText: state.currency == 'KRW' ? '\u20a9 ' : '\$ ',
+            hintText: state.currency == 'KRW' ? '0' : '0.00',
+          ),
+          style: const TextStyle(fontSize: 20),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = double.tryParse(controller.text) ?? 0;
+              if (state.currency == 'KRW') {
+                vm.setAmount(value.roundToDouble());
+              } else {
+                vm.setAmount((value * 100).round() / 100);
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDayPicker(SubscriptionEditState state, SubscriptionEditViewModel vm) {
+    int tempDay = state.billingDay;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '결제일 선택',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    mainAxisExtent: 44,
+                  ),
+                  itemCount: 31,
+                  itemBuilder: (context, index) {
+                    final day = index + 1;
+                    final isSelected = tempDay == day;
+                    return GestureDetector(
+                      onTap: () => setDialogState(() => tempDay = day),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$day',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected ? Colors.white : colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '매월 $tempDay일',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('취소'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          vm.setBillingDay(tempDay);
+                          Navigator.pop(context);
+                        },
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('확인'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onSave(SubscriptionEditState state, SubscriptionEditViewModel vm) async {
     if (_formKey.currentState!.validate()) {
-      if (_amount <= 0) {
+      if (state.amount <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('금액을 입력해주세요')),
         );
         return;
       }
 
-      final subscription = Subscription(
-        id: widget.subscriptionId,
-        name: _nameController.text,
-        amount: _amount,
-        currency: _currency,
-        billingDay: _billingDay,
-        period: _period,
-        category: _category,
-        memo: _memoController.text.isEmpty ? null : _memoController.text,
-        createdAt: _createdAt,
-      );
-
-      await widget.updateSubscription(subscription);
-      if (mounted) Navigator.pop(context);
+      final success = await vm.save();
+      if (success && mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
-  void _onDelete() {
+  void _onDelete(SubscriptionEditViewModel vm) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('구독 삭제'),
         content: const Text('이 구독을 삭제하시겠습니까?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('취소'),
           ),
           TextButton(
             onPressed: () async {
-              await widget.deleteSubscription(widget.subscriptionId);
-              if (mounted) {
-                Navigator.pop(context);
+              final success = await vm.delete();
+              if (success && mounted) {
+                Navigator.pop(dialogContext);
                 Navigator.pop(context);
               }
             },
