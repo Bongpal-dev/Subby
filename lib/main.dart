@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bongpal/core/theme/app_theme.dart';
 import 'package:bongpal/data/database/database.dart';
 import 'package:bongpal/data/repository/subscription_repository_impl.dart';
 import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
@@ -47,10 +48,9 @@ class SubbyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Subby',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1ABC9C)),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
       home: HomeScreen(
         watchSubscriptions: watchSubscriptions,
         addSubscription: addSubscription,

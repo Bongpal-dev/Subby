@@ -5,6 +5,7 @@ import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
 import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
 import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
 import 'package:bongpal/domain/usecase/watch_subscriptions_usecase.dart';
+import 'package:bongpal/presentation/common/subby_app_bar.dart';
 import 'package:bongpal/presentation/subscription/subscription_add_screen.dart';
 import 'package:bongpal/presentation/subscription/subscription_edit_screen.dart';
 
@@ -26,53 +27,62 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('이번 달 고정비', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              StreamBuilder<List<Subscription>>(
-                stream: watchSubscriptions(),
-                builder: (context, snapshot) {
-                  final subscriptions = snapshot.data ?? [];
-                  final total = _calculateTotal(subscriptions);
-                  return _SummaryCard(total: total);
-                },
-              ),
-              const SizedBox(height: 16),
-              const Text('구독 목록', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              Expanded(
-                child: StreamBuilder<List<Subscription>>(
-                  stream: watchSubscriptions(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    final subscriptions = snapshot.data ?? [];
-                    if (subscriptions.isEmpty) {
-                      return const _EmptyState();
-                    }
-                    return _SubscriptionList(
-                      subscriptions: subscriptions,
-                      onTap: (sub) => _navigateToEdit(context, sub.id),
-                    );
-                  },
+      appBar: const SubbyAppBar(title: ''),
+      body: StreamBuilder<List<Subscription>>(
+          stream: watchSubscriptions(),
+          builder: (context, snapshot) {
+            final subscriptions = snapshot.data ?? [];
+            final total = _calculateTotal(subscriptions);
+
+            return Column(
+              children: [
+                // 상단 헤더
+                _HeaderCard(total: total),
+
+                // 구독 목록
+                Expanded(
+                  child: snapshot.connectionState == ConnectionState.waiting
+                      ? const Center(child: CircularProgressIndicator())
+                      : subscriptions.isEmpty
+                          ? const _EmptyState()
+                          : _SubscriptionList(
+                              subscriptions: subscriptions,
+                              onTap: (sub) => _navigateToEdit(context, sub.id),
+                            ),
                 ),
-              ),
-            ],
-          ),
+
+                // 하단 추가 버튼
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () => _navigateToAdd(context),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colorScheme.secondary,
+                          foregroundColor: colorScheme.onSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          '+ 구독 추가하기',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToAdd(context),
-        label: const Text('구독 추가'),
-        icon: const Icon(Icons.add),
-      ),
     );
   }
 
@@ -114,29 +124,52 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _SummaryCard extends StatelessWidget {
+class _HeaderCard extends StatelessWidget {
   final double total;
 
-  const _SummaryCard({required this.total});
+  const _HeaderCard({required this.total});
 
   @override
   Widget build(BuildContext context) {
-    final formatted = total.toInt().toString().replaceAllMapped(
-          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]},',
-        );
+    final colorScheme = Theme.of(context).colorScheme;
+    final formatted = _formatKrw(total.toInt());
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('예상 합계'),
-            Text('₩ $formatted', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      decoration: BoxDecoration(
+        color: colorScheme.primary,
+        borderRadius: BorderRadius.circular(16),
       ),
+      child: Column(
+        children: [
+          const Text(
+            '이번 달 구독료',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '₩$formatted',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatKrw(int value) {
+    return value.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]},',
     );
   }
 }
@@ -146,10 +179,35 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Center(
-      child: Text(
-        '아직 등록된 구독이 없습니다.\n오른쪽 아래에서 추가해 주세요.',
-        textAlign: TextAlign.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.subscriptions_outlined,
+            size: 64,
+            color: colorScheme.primary.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '아직 등록된 구독이 없습니다',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '아래 버튼을 눌러 첫 구독을 추가해보세요!',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -167,6 +225,7 @@ class _SubscriptionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: subscriptions.length,
       itemBuilder: (context, index) {
         final sub = subscriptions[index];
@@ -187,24 +246,82 @@ class _SubscriptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencySymbol = subscription.currency == 'USD' ? '\$' : '₩';
-    final formattedAmount = subscription.currency == 'USD'
+    final colorScheme = Theme.of(context).colorScheme;
+    final isUsd = subscription.currency == 'USD';
+
+    final currencySymbol = isUsd ? '\$' : '₩';
+    final formattedAmount = isUsd
         ? subscription.amount.toStringAsFixed(2)
-        : subscription.amount.toInt().toString().replaceAllMapped(
-              RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-              (m) => '${m[1]},',
-            );
+        : _formatKrw(subscription.amount.toInt());
+
+    final krwConverted = isUsd ? (subscription.amount * 1450).toInt() : null;
 
     return Card(
-      child: ListTile(
-        title: Text(subscription.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text('매월 ${subscription.billingDay}일 결제'),
-        trailing: Text(
-          '$currencySymbol$formattedAmount',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      subscription.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '매월 ${subscription.billingDay}일 결제',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '$currencySymbol$formattedAmount',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                  if (krwConverted != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      '≈ ₩${_formatKrw(krwConverted)}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  String _formatKrw(int value) {
+    return value.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]},',
     );
   }
 }
