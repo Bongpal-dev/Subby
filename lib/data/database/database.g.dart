@@ -1,0 +1,2286 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'database.dart';
+
+// ignore_for_file: type=lint
+class $SubscriptionsTable extends Subscriptions
+    with TableInfo<$SubscriptionsTable, Subscription> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SubscriptionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _billingDayMeta = const VerificationMeta(
+    'billingDay',
+  );
+  @override
+  late final GeneratedColumn<int> billingDay = GeneratedColumn<int>(
+    'billing_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _periodMeta = const VerificationMeta('period');
+  @override
+  late final GeneratedColumn<String> period = GeneratedColumn<String>(
+    'period',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _memoMeta = const VerificationMeta('memo');
+  @override
+  late final GeneratedColumn<String> memo = GeneratedColumn<String>(
+    'memo',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _feeRatePercentMeta = const VerificationMeta(
+    'feeRatePercent',
+  );
+  @override
+  late final GeneratedColumn<double> feeRatePercent = GeneratedColumn<double>(
+    'fee_rate_percent',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    amount,
+    currency,
+    billingDay,
+    period,
+    category,
+    memo,
+    feeRatePercent,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'subscriptions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Subscription> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    if (data.containsKey('billing_day')) {
+      context.handle(
+        _billingDayMeta,
+        billingDay.isAcceptableOrUnknown(data['billing_day']!, _billingDayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_billingDayMeta);
+    }
+    if (data.containsKey('period')) {
+      context.handle(
+        _periodMeta,
+        period.isAcceptableOrUnknown(data['period']!, _periodMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_periodMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    }
+    if (data.containsKey('memo')) {
+      context.handle(
+        _memoMeta,
+        memo.isAcceptableOrUnknown(data['memo']!, _memoMeta),
+      );
+    }
+    if (data.containsKey('fee_rate_percent')) {
+      context.handle(
+        _feeRatePercentMeta,
+        feeRatePercent.isAcceptableOrUnknown(
+          data['fee_rate_percent']!,
+          _feeRatePercentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Subscription map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Subscription(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      billingDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}billing_day'],
+      )!,
+      period: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}period'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      ),
+      memo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}memo'],
+      ),
+      feeRatePercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fee_rate_percent'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SubscriptionsTable createAlias(String alias) {
+    return $SubscriptionsTable(attachedDatabase, alias);
+  }
+}
+
+class Subscription extends DataClass implements Insertable<Subscription> {
+  final String id;
+  final String name;
+  final double amount;
+  final String currency;
+  final int billingDay;
+  final String period;
+  final String? category;
+  final String? memo;
+  final double? feeRatePercent;
+  final DateTime createdAt;
+  const Subscription({
+    required this.id,
+    required this.name,
+    required this.amount,
+    required this.currency,
+    required this.billingDay,
+    required this.period,
+    this.category,
+    this.memo,
+    this.feeRatePercent,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['amount'] = Variable<double>(amount);
+    map['currency'] = Variable<String>(currency);
+    map['billing_day'] = Variable<int>(billingDay);
+    map['period'] = Variable<String>(period);
+    if (!nullToAbsent || category != null) {
+      map['category'] = Variable<String>(category);
+    }
+    if (!nullToAbsent || memo != null) {
+      map['memo'] = Variable<String>(memo);
+    }
+    if (!nullToAbsent || feeRatePercent != null) {
+      map['fee_rate_percent'] = Variable<double>(feeRatePercent);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  SubscriptionsCompanion toCompanion(bool nullToAbsent) {
+    return SubscriptionsCompanion(
+      id: Value(id),
+      name: Value(name),
+      amount: Value(amount),
+      currency: Value(currency),
+      billingDay: Value(billingDay),
+      period: Value(period),
+      category: category == null && nullToAbsent
+          ? const Value.absent()
+          : Value(category),
+      memo: memo == null && nullToAbsent ? const Value.absent() : Value(memo),
+      feeRatePercent: feeRatePercent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feeRatePercent),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Subscription.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Subscription(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      amount: serializer.fromJson<double>(json['amount']),
+      currency: serializer.fromJson<String>(json['currency']),
+      billingDay: serializer.fromJson<int>(json['billingDay']),
+      period: serializer.fromJson<String>(json['period']),
+      category: serializer.fromJson<String?>(json['category']),
+      memo: serializer.fromJson<String?>(json['memo']),
+      feeRatePercent: serializer.fromJson<double?>(json['feeRatePercent']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'amount': serializer.toJson<double>(amount),
+      'currency': serializer.toJson<String>(currency),
+      'billingDay': serializer.toJson<int>(billingDay),
+      'period': serializer.toJson<String>(period),
+      'category': serializer.toJson<String?>(category),
+      'memo': serializer.toJson<String?>(memo),
+      'feeRatePercent': serializer.toJson<double?>(feeRatePercent),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  Subscription copyWith({
+    String? id,
+    String? name,
+    double? amount,
+    String? currency,
+    int? billingDay,
+    String? period,
+    Value<String?> category = const Value.absent(),
+    Value<String?> memo = const Value.absent(),
+    Value<double?> feeRatePercent = const Value.absent(),
+    DateTime? createdAt,
+  }) => Subscription(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    amount: amount ?? this.amount,
+    currency: currency ?? this.currency,
+    billingDay: billingDay ?? this.billingDay,
+    period: period ?? this.period,
+    category: category.present ? category.value : this.category,
+    memo: memo.present ? memo.value : this.memo,
+    feeRatePercent: feeRatePercent.present
+        ? feeRatePercent.value
+        : this.feeRatePercent,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  Subscription copyWithCompanion(SubscriptionsCompanion data) {
+    return Subscription(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      billingDay: data.billingDay.present
+          ? data.billingDay.value
+          : this.billingDay,
+      period: data.period.present ? data.period.value : this.period,
+      category: data.category.present ? data.category.value : this.category,
+      memo: data.memo.present ? data.memo.value : this.memo,
+      feeRatePercent: data.feeRatePercent.present
+          ? data.feeRatePercent.value
+          : this.feeRatePercent,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Subscription(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
+          ..write('billingDay: $billingDay, ')
+          ..write('period: $period, ')
+          ..write('category: $category, ')
+          ..write('memo: $memo, ')
+          ..write('feeRatePercent: $feeRatePercent, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    amount,
+    currency,
+    billingDay,
+    period,
+    category,
+    memo,
+    feeRatePercent,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Subscription &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.amount == this.amount &&
+          other.currency == this.currency &&
+          other.billingDay == this.billingDay &&
+          other.period == this.period &&
+          other.category == this.category &&
+          other.memo == this.memo &&
+          other.feeRatePercent == this.feeRatePercent &&
+          other.createdAt == this.createdAt);
+}
+
+class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<double> amount;
+  final Value<String> currency;
+  final Value<int> billingDay;
+  final Value<String> period;
+  final Value<String?> category;
+  final Value<String?> memo;
+  final Value<double?> feeRatePercent;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const SubscriptionsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.billingDay = const Value.absent(),
+    this.period = const Value.absent(),
+    this.category = const Value.absent(),
+    this.memo = const Value.absent(),
+    this.feeRatePercent = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SubscriptionsCompanion.insert({
+    required String id,
+    required String name,
+    required double amount,
+    required String currency,
+    required int billingDay,
+    required String period,
+    this.category = const Value.absent(),
+    this.memo = const Value.absent(),
+    this.feeRatePercent = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       amount = Value(amount),
+       currency = Value(currency),
+       billingDay = Value(billingDay),
+       period = Value(period),
+       createdAt = Value(createdAt);
+  static Insertable<Subscription> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<double>? amount,
+    Expression<String>? currency,
+    Expression<int>? billingDay,
+    Expression<String>? period,
+    Expression<String>? category,
+    Expression<String>? memo,
+    Expression<double>? feeRatePercent,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (amount != null) 'amount': amount,
+      if (currency != null) 'currency': currency,
+      if (billingDay != null) 'billing_day': billingDay,
+      if (period != null) 'period': period,
+      if (category != null) 'category': category,
+      if (memo != null) 'memo': memo,
+      if (feeRatePercent != null) 'fee_rate_percent': feeRatePercent,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SubscriptionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<double>? amount,
+    Value<String>? currency,
+    Value<int>? billingDay,
+    Value<String>? period,
+    Value<String?>? category,
+    Value<String?>? memo,
+    Value<double?>? feeRatePercent,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return SubscriptionsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      amount: amount ?? this.amount,
+      currency: currency ?? this.currency,
+      billingDay: billingDay ?? this.billingDay,
+      period: period ?? this.period,
+      category: category ?? this.category,
+      memo: memo ?? this.memo,
+      feeRatePercent: feeRatePercent ?? this.feeRatePercent,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (billingDay.present) {
+      map['billing_day'] = Variable<int>(billingDay.value);
+    }
+    if (period.present) {
+      map['period'] = Variable<String>(period.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (memo.present) {
+      map['memo'] = Variable<String>(memo.value);
+    }
+    if (feeRatePercent.present) {
+      map['fee_rate_percent'] = Variable<double>(feeRatePercent.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubscriptionsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
+          ..write('billingDay: $billingDay, ')
+          ..write('period: $period, ')
+          ..write('category: $category, ')
+          ..write('memo: $memo, ')
+          ..write('feeRatePercent: $feeRatePercent, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FxRatesDailyTable extends FxRatesDaily
+    with TableInfo<$FxRatesDailyTable, FxRatesDailyData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FxRatesDailyTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateKeyMeta = const VerificationMeta(
+    'dateKey',
+  );
+  @override
+  late final GeneratedColumn<String> dateKey = GeneratedColumn<String>(
+    'date_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _usdToKrwMeta = const VerificationMeta(
+    'usdToKrw',
+  );
+  @override
+  late final GeneratedColumn<double> usdToKrw = GeneratedColumn<double>(
+    'usd_to_krw',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [dateKey, usdToKrw, fetchedAt, source];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fx_rates_daily';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FxRatesDailyData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date_key')) {
+      context.handle(
+        _dateKeyMeta,
+        dateKey.isAcceptableOrUnknown(data['date_key']!, _dateKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateKeyMeta);
+    }
+    if (data.containsKey('usd_to_krw')) {
+      context.handle(
+        _usdToKrwMeta,
+        usdToKrw.isAcceptableOrUnknown(data['usd_to_krw']!, _usdToKrwMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_usdToKrwMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dateKey};
+  @override
+  FxRatesDailyData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FxRatesDailyData(
+      dateKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date_key'],
+      )!,
+      usdToKrw: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}usd_to_krw'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+    );
+  }
+
+  @override
+  $FxRatesDailyTable createAlias(String alias) {
+    return $FxRatesDailyTable(attachedDatabase, alias);
+  }
+}
+
+class FxRatesDailyData extends DataClass
+    implements Insertable<FxRatesDailyData> {
+  final String dateKey;
+  final double usdToKrw;
+  final DateTime fetchedAt;
+  final String source;
+  const FxRatesDailyData({
+    required this.dateKey,
+    required this.usdToKrw,
+    required this.fetchedAt,
+    required this.source,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date_key'] = Variable<String>(dateKey);
+    map['usd_to_krw'] = Variable<double>(usdToKrw);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    map['source'] = Variable<String>(source);
+    return map;
+  }
+
+  FxRatesDailyCompanion toCompanion(bool nullToAbsent) {
+    return FxRatesDailyCompanion(
+      dateKey: Value(dateKey),
+      usdToKrw: Value(usdToKrw),
+      fetchedAt: Value(fetchedAt),
+      source: Value(source),
+    );
+  }
+
+  factory FxRatesDailyData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FxRatesDailyData(
+      dateKey: serializer.fromJson<String>(json['dateKey']),
+      usdToKrw: serializer.fromJson<double>(json['usdToKrw']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+      source: serializer.fromJson<String>(json['source']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dateKey': serializer.toJson<String>(dateKey),
+      'usdToKrw': serializer.toJson<double>(usdToKrw),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+      'source': serializer.toJson<String>(source),
+    };
+  }
+
+  FxRatesDailyData copyWith({
+    String? dateKey,
+    double? usdToKrw,
+    DateTime? fetchedAt,
+    String? source,
+  }) => FxRatesDailyData(
+    dateKey: dateKey ?? this.dateKey,
+    usdToKrw: usdToKrw ?? this.usdToKrw,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    source: source ?? this.source,
+  );
+  FxRatesDailyData copyWithCompanion(FxRatesDailyCompanion data) {
+    return FxRatesDailyData(
+      dateKey: data.dateKey.present ? data.dateKey.value : this.dateKey,
+      usdToKrw: data.usdToKrw.present ? data.usdToKrw.value : this.usdToKrw,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      source: data.source.present ? data.source.value : this.source,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FxRatesDailyData(')
+          ..write('dateKey: $dateKey, ')
+          ..write('usdToKrw: $usdToKrw, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(dateKey, usdToKrw, fetchedAt, source);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FxRatesDailyData &&
+          other.dateKey == this.dateKey &&
+          other.usdToKrw == this.usdToKrw &&
+          other.fetchedAt == this.fetchedAt &&
+          other.source == this.source);
+}
+
+class FxRatesDailyCompanion extends UpdateCompanion<FxRatesDailyData> {
+  final Value<String> dateKey;
+  final Value<double> usdToKrw;
+  final Value<DateTime> fetchedAt;
+  final Value<String> source;
+  final Value<int> rowid;
+  const FxRatesDailyCompanion({
+    this.dateKey = const Value.absent(),
+    this.usdToKrw = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.source = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FxRatesDailyCompanion.insert({
+    required String dateKey,
+    required double usdToKrw,
+    required DateTime fetchedAt,
+    required String source,
+    this.rowid = const Value.absent(),
+  }) : dateKey = Value(dateKey),
+       usdToKrw = Value(usdToKrw),
+       fetchedAt = Value(fetchedAt),
+       source = Value(source);
+  static Insertable<FxRatesDailyData> custom({
+    Expression<String>? dateKey,
+    Expression<double>? usdToKrw,
+    Expression<DateTime>? fetchedAt,
+    Expression<String>? source,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (dateKey != null) 'date_key': dateKey,
+      if (usdToKrw != null) 'usd_to_krw': usdToKrw,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (source != null) 'source': source,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FxRatesDailyCompanion copyWith({
+    Value<String>? dateKey,
+    Value<double>? usdToKrw,
+    Value<DateTime>? fetchedAt,
+    Value<String>? source,
+    Value<int>? rowid,
+  }) {
+    return FxRatesDailyCompanion(
+      dateKey: dateKey ?? this.dateKey,
+      usdToKrw: usdToKrw ?? this.usdToKrw,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      source: source ?? this.source,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dateKey.present) {
+      map['date_key'] = Variable<String>(dateKey.value);
+    }
+    if (usdToKrw.present) {
+      map['usd_to_krw'] = Variable<double>(usdToKrw.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FxRatesDailyCompanion(')
+          ..write('dateKey: $dateKey, ')
+          ..write('usdToKrw: $usdToKrw, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('source: $source, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PaymentLogsTable extends PaymentLogs
+    with TableInfo<$PaymentLogsTable, PaymentLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PaymentLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subscriptionIdMeta = const VerificationMeta(
+    'subscriptionId',
+  );
+  @override
+  late final GeneratedColumn<String> subscriptionId = GeneratedColumn<String>(
+    'subscription_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cycleKeyMeta = const VerificationMeta(
+    'cycleKey',
+  );
+  @override
+  late final GeneratedColumn<String> cycleKey = GeneratedColumn<String>(
+    'cycle_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _paidAtMeta = const VerificationMeta('paidAt');
+  @override
+  late final GeneratedColumn<DateTime> paidAt = GeneratedColumn<DateTime>(
+    'paid_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _usdAmountMeta = const VerificationMeta(
+    'usdAmount',
+  );
+  @override
+  late final GeneratedColumn<double> usdAmount = GeneratedColumn<double>(
+    'usd_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fxRateAppliedMeta = const VerificationMeta(
+    'fxRateApplied',
+  );
+  @override
+  late final GeneratedColumn<double> fxRateApplied = GeneratedColumn<double>(
+    'fx_rate_applied',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _krwFinalMeta = const VerificationMeta(
+    'krwFinal',
+  );
+  @override
+  late final GeneratedColumn<double> krwFinal = GeneratedColumn<double>(
+    'krw_final',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _memoMeta = const VerificationMeta('memo');
+  @override
+  late final GeneratedColumn<String> memo = GeneratedColumn<String>(
+    'memo',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    subscriptionId,
+    cycleKey,
+    paidAt,
+    usdAmount,
+    fxRateApplied,
+    krwFinal,
+    memo,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'payment_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PaymentLog> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('subscription_id')) {
+      context.handle(
+        _subscriptionIdMeta,
+        subscriptionId.isAcceptableOrUnknown(
+          data['subscription_id']!,
+          _subscriptionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subscriptionIdMeta);
+    }
+    if (data.containsKey('cycle_key')) {
+      context.handle(
+        _cycleKeyMeta,
+        cycleKey.isAcceptableOrUnknown(data['cycle_key']!, _cycleKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cycleKeyMeta);
+    }
+    if (data.containsKey('paid_at')) {
+      context.handle(
+        _paidAtMeta,
+        paidAt.isAcceptableOrUnknown(data['paid_at']!, _paidAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_paidAtMeta);
+    }
+    if (data.containsKey('usd_amount')) {
+      context.handle(
+        _usdAmountMeta,
+        usdAmount.isAcceptableOrUnknown(data['usd_amount']!, _usdAmountMeta),
+      );
+    }
+    if (data.containsKey('fx_rate_applied')) {
+      context.handle(
+        _fxRateAppliedMeta,
+        fxRateApplied.isAcceptableOrUnknown(
+          data['fx_rate_applied']!,
+          _fxRateAppliedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('krw_final')) {
+      context.handle(
+        _krwFinalMeta,
+        krwFinal.isAcceptableOrUnknown(data['krw_final']!, _krwFinalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_krwFinalMeta);
+    }
+    if (data.containsKey('memo')) {
+      context.handle(
+        _memoMeta,
+        memo.isAcceptableOrUnknown(data['memo']!, _memoMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PaymentLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PaymentLog(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      subscriptionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subscription_id'],
+      )!,
+      cycleKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cycle_key'],
+      )!,
+      paidAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}paid_at'],
+      )!,
+      usdAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}usd_amount'],
+      ),
+      fxRateApplied: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fx_rate_applied'],
+      ),
+      krwFinal: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}krw_final'],
+      )!,
+      memo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}memo'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PaymentLogsTable createAlias(String alias) {
+    return $PaymentLogsTable(attachedDatabase, alias);
+  }
+}
+
+class PaymentLog extends DataClass implements Insertable<PaymentLog> {
+  final String id;
+  final String subscriptionId;
+  final String cycleKey;
+  final DateTime paidAt;
+  final double? usdAmount;
+  final double? fxRateApplied;
+  final double krwFinal;
+  final String? memo;
+  final DateTime createdAt;
+  const PaymentLog({
+    required this.id,
+    required this.subscriptionId,
+    required this.cycleKey,
+    required this.paidAt,
+    this.usdAmount,
+    this.fxRateApplied,
+    required this.krwFinal,
+    this.memo,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['subscription_id'] = Variable<String>(subscriptionId);
+    map['cycle_key'] = Variable<String>(cycleKey);
+    map['paid_at'] = Variable<DateTime>(paidAt);
+    if (!nullToAbsent || usdAmount != null) {
+      map['usd_amount'] = Variable<double>(usdAmount);
+    }
+    if (!nullToAbsent || fxRateApplied != null) {
+      map['fx_rate_applied'] = Variable<double>(fxRateApplied);
+    }
+    map['krw_final'] = Variable<double>(krwFinal);
+    if (!nullToAbsent || memo != null) {
+      map['memo'] = Variable<String>(memo);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PaymentLogsCompanion toCompanion(bool nullToAbsent) {
+    return PaymentLogsCompanion(
+      id: Value(id),
+      subscriptionId: Value(subscriptionId),
+      cycleKey: Value(cycleKey),
+      paidAt: Value(paidAt),
+      usdAmount: usdAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(usdAmount),
+      fxRateApplied: fxRateApplied == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fxRateApplied),
+      krwFinal: Value(krwFinal),
+      memo: memo == null && nullToAbsent ? const Value.absent() : Value(memo),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PaymentLog.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PaymentLog(
+      id: serializer.fromJson<String>(json['id']),
+      subscriptionId: serializer.fromJson<String>(json['subscriptionId']),
+      cycleKey: serializer.fromJson<String>(json['cycleKey']),
+      paidAt: serializer.fromJson<DateTime>(json['paidAt']),
+      usdAmount: serializer.fromJson<double?>(json['usdAmount']),
+      fxRateApplied: serializer.fromJson<double?>(json['fxRateApplied']),
+      krwFinal: serializer.fromJson<double>(json['krwFinal']),
+      memo: serializer.fromJson<String?>(json['memo']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'subscriptionId': serializer.toJson<String>(subscriptionId),
+      'cycleKey': serializer.toJson<String>(cycleKey),
+      'paidAt': serializer.toJson<DateTime>(paidAt),
+      'usdAmount': serializer.toJson<double?>(usdAmount),
+      'fxRateApplied': serializer.toJson<double?>(fxRateApplied),
+      'krwFinal': serializer.toJson<double>(krwFinal),
+      'memo': serializer.toJson<String?>(memo),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PaymentLog copyWith({
+    String? id,
+    String? subscriptionId,
+    String? cycleKey,
+    DateTime? paidAt,
+    Value<double?> usdAmount = const Value.absent(),
+    Value<double?> fxRateApplied = const Value.absent(),
+    double? krwFinal,
+    Value<String?> memo = const Value.absent(),
+    DateTime? createdAt,
+  }) => PaymentLog(
+    id: id ?? this.id,
+    subscriptionId: subscriptionId ?? this.subscriptionId,
+    cycleKey: cycleKey ?? this.cycleKey,
+    paidAt: paidAt ?? this.paidAt,
+    usdAmount: usdAmount.present ? usdAmount.value : this.usdAmount,
+    fxRateApplied: fxRateApplied.present
+        ? fxRateApplied.value
+        : this.fxRateApplied,
+    krwFinal: krwFinal ?? this.krwFinal,
+    memo: memo.present ? memo.value : this.memo,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PaymentLog copyWithCompanion(PaymentLogsCompanion data) {
+    return PaymentLog(
+      id: data.id.present ? data.id.value : this.id,
+      subscriptionId: data.subscriptionId.present
+          ? data.subscriptionId.value
+          : this.subscriptionId,
+      cycleKey: data.cycleKey.present ? data.cycleKey.value : this.cycleKey,
+      paidAt: data.paidAt.present ? data.paidAt.value : this.paidAt,
+      usdAmount: data.usdAmount.present ? data.usdAmount.value : this.usdAmount,
+      fxRateApplied: data.fxRateApplied.present
+          ? data.fxRateApplied.value
+          : this.fxRateApplied,
+      krwFinal: data.krwFinal.present ? data.krwFinal.value : this.krwFinal,
+      memo: data.memo.present ? data.memo.value : this.memo,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaymentLog(')
+          ..write('id: $id, ')
+          ..write('subscriptionId: $subscriptionId, ')
+          ..write('cycleKey: $cycleKey, ')
+          ..write('paidAt: $paidAt, ')
+          ..write('usdAmount: $usdAmount, ')
+          ..write('fxRateApplied: $fxRateApplied, ')
+          ..write('krwFinal: $krwFinal, ')
+          ..write('memo: $memo, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    subscriptionId,
+    cycleKey,
+    paidAt,
+    usdAmount,
+    fxRateApplied,
+    krwFinal,
+    memo,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PaymentLog &&
+          other.id == this.id &&
+          other.subscriptionId == this.subscriptionId &&
+          other.cycleKey == this.cycleKey &&
+          other.paidAt == this.paidAt &&
+          other.usdAmount == this.usdAmount &&
+          other.fxRateApplied == this.fxRateApplied &&
+          other.krwFinal == this.krwFinal &&
+          other.memo == this.memo &&
+          other.createdAt == this.createdAt);
+}
+
+class PaymentLogsCompanion extends UpdateCompanion<PaymentLog> {
+  final Value<String> id;
+  final Value<String> subscriptionId;
+  final Value<String> cycleKey;
+  final Value<DateTime> paidAt;
+  final Value<double?> usdAmount;
+  final Value<double?> fxRateApplied;
+  final Value<double> krwFinal;
+  final Value<String?> memo;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const PaymentLogsCompanion({
+    this.id = const Value.absent(),
+    this.subscriptionId = const Value.absent(),
+    this.cycleKey = const Value.absent(),
+    this.paidAt = const Value.absent(),
+    this.usdAmount = const Value.absent(),
+    this.fxRateApplied = const Value.absent(),
+    this.krwFinal = const Value.absent(),
+    this.memo = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PaymentLogsCompanion.insert({
+    required String id,
+    required String subscriptionId,
+    required String cycleKey,
+    required DateTime paidAt,
+    this.usdAmount = const Value.absent(),
+    this.fxRateApplied = const Value.absent(),
+    required double krwFinal,
+    this.memo = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       subscriptionId = Value(subscriptionId),
+       cycleKey = Value(cycleKey),
+       paidAt = Value(paidAt),
+       krwFinal = Value(krwFinal),
+       createdAt = Value(createdAt);
+  static Insertable<PaymentLog> custom({
+    Expression<String>? id,
+    Expression<String>? subscriptionId,
+    Expression<String>? cycleKey,
+    Expression<DateTime>? paidAt,
+    Expression<double>? usdAmount,
+    Expression<double>? fxRateApplied,
+    Expression<double>? krwFinal,
+    Expression<String>? memo,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (subscriptionId != null) 'subscription_id': subscriptionId,
+      if (cycleKey != null) 'cycle_key': cycleKey,
+      if (paidAt != null) 'paid_at': paidAt,
+      if (usdAmount != null) 'usd_amount': usdAmount,
+      if (fxRateApplied != null) 'fx_rate_applied': fxRateApplied,
+      if (krwFinal != null) 'krw_final': krwFinal,
+      if (memo != null) 'memo': memo,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PaymentLogsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? subscriptionId,
+    Value<String>? cycleKey,
+    Value<DateTime>? paidAt,
+    Value<double?>? usdAmount,
+    Value<double?>? fxRateApplied,
+    Value<double>? krwFinal,
+    Value<String?>? memo,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return PaymentLogsCompanion(
+      id: id ?? this.id,
+      subscriptionId: subscriptionId ?? this.subscriptionId,
+      cycleKey: cycleKey ?? this.cycleKey,
+      paidAt: paidAt ?? this.paidAt,
+      usdAmount: usdAmount ?? this.usdAmount,
+      fxRateApplied: fxRateApplied ?? this.fxRateApplied,
+      krwFinal: krwFinal ?? this.krwFinal,
+      memo: memo ?? this.memo,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (subscriptionId.present) {
+      map['subscription_id'] = Variable<String>(subscriptionId.value);
+    }
+    if (cycleKey.present) {
+      map['cycle_key'] = Variable<String>(cycleKey.value);
+    }
+    if (paidAt.present) {
+      map['paid_at'] = Variable<DateTime>(paidAt.value);
+    }
+    if (usdAmount.present) {
+      map['usd_amount'] = Variable<double>(usdAmount.value);
+    }
+    if (fxRateApplied.present) {
+      map['fx_rate_applied'] = Variable<double>(fxRateApplied.value);
+    }
+    if (krwFinal.present) {
+      map['krw_final'] = Variable<double>(krwFinal.value);
+    }
+    if (memo.present) {
+      map['memo'] = Variable<String>(memo.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaymentLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('subscriptionId: $subscriptionId, ')
+          ..write('cycleKey: $cycleKey, ')
+          ..write('paidAt: $paidAt, ')
+          ..write('usdAmount: $usdAmount, ')
+          ..write('fxRateApplied: $fxRateApplied, ')
+          ..write('krwFinal: $krwFinal, ')
+          ..write('memo: $memo, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+abstract class _$AppDatabase extends GeneratedDatabase {
+  _$AppDatabase(QueryExecutor e) : super(e);
+  $AppDatabaseManager get managers => $AppDatabaseManager(this);
+  late final $SubscriptionsTable subscriptions = $SubscriptionsTable(this);
+  late final $FxRatesDailyTable fxRatesDaily = $FxRatesDailyTable(this);
+  late final $PaymentLogsTable paymentLogs = $PaymentLogsTable(this);
+  @override
+  Iterable<TableInfo<Table, Object?>> get allTables =>
+      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  @override
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    subscriptions,
+    fxRatesDaily,
+    paymentLogs,
+  ];
+}
+
+typedef $$SubscriptionsTableCreateCompanionBuilder =
+    SubscriptionsCompanion Function({
+      required String id,
+      required String name,
+      required double amount,
+      required String currency,
+      required int billingDay,
+      required String period,
+      Value<String?> category,
+      Value<String?> memo,
+      Value<double?> feeRatePercent,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$SubscriptionsTableUpdateCompanionBuilder =
+    SubscriptionsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<double> amount,
+      Value<String> currency,
+      Value<int> billingDay,
+      Value<String> period,
+      Value<String?> category,
+      Value<String?> memo,
+      Value<double?> feeRatePercent,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$SubscriptionsTableFilterComposer
+    extends Composer<_$AppDatabase, $SubscriptionsTable> {
+  $$SubscriptionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get billingDay => $composableBuilder(
+    column: $table.billingDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get memo => $composableBuilder(
+    column: $table.memo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get feeRatePercent => $composableBuilder(
+    column: $table.feeRatePercent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SubscriptionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SubscriptionsTable> {
+  $$SubscriptionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get billingDay => $composableBuilder(
+    column: $table.billingDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get memo => $composableBuilder(
+    column: $table.memo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get feeRatePercent => $composableBuilder(
+    column: $table.feeRatePercent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SubscriptionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SubscriptionsTable> {
+  $$SubscriptionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<int> get billingDay => $composableBuilder(
+    column: $table.billingDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get memo =>
+      $composableBuilder(column: $table.memo, builder: (column) => column);
+
+  GeneratedColumn<double> get feeRatePercent => $composableBuilder(
+    column: $table.feeRatePercent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SubscriptionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SubscriptionsTable,
+          Subscription,
+          $$SubscriptionsTableFilterComposer,
+          $$SubscriptionsTableOrderingComposer,
+          $$SubscriptionsTableAnnotationComposer,
+          $$SubscriptionsTableCreateCompanionBuilder,
+          $$SubscriptionsTableUpdateCompanionBuilder,
+          (
+            Subscription,
+            BaseReferences<_$AppDatabase, $SubscriptionsTable, Subscription>,
+          ),
+          Subscription,
+          PrefetchHooks Function()
+        > {
+  $$SubscriptionsTableTableManager(_$AppDatabase db, $SubscriptionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SubscriptionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SubscriptionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SubscriptionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+                Value<String> currency = const Value.absent(),
+                Value<int> billingDay = const Value.absent(),
+                Value<String> period = const Value.absent(),
+                Value<String?> category = const Value.absent(),
+                Value<String?> memo = const Value.absent(),
+                Value<double?> feeRatePercent = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SubscriptionsCompanion(
+                id: id,
+                name: name,
+                amount: amount,
+                currency: currency,
+                billingDay: billingDay,
+                period: period,
+                category: category,
+                memo: memo,
+                feeRatePercent: feeRatePercent,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required double amount,
+                required String currency,
+                required int billingDay,
+                required String period,
+                Value<String?> category = const Value.absent(),
+                Value<String?> memo = const Value.absent(),
+                Value<double?> feeRatePercent = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SubscriptionsCompanion.insert(
+                id: id,
+                name: name,
+                amount: amount,
+                currency: currency,
+                billingDay: billingDay,
+                period: period,
+                category: category,
+                memo: memo,
+                feeRatePercent: feeRatePercent,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SubscriptionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SubscriptionsTable,
+      Subscription,
+      $$SubscriptionsTableFilterComposer,
+      $$SubscriptionsTableOrderingComposer,
+      $$SubscriptionsTableAnnotationComposer,
+      $$SubscriptionsTableCreateCompanionBuilder,
+      $$SubscriptionsTableUpdateCompanionBuilder,
+      (
+        Subscription,
+        BaseReferences<_$AppDatabase, $SubscriptionsTable, Subscription>,
+      ),
+      Subscription,
+      PrefetchHooks Function()
+    >;
+typedef $$FxRatesDailyTableCreateCompanionBuilder =
+    FxRatesDailyCompanion Function({
+      required String dateKey,
+      required double usdToKrw,
+      required DateTime fetchedAt,
+      required String source,
+      Value<int> rowid,
+    });
+typedef $$FxRatesDailyTableUpdateCompanionBuilder =
+    FxRatesDailyCompanion Function({
+      Value<String> dateKey,
+      Value<double> usdToKrw,
+      Value<DateTime> fetchedAt,
+      Value<String> source,
+      Value<int> rowid,
+    });
+
+class $$FxRatesDailyTableFilterComposer
+    extends Composer<_$AppDatabase, $FxRatesDailyTable> {
+  $$FxRatesDailyTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get dateKey => $composableBuilder(
+    column: $table.dateKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get usdToKrw => $composableBuilder(
+    column: $table.usdToKrw,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FxRatesDailyTableOrderingComposer
+    extends Composer<_$AppDatabase, $FxRatesDailyTable> {
+  $$FxRatesDailyTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get dateKey => $composableBuilder(
+    column: $table.dateKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get usdToKrw => $composableBuilder(
+    column: $table.usdToKrw,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FxRatesDailyTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FxRatesDailyTable> {
+  $$FxRatesDailyTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get dateKey =>
+      $composableBuilder(column: $table.dateKey, builder: (column) => column);
+
+  GeneratedColumn<double> get usdToKrw =>
+      $composableBuilder(column: $table.usdToKrw, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+}
+
+class $$FxRatesDailyTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FxRatesDailyTable,
+          FxRatesDailyData,
+          $$FxRatesDailyTableFilterComposer,
+          $$FxRatesDailyTableOrderingComposer,
+          $$FxRatesDailyTableAnnotationComposer,
+          $$FxRatesDailyTableCreateCompanionBuilder,
+          $$FxRatesDailyTableUpdateCompanionBuilder,
+          (
+            FxRatesDailyData,
+            BaseReferences<_$AppDatabase, $FxRatesDailyTable, FxRatesDailyData>,
+          ),
+          FxRatesDailyData,
+          PrefetchHooks Function()
+        > {
+  $$FxRatesDailyTableTableManager(_$AppDatabase db, $FxRatesDailyTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FxRatesDailyTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FxRatesDailyTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FxRatesDailyTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> dateKey = const Value.absent(),
+                Value<double> usdToKrw = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FxRatesDailyCompanion(
+                dateKey: dateKey,
+                usdToKrw: usdToKrw,
+                fetchedAt: fetchedAt,
+                source: source,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String dateKey,
+                required double usdToKrw,
+                required DateTime fetchedAt,
+                required String source,
+                Value<int> rowid = const Value.absent(),
+              }) => FxRatesDailyCompanion.insert(
+                dateKey: dateKey,
+                usdToKrw: usdToKrw,
+                fetchedAt: fetchedAt,
+                source: source,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FxRatesDailyTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FxRatesDailyTable,
+      FxRatesDailyData,
+      $$FxRatesDailyTableFilterComposer,
+      $$FxRatesDailyTableOrderingComposer,
+      $$FxRatesDailyTableAnnotationComposer,
+      $$FxRatesDailyTableCreateCompanionBuilder,
+      $$FxRatesDailyTableUpdateCompanionBuilder,
+      (
+        FxRatesDailyData,
+        BaseReferences<_$AppDatabase, $FxRatesDailyTable, FxRatesDailyData>,
+      ),
+      FxRatesDailyData,
+      PrefetchHooks Function()
+    >;
+typedef $$PaymentLogsTableCreateCompanionBuilder =
+    PaymentLogsCompanion Function({
+      required String id,
+      required String subscriptionId,
+      required String cycleKey,
+      required DateTime paidAt,
+      Value<double?> usdAmount,
+      Value<double?> fxRateApplied,
+      required double krwFinal,
+      Value<String?> memo,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$PaymentLogsTableUpdateCompanionBuilder =
+    PaymentLogsCompanion Function({
+      Value<String> id,
+      Value<String> subscriptionId,
+      Value<String> cycleKey,
+      Value<DateTime> paidAt,
+      Value<double?> usdAmount,
+      Value<double?> fxRateApplied,
+      Value<double> krwFinal,
+      Value<String?> memo,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$PaymentLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $PaymentLogsTable> {
+  $$PaymentLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subscriptionId => $composableBuilder(
+    column: $table.subscriptionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cycleKey => $composableBuilder(
+    column: $table.cycleKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get paidAt => $composableBuilder(
+    column: $table.paidAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get usdAmount => $composableBuilder(
+    column: $table.usdAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fxRateApplied => $composableBuilder(
+    column: $table.fxRateApplied,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get krwFinal => $composableBuilder(
+    column: $table.krwFinal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get memo => $composableBuilder(
+    column: $table.memo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PaymentLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PaymentLogsTable> {
+  $$PaymentLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subscriptionId => $composableBuilder(
+    column: $table.subscriptionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cycleKey => $composableBuilder(
+    column: $table.cycleKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get paidAt => $composableBuilder(
+    column: $table.paidAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get usdAmount => $composableBuilder(
+    column: $table.usdAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fxRateApplied => $composableBuilder(
+    column: $table.fxRateApplied,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get krwFinal => $composableBuilder(
+    column: $table.krwFinal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get memo => $composableBuilder(
+    column: $table.memo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PaymentLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PaymentLogsTable> {
+  $$PaymentLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get subscriptionId => $composableBuilder(
+    column: $table.subscriptionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cycleKey =>
+      $composableBuilder(column: $table.cycleKey, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get paidAt =>
+      $composableBuilder(column: $table.paidAt, builder: (column) => column);
+
+  GeneratedColumn<double> get usdAmount =>
+      $composableBuilder(column: $table.usdAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get fxRateApplied => $composableBuilder(
+    column: $table.fxRateApplied,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get krwFinal =>
+      $composableBuilder(column: $table.krwFinal, builder: (column) => column);
+
+  GeneratedColumn<String> get memo =>
+      $composableBuilder(column: $table.memo, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$PaymentLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PaymentLogsTable,
+          PaymentLog,
+          $$PaymentLogsTableFilterComposer,
+          $$PaymentLogsTableOrderingComposer,
+          $$PaymentLogsTableAnnotationComposer,
+          $$PaymentLogsTableCreateCompanionBuilder,
+          $$PaymentLogsTableUpdateCompanionBuilder,
+          (
+            PaymentLog,
+            BaseReferences<_$AppDatabase, $PaymentLogsTable, PaymentLog>,
+          ),
+          PaymentLog,
+          PrefetchHooks Function()
+        > {
+  $$PaymentLogsTableTableManager(_$AppDatabase db, $PaymentLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PaymentLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PaymentLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PaymentLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> subscriptionId = const Value.absent(),
+                Value<String> cycleKey = const Value.absent(),
+                Value<DateTime> paidAt = const Value.absent(),
+                Value<double?> usdAmount = const Value.absent(),
+                Value<double?> fxRateApplied = const Value.absent(),
+                Value<double> krwFinal = const Value.absent(),
+                Value<String?> memo = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PaymentLogsCompanion(
+                id: id,
+                subscriptionId: subscriptionId,
+                cycleKey: cycleKey,
+                paidAt: paidAt,
+                usdAmount: usdAmount,
+                fxRateApplied: fxRateApplied,
+                krwFinal: krwFinal,
+                memo: memo,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String subscriptionId,
+                required String cycleKey,
+                required DateTime paidAt,
+                Value<double?> usdAmount = const Value.absent(),
+                Value<double?> fxRateApplied = const Value.absent(),
+                required double krwFinal,
+                Value<String?> memo = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PaymentLogsCompanion.insert(
+                id: id,
+                subscriptionId: subscriptionId,
+                cycleKey: cycleKey,
+                paidAt: paidAt,
+                usdAmount: usdAmount,
+                fxRateApplied: fxRateApplied,
+                krwFinal: krwFinal,
+                memo: memo,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PaymentLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PaymentLogsTable,
+      PaymentLog,
+      $$PaymentLogsTableFilterComposer,
+      $$PaymentLogsTableOrderingComposer,
+      $$PaymentLogsTableAnnotationComposer,
+      $$PaymentLogsTableCreateCompanionBuilder,
+      $$PaymentLogsTableUpdateCompanionBuilder,
+      (
+        PaymentLog,
+        BaseReferences<_$AppDatabase, $PaymentLogsTable, PaymentLog>,
+      ),
+      PaymentLog,
+      PrefetchHooks Function()
+    >;
+
+class $AppDatabaseManager {
+  final _$AppDatabase _db;
+  $AppDatabaseManager(this._db);
+  $$SubscriptionsTableTableManager get subscriptions =>
+      $$SubscriptionsTableTableManager(_db, _db.subscriptions);
+  $$FxRatesDailyTableTableManager get fxRatesDaily =>
+      $$FxRatesDailyTableTableManager(_db, _db.fxRatesDaily);
+  $$PaymentLogsTableTableManager get paymentLogs =>
+      $$PaymentLogsTableTableManager(_db, _db.paymentLogs);
+}
