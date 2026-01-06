@@ -3,13 +3,18 @@ import 'package:uuid/uuid.dart';
 import 'package:bongpal/domain/model/subscription.dart';
 import 'package:bongpal/domain/model/subscription_preset.dart';
 import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
-import 'package:bongpal/data/preset/subscription_presets.dart';
+import 'package:bongpal/domain/usecase/get_presets_usecase.dart';
 import 'package:bongpal/presentation/common/subby_app_bar.dart';
 
 class SubscriptionAddScreen extends StatefulWidget {
   final AddSubscriptionUseCase addSubscription;
+  final GetPresetsUseCase getPresets;
 
-  const SubscriptionAddScreen({super.key, required this.addSubscription});
+  const SubscriptionAddScreen({
+    super.key,
+    required this.addSubscription,
+    required this.getPresets,
+  });
 
   @override
   State<SubscriptionAddScreen> createState() => _SubscriptionAddScreenState();
@@ -293,6 +298,7 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
           : _ServicePickerContent(
               onSelectPreset: _selectPreset,
               onSelectManual: _selectManualInput,
+              getPresets: widget.getPresets,
             ),
     );
   }
@@ -739,10 +745,12 @@ class _SubscriptionAddScreenState extends State<SubscriptionAddScreen> {
 class _ServicePickerContent extends StatefulWidget {
   final void Function(SubscriptionPreset) onSelectPreset;
   final VoidCallback onSelectManual;
+  final GetPresetsUseCase getPresets;
 
   const _ServicePickerContent({
     required this.onSelectPreset,
     required this.onSelectManual,
+    required this.getPresets,
   });
 
   @override
@@ -752,17 +760,14 @@ class _ServicePickerContent extends StatefulWidget {
 class _ServicePickerContentState extends State<_ServicePickerContent> {
   final _searchController = TextEditingController();
   PresetCategory? _selectedCategory;
+  List<SubscriptionPreset> _allPresets = [];
   List<SubscriptionPreset> _filteredPresets = [];
-
-  bool _initialized = false;
+  bool _isLoading = true;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      _initialized = true;
-      _filterAndSort();
-    }
+  void initState() {
+    super.initState();
+    _loadPresets();
   }
 
   @override
@@ -771,11 +776,24 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
     super.dispose();
   }
 
+  Future<void> _loadPresets() async {
+    final presets = await widget.getPresets();
+    if (mounted) {
+      setState(() {
+        _allPresets = presets;
+        _isLoading = false;
+      });
+      _filterAndSort();
+    }
+  }
+
   void _filterAndSort() {
+    if (_allPresets.isEmpty) return;
+
     final query = _searchController.text.toLowerCase();
     final locale = Localizations.localeOf(context);
 
-    var filtered = subscriptionPresets.where((preset) {
+    var filtered = _allPresets.where((preset) {
       final matchesCategory =
           _selectedCategory == null || preset.category == _selectedCategory;
       final matchesQuery = query.isEmpty ||
@@ -871,47 +889,49 @@ class _ServicePickerContentState extends State<_ServicePickerContent> {
 
         // 결과 목록
         Expanded(
-          child: _filteredPresets.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '검색 결과가 없습니다',
-                        style: TextStyle(
-                          color: colorScheme.onSurface.withValues(alpha: 0.5),
-                        ),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _filteredPresets.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '검색 결과가 없습니다',
+                            style: TextStyle(
+                              color: colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: widget.onSelectManual,
+                            child: const Text('직접 입력하기'),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: widget.onSelectManual,
-                        child: const Text('직접 입력하기'),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: _filteredPresets.length,
-                  itemBuilder: (context, index) {
-                    final preset = _filteredPresets[index];
-                    final locale = Localizations.localeOf(context);
-                    return ListTile(
-                      title: Text(preset.displayName(locale)),
-                      subtitle: Text(
-                        '${_categoryLabel(preset.category)} · ${preset.defaultCurrency}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.add_circle_outline,
-                        color: colorScheme.primary,
-                      ),
-                      onTap: () => widget.onSelectPreset(preset),
-                    );
-                  },
-                ),
+                    )
+                  : ListView.builder(
+                      itemCount: _filteredPresets.length,
+                      itemBuilder: (context, index) {
+                        final preset = _filteredPresets[index];
+                        final locale = Localizations.localeOf(context);
+                        return ListTile(
+                          title: Text(preset.displayName(locale)),
+                          subtitle: Text(
+                            '${_categoryLabel(preset.category)} · ${preset.defaultCurrency}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          trailing: Icon(
+                            Icons.add_circle_outline,
+                            color: colorScheme.primary,
+                          ),
+                          onTap: () => widget.onSelectPreset(preset),
+                        );
+                      },
+                    ),
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bongpal/domain/model/subscription.dart';
 import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
 import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
+import 'package:bongpal/domain/usecase/get_presets_usecase.dart';
 import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
 import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
 import 'package:bongpal/domain/usecase/watch_subscriptions_usecase.dart';
@@ -15,6 +16,7 @@ class HomeScreen extends StatelessWidget {
   final GetSubscriptionByIdUseCase getSubscriptionById;
   final UpdateSubscriptionUseCase updateSubscription;
   final DeleteSubscriptionUseCase deleteSubscription;
+  final GetPresetsUseCase getPresets;
 
   const HomeScreen({
     super.key,
@@ -23,6 +25,7 @@ class HomeScreen extends StatelessWidget {
     required this.getSubscriptionById,
     required this.updateSubscription,
     required this.deleteSubscription,
+    required this.getPresets,
   });
 
   @override
@@ -92,6 +95,7 @@ class HomeScreen extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => SubscriptionAddScreen(
           addSubscription: addSubscription,
+          getPresets: getPresets,
         ),
       ),
     );

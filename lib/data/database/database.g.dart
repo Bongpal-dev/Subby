@@ -927,6 +927,594 @@ class FxRatesDailyCompanion extends UpdateCompanion<FxRatesDailyData> {
   }
 }
 
+class $PresetCacheTable extends PresetCache
+    with TableInfo<$PresetCacheTable, PresetCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PresetCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _brandKeyMeta = const VerificationMeta(
+    'brandKey',
+  );
+  @override
+  late final GeneratedColumn<String> brandKey = GeneratedColumn<String>(
+    'brand_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayNameKoMeta = const VerificationMeta(
+    'displayNameKo',
+  );
+  @override
+  late final GeneratedColumn<String> displayNameKo = GeneratedColumn<String>(
+    'display_name_ko',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayNameEnMeta = const VerificationMeta(
+    'displayNameEn',
+  );
+  @override
+  late final GeneratedColumn<String> displayNameEn = GeneratedColumn<String>(
+    'display_name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _defaultCurrencyMeta = const VerificationMeta(
+    'defaultCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> defaultCurrency = GeneratedColumn<String>(
+    'default_currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _defaultPeriodMeta = const VerificationMeta(
+    'defaultPeriod',
+  );
+  @override
+  late final GeneratedColumn<String> defaultPeriod = GeneratedColumn<String>(
+    'default_period',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _aliasesMeta = const VerificationMeta(
+    'aliases',
+  );
+  @override
+  late final GeneratedColumn<String> aliases = GeneratedColumn<String>(
+    'aliases',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    brandKey,
+    displayNameKo,
+    displayNameEn,
+    category,
+    defaultCurrency,
+    defaultPeriod,
+    aliases,
+    notes,
+    cachedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'preset_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PresetCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('brand_key')) {
+      context.handle(
+        _brandKeyMeta,
+        brandKey.isAcceptableOrUnknown(data['brand_key']!, _brandKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_brandKeyMeta);
+    }
+    if (data.containsKey('display_name_ko')) {
+      context.handle(
+        _displayNameKoMeta,
+        displayNameKo.isAcceptableOrUnknown(
+          data['display_name_ko']!,
+          _displayNameKoMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayNameKoMeta);
+    }
+    if (data.containsKey('display_name_en')) {
+      context.handle(
+        _displayNameEnMeta,
+        displayNameEn.isAcceptableOrUnknown(
+          data['display_name_en']!,
+          _displayNameEnMeta,
+        ),
+      );
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('default_currency')) {
+      context.handle(
+        _defaultCurrencyMeta,
+        defaultCurrency.isAcceptableOrUnknown(
+          data['default_currency']!,
+          _defaultCurrencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_defaultCurrencyMeta);
+    }
+    if (data.containsKey('default_period')) {
+      context.handle(
+        _defaultPeriodMeta,
+        defaultPeriod.isAcceptableOrUnknown(
+          data['default_period']!,
+          _defaultPeriodMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_defaultPeriodMeta);
+    }
+    if (data.containsKey('aliases')) {
+      context.handle(
+        _aliasesMeta,
+        aliases.isAcceptableOrUnknown(data['aliases']!, _aliasesMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {brandKey};
+  @override
+  PresetCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PresetCacheData(
+      brandKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand_key'],
+      )!,
+      displayNameKo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name_ko'],
+      )!,
+      displayNameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name_en'],
+      ),
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      defaultCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_currency'],
+      )!,
+      defaultPeriod: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_period'],
+      )!,
+      aliases: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}aliases'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PresetCacheTable createAlias(String alias) {
+    return $PresetCacheTable(attachedDatabase, alias);
+  }
+}
+
+class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
+  final String brandKey;
+  final String displayNameKo;
+  final String? displayNameEn;
+  final String category;
+  final String defaultCurrency;
+  final String defaultPeriod;
+  final String? aliases;
+  final String? notes;
+  final DateTime cachedAt;
+  const PresetCacheData({
+    required this.brandKey,
+    required this.displayNameKo,
+    this.displayNameEn,
+    required this.category,
+    required this.defaultCurrency,
+    required this.defaultPeriod,
+    this.aliases,
+    this.notes,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['brand_key'] = Variable<String>(brandKey);
+    map['display_name_ko'] = Variable<String>(displayNameKo);
+    if (!nullToAbsent || displayNameEn != null) {
+      map['display_name_en'] = Variable<String>(displayNameEn);
+    }
+    map['category'] = Variable<String>(category);
+    map['default_currency'] = Variable<String>(defaultCurrency);
+    map['default_period'] = Variable<String>(defaultPeriod);
+    if (!nullToAbsent || aliases != null) {
+      map['aliases'] = Variable<String>(aliases);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  PresetCacheCompanion toCompanion(bool nullToAbsent) {
+    return PresetCacheCompanion(
+      brandKey: Value(brandKey),
+      displayNameKo: Value(displayNameKo),
+      displayNameEn: displayNameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayNameEn),
+      category: Value(category),
+      defaultCurrency: Value(defaultCurrency),
+      defaultPeriod: Value(defaultPeriod),
+      aliases: aliases == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aliases),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory PresetCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PresetCacheData(
+      brandKey: serializer.fromJson<String>(json['brandKey']),
+      displayNameKo: serializer.fromJson<String>(json['displayNameKo']),
+      displayNameEn: serializer.fromJson<String?>(json['displayNameEn']),
+      category: serializer.fromJson<String>(json['category']),
+      defaultCurrency: serializer.fromJson<String>(json['defaultCurrency']),
+      defaultPeriod: serializer.fromJson<String>(json['defaultPeriod']),
+      aliases: serializer.fromJson<String?>(json['aliases']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'brandKey': serializer.toJson<String>(brandKey),
+      'displayNameKo': serializer.toJson<String>(displayNameKo),
+      'displayNameEn': serializer.toJson<String?>(displayNameEn),
+      'category': serializer.toJson<String>(category),
+      'defaultCurrency': serializer.toJson<String>(defaultCurrency),
+      'defaultPeriod': serializer.toJson<String>(defaultPeriod),
+      'aliases': serializer.toJson<String?>(aliases),
+      'notes': serializer.toJson<String?>(notes),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  PresetCacheData copyWith({
+    String? brandKey,
+    String? displayNameKo,
+    Value<String?> displayNameEn = const Value.absent(),
+    String? category,
+    String? defaultCurrency,
+    String? defaultPeriod,
+    Value<String?> aliases = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    DateTime? cachedAt,
+  }) => PresetCacheData(
+    brandKey: brandKey ?? this.brandKey,
+    displayNameKo: displayNameKo ?? this.displayNameKo,
+    displayNameEn: displayNameEn.present
+        ? displayNameEn.value
+        : this.displayNameEn,
+    category: category ?? this.category,
+    defaultCurrency: defaultCurrency ?? this.defaultCurrency,
+    defaultPeriod: defaultPeriod ?? this.defaultPeriod,
+    aliases: aliases.present ? aliases.value : this.aliases,
+    notes: notes.present ? notes.value : this.notes,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  PresetCacheData copyWithCompanion(PresetCacheCompanion data) {
+    return PresetCacheData(
+      brandKey: data.brandKey.present ? data.brandKey.value : this.brandKey,
+      displayNameKo: data.displayNameKo.present
+          ? data.displayNameKo.value
+          : this.displayNameKo,
+      displayNameEn: data.displayNameEn.present
+          ? data.displayNameEn.value
+          : this.displayNameEn,
+      category: data.category.present ? data.category.value : this.category,
+      defaultCurrency: data.defaultCurrency.present
+          ? data.defaultCurrency.value
+          : this.defaultCurrency,
+      defaultPeriod: data.defaultPeriod.present
+          ? data.defaultPeriod.value
+          : this.defaultPeriod,
+      aliases: data.aliases.present ? data.aliases.value : this.aliases,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PresetCacheData(')
+          ..write('brandKey: $brandKey, ')
+          ..write('displayNameKo: $displayNameKo, ')
+          ..write('displayNameEn: $displayNameEn, ')
+          ..write('category: $category, ')
+          ..write('defaultCurrency: $defaultCurrency, ')
+          ..write('defaultPeriod: $defaultPeriod, ')
+          ..write('aliases: $aliases, ')
+          ..write('notes: $notes, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    brandKey,
+    displayNameKo,
+    displayNameEn,
+    category,
+    defaultCurrency,
+    defaultPeriod,
+    aliases,
+    notes,
+    cachedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PresetCacheData &&
+          other.brandKey == this.brandKey &&
+          other.displayNameKo == this.displayNameKo &&
+          other.displayNameEn == this.displayNameEn &&
+          other.category == this.category &&
+          other.defaultCurrency == this.defaultCurrency &&
+          other.defaultPeriod == this.defaultPeriod &&
+          other.aliases == this.aliases &&
+          other.notes == this.notes &&
+          other.cachedAt == this.cachedAt);
+}
+
+class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
+  final Value<String> brandKey;
+  final Value<String> displayNameKo;
+  final Value<String?> displayNameEn;
+  final Value<String> category;
+  final Value<String> defaultCurrency;
+  final Value<String> defaultPeriod;
+  final Value<String?> aliases;
+  final Value<String?> notes;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const PresetCacheCompanion({
+    this.brandKey = const Value.absent(),
+    this.displayNameKo = const Value.absent(),
+    this.displayNameEn = const Value.absent(),
+    this.category = const Value.absent(),
+    this.defaultCurrency = const Value.absent(),
+    this.defaultPeriod = const Value.absent(),
+    this.aliases = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PresetCacheCompanion.insert({
+    required String brandKey,
+    required String displayNameKo,
+    this.displayNameEn = const Value.absent(),
+    required String category,
+    required String defaultCurrency,
+    required String defaultPeriod,
+    this.aliases = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : brandKey = Value(brandKey),
+       displayNameKo = Value(displayNameKo),
+       category = Value(category),
+       defaultCurrency = Value(defaultCurrency),
+       defaultPeriod = Value(defaultPeriod),
+       cachedAt = Value(cachedAt);
+  static Insertable<PresetCacheData> custom({
+    Expression<String>? brandKey,
+    Expression<String>? displayNameKo,
+    Expression<String>? displayNameEn,
+    Expression<String>? category,
+    Expression<String>? defaultCurrency,
+    Expression<String>? defaultPeriod,
+    Expression<String>? aliases,
+    Expression<String>? notes,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (brandKey != null) 'brand_key': brandKey,
+      if (displayNameKo != null) 'display_name_ko': displayNameKo,
+      if (displayNameEn != null) 'display_name_en': displayNameEn,
+      if (category != null) 'category': category,
+      if (defaultCurrency != null) 'default_currency': defaultCurrency,
+      if (defaultPeriod != null) 'default_period': defaultPeriod,
+      if (aliases != null) 'aliases': aliases,
+      if (notes != null) 'notes': notes,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PresetCacheCompanion copyWith({
+    Value<String>? brandKey,
+    Value<String>? displayNameKo,
+    Value<String?>? displayNameEn,
+    Value<String>? category,
+    Value<String>? defaultCurrency,
+    Value<String>? defaultPeriod,
+    Value<String?>? aliases,
+    Value<String?>? notes,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return PresetCacheCompanion(
+      brandKey: brandKey ?? this.brandKey,
+      displayNameKo: displayNameKo ?? this.displayNameKo,
+      displayNameEn: displayNameEn ?? this.displayNameEn,
+      category: category ?? this.category,
+      defaultCurrency: defaultCurrency ?? this.defaultCurrency,
+      defaultPeriod: defaultPeriod ?? this.defaultPeriod,
+      aliases: aliases ?? this.aliases,
+      notes: notes ?? this.notes,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (brandKey.present) {
+      map['brand_key'] = Variable<String>(brandKey.value);
+    }
+    if (displayNameKo.present) {
+      map['display_name_ko'] = Variable<String>(displayNameKo.value);
+    }
+    if (displayNameEn.present) {
+      map['display_name_en'] = Variable<String>(displayNameEn.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (defaultCurrency.present) {
+      map['default_currency'] = Variable<String>(defaultCurrency.value);
+    }
+    if (defaultPeriod.present) {
+      map['default_period'] = Variable<String>(defaultPeriod.value);
+    }
+    if (aliases.present) {
+      map['aliases'] = Variable<String>(aliases.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PresetCacheCompanion(')
+          ..write('brandKey: $brandKey, ')
+          ..write('displayNameKo: $displayNameKo, ')
+          ..write('displayNameEn: $displayNameEn, ')
+          ..write('category: $category, ')
+          ..write('defaultCurrency: $defaultCurrency, ')
+          ..write('defaultPeriod: $defaultPeriod, ')
+          ..write('aliases: $aliases, ')
+          ..write('notes: $notes, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PaymentLogsTable extends PaymentLogs
     with TableInfo<$PaymentLogsTable, PaymentLog> {
   @override
@@ -1501,6 +2089,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $SubscriptionsTable subscriptions = $SubscriptionsTable(this);
   late final $FxRatesDailyTable fxRatesDaily = $FxRatesDailyTable(this);
+  late final $PresetCacheTable presetCache = $PresetCacheTable(this);
   late final $PaymentLogsTable paymentLogs = $PaymentLogsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -1509,6 +2098,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     subscriptions,
     fxRatesDaily,
+    presetCache,
     paymentLogs,
   ];
 }
@@ -1993,6 +2583,290 @@ typedef $$FxRatesDailyTableProcessedTableManager =
       FxRatesDailyData,
       PrefetchHooks Function()
     >;
+typedef $$PresetCacheTableCreateCompanionBuilder =
+    PresetCacheCompanion Function({
+      required String brandKey,
+      required String displayNameKo,
+      Value<String?> displayNameEn,
+      required String category,
+      required String defaultCurrency,
+      required String defaultPeriod,
+      Value<String?> aliases,
+      Value<String?> notes,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$PresetCacheTableUpdateCompanionBuilder =
+    PresetCacheCompanion Function({
+      Value<String> brandKey,
+      Value<String> displayNameKo,
+      Value<String?> displayNameEn,
+      Value<String> category,
+      Value<String> defaultCurrency,
+      Value<String> defaultPeriod,
+      Value<String?> aliases,
+      Value<String?> notes,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$PresetCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $PresetCacheTable> {
+  $$PresetCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get brandKey => $composableBuilder(
+    column: $table.brandKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayNameKo => $composableBuilder(
+    column: $table.displayNameKo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayNameEn => $composableBuilder(
+    column: $table.displayNameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultCurrency => $composableBuilder(
+    column: $table.defaultCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultPeriod => $composableBuilder(
+    column: $table.defaultPeriod,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get aliases => $composableBuilder(
+    column: $table.aliases,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PresetCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $PresetCacheTable> {
+  $$PresetCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get brandKey => $composableBuilder(
+    column: $table.brandKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayNameKo => $composableBuilder(
+    column: $table.displayNameKo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayNameEn => $composableBuilder(
+    column: $table.displayNameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultCurrency => $composableBuilder(
+    column: $table.defaultCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultPeriod => $composableBuilder(
+    column: $table.defaultPeriod,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get aliases => $composableBuilder(
+    column: $table.aliases,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PresetCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PresetCacheTable> {
+  $$PresetCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get brandKey =>
+      $composableBuilder(column: $table.brandKey, builder: (column) => column);
+
+  GeneratedColumn<String> get displayNameKo => $composableBuilder(
+    column: $table.displayNameKo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get displayNameEn => $composableBuilder(
+    column: $table.displayNameEn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get defaultCurrency => $composableBuilder(
+    column: $table.defaultCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get defaultPeriod => $composableBuilder(
+    column: $table.defaultPeriod,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get aliases =>
+      $composableBuilder(column: $table.aliases, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$PresetCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PresetCacheTable,
+          PresetCacheData,
+          $$PresetCacheTableFilterComposer,
+          $$PresetCacheTableOrderingComposer,
+          $$PresetCacheTableAnnotationComposer,
+          $$PresetCacheTableCreateCompanionBuilder,
+          $$PresetCacheTableUpdateCompanionBuilder,
+          (
+            PresetCacheData,
+            BaseReferences<_$AppDatabase, $PresetCacheTable, PresetCacheData>,
+          ),
+          PresetCacheData,
+          PrefetchHooks Function()
+        > {
+  $$PresetCacheTableTableManager(_$AppDatabase db, $PresetCacheTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PresetCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PresetCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PresetCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> brandKey = const Value.absent(),
+                Value<String> displayNameKo = const Value.absent(),
+                Value<String?> displayNameEn = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<String> defaultCurrency = const Value.absent(),
+                Value<String> defaultPeriod = const Value.absent(),
+                Value<String?> aliases = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PresetCacheCompanion(
+                brandKey: brandKey,
+                displayNameKo: displayNameKo,
+                displayNameEn: displayNameEn,
+                category: category,
+                defaultCurrency: defaultCurrency,
+                defaultPeriod: defaultPeriod,
+                aliases: aliases,
+                notes: notes,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String brandKey,
+                required String displayNameKo,
+                Value<String?> displayNameEn = const Value.absent(),
+                required String category,
+                required String defaultCurrency,
+                required String defaultPeriod,
+                Value<String?> aliases = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PresetCacheCompanion.insert(
+                brandKey: brandKey,
+                displayNameKo: displayNameKo,
+                displayNameEn: displayNameEn,
+                category: category,
+                defaultCurrency: defaultCurrency,
+                defaultPeriod: defaultPeriod,
+                aliases: aliases,
+                notes: notes,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PresetCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PresetCacheTable,
+      PresetCacheData,
+      $$PresetCacheTableFilterComposer,
+      $$PresetCacheTableOrderingComposer,
+      $$PresetCacheTableAnnotationComposer,
+      $$PresetCacheTableCreateCompanionBuilder,
+      $$PresetCacheTableUpdateCompanionBuilder,
+      (
+        PresetCacheData,
+        BaseReferences<_$AppDatabase, $PresetCacheTable, PresetCacheData>,
+      ),
+      PresetCacheData,
+      PrefetchHooks Function()
+    >;
 typedef $$PaymentLogsTableCreateCompanionBuilder =
     PaymentLogsCompanion Function({
       required String id,
@@ -2281,6 +3155,8 @@ class $AppDatabaseManager {
       $$SubscriptionsTableTableManager(_db, _db.subscriptions);
   $$FxRatesDailyTableTableManager get fxRatesDaily =>
       $$FxRatesDailyTableTableManager(_db, _db.fxRatesDaily);
+  $$PresetCacheTableTableManager get presetCache =>
+      $$PresetCacheTableTableManager(_db, _db.presetCache);
   $$PaymentLogsTableTableManager get paymentLogs =>
       $$PaymentLogsTableTableManager(_db, _db.paymentLogs);
 }

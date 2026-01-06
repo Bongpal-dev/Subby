@@ -36,7 +36,25 @@ class FxRatesDaily extends Table {
 }
 
 // ──────────────────────────────────────────────
-// 3) payment_logs 테이블
+// 3) preset_cache 테이블
+// ──────────────────────────────────────────────
+class PresetCache extends Table {
+  TextColumn get brandKey => text()();
+  TextColumn get displayNameKo => text()();
+  TextColumn get displayNameEn => text().nullable()();
+  TextColumn get category => text()();
+  TextColumn get defaultCurrency => text()();
+  TextColumn get defaultPeriod => text()();
+  TextColumn get aliases => text().nullable()(); // JSON array string
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {brandKey};
+}
+
+// ──────────────────────────────────────────────
+// 4) payment_logs 테이블
 // ──────────────────────────────────────────────
 class PaymentLogs extends Table {
   TextColumn get id => text()();
@@ -56,12 +74,22 @@ class PaymentLogs extends Table {
 // ──────────────────────────────────────────────
 // AppDatabase
 // ──────────────────────────────────────────────
-@DriftDatabase(tables: [Subscriptions, FxRatesDaily, PaymentLogs])
+@DriftDatabase(tables: [Subscriptions, FxRatesDaily, PresetCache, PaymentLogs])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(presetCache);
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'subby.db');

@@ -4,9 +4,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:bongpal/firebase_options.dart';
 import 'package:bongpal/core/theme/app_theme.dart';
 import 'package:bongpal/data/database/database.dart';
+import 'package:bongpal/data/datasource/preset_local_datasource.dart';
+import 'package:bongpal/data/datasource/preset_remote_datasource.dart';
+import 'package:bongpal/data/repository/preset_repository.dart';
 import 'package:bongpal/data/repository/subscription_repository_impl.dart';
 import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
 import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
+import 'package:bongpal/domain/usecase/get_presets_usecase.dart';
 import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
 import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
 import 'package:bongpal/domain/usecase/watch_subscriptions_usecase.dart';
@@ -18,13 +22,18 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final db = AppDatabase();
-  final repository = SubscriptionRepositoryImpl(db);
+  final subscriptionRepository = SubscriptionRepositoryImpl(db);
+  final presetRepository = PresetRepositoryImpl(
+    remoteDataSource: PresetRemoteDataSource(),
+    localDataSource: PresetLocalDataSource(db),
+  );
 
-  final watchSubscriptions = WatchSubscriptionsUseCase(repository);
-  final addSubscription = AddSubscriptionUseCase(repository);
-  final getSubscriptionById = GetSubscriptionByIdUseCase(repository);
-  final updateSubscription = UpdateSubscriptionUseCase(repository);
-  final deleteSubscription = DeleteSubscriptionUseCase(repository);
+  final watchSubscriptions = WatchSubscriptionsUseCase(subscriptionRepository);
+  final addSubscription = AddSubscriptionUseCase(subscriptionRepository);
+  final getSubscriptionById = GetSubscriptionByIdUseCase(subscriptionRepository);
+  final updateSubscription = UpdateSubscriptionUseCase(subscriptionRepository);
+  final deleteSubscription = DeleteSubscriptionUseCase(subscriptionRepository);
+  final getPresets = GetPresetsUseCase(presetRepository);
 
   runApp(SubbyApp(
     watchSubscriptions: watchSubscriptions,
@@ -32,6 +41,7 @@ Future<void> main() async {
     getSubscriptionById: getSubscriptionById,
     updateSubscription: updateSubscription,
     deleteSubscription: deleteSubscription,
+    getPresets: getPresets,
   ));
 }
 
@@ -41,6 +51,7 @@ class SubbyApp extends StatelessWidget {
   final GetSubscriptionByIdUseCase getSubscriptionById;
   final UpdateSubscriptionUseCase updateSubscription;
   final DeleteSubscriptionUseCase deleteSubscription;
+  final GetPresetsUseCase getPresets;
 
   const SubbyApp({
     super.key,
@@ -49,6 +60,7 @@ class SubbyApp extends StatelessWidget {
     required this.getSubscriptionById,
     required this.updateSubscription,
     required this.deleteSubscription,
+    required this.getPresets,
   });
 
   @override
@@ -73,6 +85,7 @@ class SubbyApp extends StatelessWidget {
         getSubscriptionById: getSubscriptionById,
         updateSubscription: updateSubscription,
         deleteSubscription: deleteSubscription,
+        getPresets: getPresets,
       ),
     );
   }
