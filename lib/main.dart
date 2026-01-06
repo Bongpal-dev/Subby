@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:bongpal/firebase_options.dart';
 import 'package:bongpal/core/theme/app_theme.dart';
 import 'package:bongpal/data/database/database.dart';
 import 'package:bongpal/data/repository/subscription_repository_impl.dart';
@@ -10,7 +12,11 @@ import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
 import 'package:bongpal/domain/usecase/watch_subscriptions_usecase.dart';
 import 'package:bongpal/presentation/home/home_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   final db = AppDatabase();
   final repository = SubscriptionRepositoryImpl(db);
 
