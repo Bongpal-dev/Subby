@@ -1,10 +1,10 @@
-import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 
 abstract class SubscriptionRepository {
-  Future<List<Subscription>> getAll();
-  Future<Subscription?> getById(String id);
-  Future<void> insert(Subscription subscription);
-  Future<void> update(Subscription subscription);
+  Future<List<UserSubscription>> getAll();
+  Future<UserSubscription?> getById(String id);
+  Future<void> insert(UserSubscription subscription);
+  Future<void> update(UserSubscription subscription);
   Future<void> delete(String id);
-  Stream<List<Subscription>> watchAll();
+  Stream<List<UserSubscription>> watchAll();
 }

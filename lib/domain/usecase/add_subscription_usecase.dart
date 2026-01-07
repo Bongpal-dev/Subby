@@ -1,4 +1,4 @@
-import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
 
 class AddSubscriptionUseCase {
@@ -6,5 +6,5 @@ class AddSubscriptionUseCase {
 
   AddSubscriptionUseCase(this._repository);
 
-  Future<void> call(Subscription subscription) => _repository.insert(subscription);
+  Future<void> call(UserSubscription subscription) => _repository.insert(subscription);
 }

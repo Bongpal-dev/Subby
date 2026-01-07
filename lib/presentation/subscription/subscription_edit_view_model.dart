@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
-import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 
 class SubscriptionEditState {
   final bool isLoading;
@@ -160,7 +160,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
 
     try {
       final updateUseCase = ref.read(updateSubscriptionUseCaseProvider);
-      final subscription = Subscription(
+      final subscription = UserSubscription(
         id: state.subscriptionId,
         name: state.name,
         amount: state.amount,

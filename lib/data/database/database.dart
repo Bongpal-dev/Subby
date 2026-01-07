@@ -4,9 +4,9 @@ import 'package:drift_flutter/drift_flutter.dart';
 part 'database.g.dart';
 
 // ──────────────────────────────────────────────
-// 1) subscriptions 테이블
+// 1) user_subscriptions 테이블
 // ──────────────────────────────────────────────
-class Subscriptions extends Table {
+class UserSubscriptions extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
   RealColumn get amount => real()();
@@ -74,7 +74,7 @@ class PaymentLogs extends Table {
 // ──────────────────────────────────────────────
 // AppDatabase
 // ──────────────────────────────────────────────
-@DriftDatabase(tables: [Subscriptions, FxRatesDaily, PresetCache, PaymentLogs])
+@DriftDatabase(tables: [UserSubscriptions, FxRatesDaily, PresetCache, PaymentLogs])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 

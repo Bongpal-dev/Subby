@@ -3,12 +3,12 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $SubscriptionsTable extends Subscriptions
-    with TableInfo<$SubscriptionsTable, Subscription> {
+class $UserSubscriptionsTable extends UserSubscriptions
+    with TableInfo<$UserSubscriptionsTable, UserSubscription> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $SubscriptionsTable(this.attachedDatabase, [this._alias]);
+  $UserSubscriptionsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -126,10 +126,10 @@ class $SubscriptionsTable extends Subscriptions
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'subscriptions';
+  static const String $name = 'user_subscriptions';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Subscription> instance, {
+    Insertable<UserSubscription> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -214,9 +214,9 @@ class $SubscriptionsTable extends Subscriptions
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Subscription map(Map<String, dynamic> data, {String? tablePrefix}) {
+  UserSubscription map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Subscription(
+    return UserSubscription(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -261,12 +261,13 @@ class $SubscriptionsTable extends Subscriptions
   }
 
   @override
-  $SubscriptionsTable createAlias(String alias) {
-    return $SubscriptionsTable(attachedDatabase, alias);
+  $UserSubscriptionsTable createAlias(String alias) {
+    return $UserSubscriptionsTable(attachedDatabase, alias);
   }
 }
 
-class Subscription extends DataClass implements Insertable<Subscription> {
+class UserSubscription extends DataClass
+    implements Insertable<UserSubscription> {
   final String id;
   final String name;
   final double amount;
@@ -277,7 +278,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
   final String? memo;
   final double? feeRatePercent;
   final DateTime createdAt;
-  const Subscription({
+  const UserSubscription({
     required this.id,
     required this.name,
     required this.amount,
@@ -311,8 +312,8 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     return map;
   }
 
-  SubscriptionsCompanion toCompanion(bool nullToAbsent) {
-    return SubscriptionsCompanion(
+  UserSubscriptionsCompanion toCompanion(bool nullToAbsent) {
+    return UserSubscriptionsCompanion(
       id: Value(id),
       name: Value(name),
       amount: Value(amount),
@@ -330,12 +331,12 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     );
   }
 
-  factory Subscription.fromJson(
+  factory UserSubscription.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Subscription(
+    return UserSubscription(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       amount: serializer.fromJson<double>(json['amount']),
@@ -365,7 +366,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     };
   }
 
-  Subscription copyWith({
+  UserSubscription copyWith({
     String? id,
     String? name,
     double? amount,
@@ -376,7 +377,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     Value<String?> memo = const Value.absent(),
     Value<double?> feeRatePercent = const Value.absent(),
     DateTime? createdAt,
-  }) => Subscription(
+  }) => UserSubscription(
     id: id ?? this.id,
     name: name ?? this.name,
     amount: amount ?? this.amount,
@@ -390,8 +391,8 @@ class Subscription extends DataClass implements Insertable<Subscription> {
         : this.feeRatePercent,
     createdAt: createdAt ?? this.createdAt,
   );
-  Subscription copyWithCompanion(SubscriptionsCompanion data) {
-    return Subscription(
+  UserSubscription copyWithCompanion(UserSubscriptionsCompanion data) {
+    return UserSubscription(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       amount: data.amount.present ? data.amount.value : this.amount,
@@ -411,7 +412,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
 
   @override
   String toString() {
-    return (StringBuffer('Subscription(')
+    return (StringBuffer('UserSubscription(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('amount: $amount, ')
@@ -442,7 +443,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Subscription &&
+      (other is UserSubscription &&
           other.id == this.id &&
           other.name == this.name &&
           other.amount == this.amount &&
@@ -455,7 +456,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
           other.createdAt == this.createdAt);
 }
 
-class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
+class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   final Value<String> id;
   final Value<String> name;
   final Value<double> amount;
@@ -467,7 +468,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
   final Value<double?> feeRatePercent;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
-  const SubscriptionsCompanion({
+  const UserSubscriptionsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.amount = const Value.absent(),
@@ -480,7 +481,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  SubscriptionsCompanion.insert({
+  UserSubscriptionsCompanion.insert({
     required String id,
     required String name,
     required double amount,
@@ -499,7 +500,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
        billingDay = Value(billingDay),
        period = Value(period),
        createdAt = Value(createdAt);
-  static Insertable<Subscription> custom({
+  static Insertable<UserSubscription> custom({
     Expression<String>? id,
     Expression<String>? name,
     Expression<double>? amount,
@@ -527,7 +528,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     });
   }
 
-  SubscriptionsCompanion copyWith({
+  UserSubscriptionsCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
     Value<double>? amount,
@@ -540,7 +541,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     Value<DateTime>? createdAt,
     Value<int>? rowid,
   }) {
-    return SubscriptionsCompanion(
+    return UserSubscriptionsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       amount: amount ?? this.amount,
@@ -596,7 +597,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
 
   @override
   String toString() {
-    return (StringBuffer('SubscriptionsCompanion(')
+    return (StringBuffer('UserSubscriptionsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('amount: $amount, ')
@@ -2087,7 +2088,8 @@ class PaymentLogsCompanion extends UpdateCompanion<PaymentLog> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $SubscriptionsTable subscriptions = $SubscriptionsTable(this);
+  late final $UserSubscriptionsTable userSubscriptions =
+      $UserSubscriptionsTable(this);
   late final $FxRatesDailyTable fxRatesDaily = $FxRatesDailyTable(this);
   late final $PresetCacheTable presetCache = $PresetCacheTable(this);
   late final $PaymentLogsTable paymentLogs = $PaymentLogsTable(this);
@@ -2096,15 +2098,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    subscriptions,
+    userSubscriptions,
     fxRatesDaily,
     presetCache,
     paymentLogs,
   ];
 }
 
-typedef $$SubscriptionsTableCreateCompanionBuilder =
-    SubscriptionsCompanion Function({
+typedef $$UserSubscriptionsTableCreateCompanionBuilder =
+    UserSubscriptionsCompanion Function({
       required String id,
       required String name,
       required double amount,
@@ -2117,8 +2119,8 @@ typedef $$SubscriptionsTableCreateCompanionBuilder =
       required DateTime createdAt,
       Value<int> rowid,
     });
-typedef $$SubscriptionsTableUpdateCompanionBuilder =
-    SubscriptionsCompanion Function({
+typedef $$UserSubscriptionsTableUpdateCompanionBuilder =
+    UserSubscriptionsCompanion Function({
       Value<String> id,
       Value<String> name,
       Value<double> amount,
@@ -2132,9 +2134,9 @@ typedef $$SubscriptionsTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
-class $$SubscriptionsTableFilterComposer
-    extends Composer<_$AppDatabase, $SubscriptionsTable> {
-  $$SubscriptionsTableFilterComposer({
+class $$UserSubscriptionsTableFilterComposer
+    extends Composer<_$AppDatabase, $UserSubscriptionsTable> {
+  $$UserSubscriptionsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2192,9 +2194,9 @@ class $$SubscriptionsTableFilterComposer
   );
 }
 
-class $$SubscriptionsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SubscriptionsTable> {
-  $$SubscriptionsTableOrderingComposer({
+class $$UserSubscriptionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserSubscriptionsTable> {
+  $$UserSubscriptionsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2252,9 +2254,9 @@ class $$SubscriptionsTableOrderingComposer
   );
 }
 
-class $$SubscriptionsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SubscriptionsTable> {
-  $$SubscriptionsTableAnnotationComposer({
+class $$UserSubscriptionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserSubscriptionsTable> {
+  $$UserSubscriptionsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2296,35 +2298,44 @@ class $$SubscriptionsTableAnnotationComposer
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
-class $$SubscriptionsTableTableManager
+class $$UserSubscriptionsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $SubscriptionsTable,
-          Subscription,
-          $$SubscriptionsTableFilterComposer,
-          $$SubscriptionsTableOrderingComposer,
-          $$SubscriptionsTableAnnotationComposer,
-          $$SubscriptionsTableCreateCompanionBuilder,
-          $$SubscriptionsTableUpdateCompanionBuilder,
+          $UserSubscriptionsTable,
+          UserSubscription,
+          $$UserSubscriptionsTableFilterComposer,
+          $$UserSubscriptionsTableOrderingComposer,
+          $$UserSubscriptionsTableAnnotationComposer,
+          $$UserSubscriptionsTableCreateCompanionBuilder,
+          $$UserSubscriptionsTableUpdateCompanionBuilder,
           (
-            Subscription,
-            BaseReferences<_$AppDatabase, $SubscriptionsTable, Subscription>,
+            UserSubscription,
+            BaseReferences<
+              _$AppDatabase,
+              $UserSubscriptionsTable,
+              UserSubscription
+            >,
           ),
-          Subscription,
+          UserSubscription,
           PrefetchHooks Function()
         > {
-  $$SubscriptionsTableTableManager(_$AppDatabase db, $SubscriptionsTable table)
-    : super(
+  $$UserSubscriptionsTableTableManager(
+    _$AppDatabase db,
+    $UserSubscriptionsTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$SubscriptionsTableFilterComposer($db: db, $table: table),
+              $$UserSubscriptionsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$SubscriptionsTableOrderingComposer($db: db, $table: table),
+              $$UserSubscriptionsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$SubscriptionsTableAnnotationComposer($db: db, $table: table),
+              $$UserSubscriptionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -2338,7 +2349,7 @@ class $$SubscriptionsTableTableManager
                 Value<double?> feeRatePercent = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => SubscriptionsCompanion(
+              }) => UserSubscriptionsCompanion(
                 id: id,
                 name: name,
                 amount: amount,
@@ -2364,7 +2375,7 @@ class $$SubscriptionsTableTableManager
                 Value<double?> feeRatePercent = const Value.absent(),
                 required DateTime createdAt,
                 Value<int> rowid = const Value.absent(),
-              }) => SubscriptionsCompanion.insert(
+              }) => UserSubscriptionsCompanion.insert(
                 id: id,
                 name: name,
                 amount: amount,
@@ -2385,21 +2396,25 @@ class $$SubscriptionsTableTableManager
       );
 }
 
-typedef $$SubscriptionsTableProcessedTableManager =
+typedef $$UserSubscriptionsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $SubscriptionsTable,
-      Subscription,
-      $$SubscriptionsTableFilterComposer,
-      $$SubscriptionsTableOrderingComposer,
-      $$SubscriptionsTableAnnotationComposer,
-      $$SubscriptionsTableCreateCompanionBuilder,
-      $$SubscriptionsTableUpdateCompanionBuilder,
+      $UserSubscriptionsTable,
+      UserSubscription,
+      $$UserSubscriptionsTableFilterComposer,
+      $$UserSubscriptionsTableOrderingComposer,
+      $$UserSubscriptionsTableAnnotationComposer,
+      $$UserSubscriptionsTableCreateCompanionBuilder,
+      $$UserSubscriptionsTableUpdateCompanionBuilder,
       (
-        Subscription,
-        BaseReferences<_$AppDatabase, $SubscriptionsTable, Subscription>,
+        UserSubscription,
+        BaseReferences<
+          _$AppDatabase,
+          $UserSubscriptionsTable,
+          UserSubscription
+        >,
       ),
-      Subscription,
+      UserSubscription,
       PrefetchHooks Function()
     >;
 typedef $$FxRatesDailyTableCreateCompanionBuilder =
@@ -3151,8 +3166,8 @@ typedef $$PaymentLogsTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$SubscriptionsTableTableManager get subscriptions =>
-      $$SubscriptionsTableTableManager(_db, _db.subscriptions);
+  $$UserSubscriptionsTableTableManager get userSubscriptions =>
+      $$UserSubscriptionsTableTableManager(_db, _db.userSubscriptions);
   $$FxRatesDailyTableTableManager get fxRatesDaily =>
       $$FxRatesDailyTableTableManager(_db, _db.fxRatesDaily);
   $$PresetCacheTableTableManager get presetCache =>

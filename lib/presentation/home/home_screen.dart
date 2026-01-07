@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/subby_app_bar.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
@@ -172,8 +172,8 @@ class _EmptyState extends StatelessWidget {
 }
 
 class _SubscriptionList extends StatelessWidget {
-  final List<Subscription> subscriptions;
-  final void Function(Subscription) onTap;
+  final List<UserSubscription> subscriptions;
+  final void Function(UserSubscription) onTap;
 
   const _SubscriptionList({
     required this.subscriptions,
@@ -194,7 +194,7 @@ class _SubscriptionList extends StatelessWidget {
 }
 
 class _SubscriptionTile extends StatelessWidget {
-  final Subscription subscription;
+  final UserSubscription subscription;
   final VoidCallback onTap;
 
   const _SubscriptionTile({

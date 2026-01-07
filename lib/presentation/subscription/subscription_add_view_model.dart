@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:subby/core/di/providers.dart';
-import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
 
 class SubscriptionAddState {
@@ -240,7 +240,7 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
 
     try {
       final addUseCase = ref.read(addSubscriptionUseCaseProvider);
-      final subscription = Subscription(
+      final subscription = UserSubscription(
         id: const Uuid().v4(),
         name: state.name,
         amount: state.amount,

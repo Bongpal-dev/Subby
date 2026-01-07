@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" label create \"epic:1-tab-structure\" --color \"0052CC\" --description \"Epic 1: 홈 화면 탭 구조 전환\" --force)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" label create \"epic:2-data-model\" --color \"5319E7\" --description \"Epic 2: 데이터 모델 & Firebase 구조 설계\" --force)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue list --repo Bongpal-dev/BoardMoa --state all --limit 50 --json number,title,state)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" project view 9 --owner Bongpal-dev --format json)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" project create --owner Bongpal-dev --title \"Subby\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" project list --owner Bongpal-dev --limit 10)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" project field-create 10 --owner Bongpal-dev --name \"Epic\" --data-type \"SINGLE_SELECT\" --single-select-options \"탭 구조 전환,데이터 모델 설계,공유방 기본 기능,공유방 구독 관리,실시간 동기화,오프라인/충돌,초대 기능\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" project field-create:*)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"TabBar 컴포넌트 추가\" --body \"Epic: 탭 구조 전환\nStory: 탭 네비게이션 UI\n\nBottomNavigationBar 또는 TabBar 컴포넌트 추가\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"내 구독 탭 화면 분리\" --body \"Epic: 탭 구조 전환\nStory: 탭 네비게이션 UI\n\n기존 HomeScreen을 내 구독 탭으로 재사용\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"공유 탭 빈 화면 생성\" --body \"Epic: 탭 구조 전환\nStory: 탭 네비게이션 UI\n\n공유 탭 기본 화면 생성\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"탭 전환 상태 관리\" --body \"Epic: 탭 구조 전환\nStory: 탭 네비게이션 UI\n\nRiverpod으로 탭 전환 상태 관리\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"공유방 없을 때 빈 상태 UI\" --body \"Epic: 탭 구조 전환\nStory: 공유 탭 초기 화면\n\n공유방 만들기 / 코드로 참여 버튼 표시\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"공유방 목록 UI\" --body \"Epic: 탭 구조 전환\nStory: 공유 탭 초기 화면\n\n참여 중인 공유방이 있을 때 목록 표시\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"Room 모델 설계\" --body \"Epic: 데이터 모델 설계\nStory: 도메인 모델 정의\n\nRoom 모델 \\(code, name, createdAt, members\\)\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"SharedSubscription 모델 설계\" --body \"Epic: 데이터 모델 설계\nStory: 도메인 모델 정의\n\n기존 Subscription 확장한 SharedSubscription 모델\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"SyncStatus enum 정의\" --body \"Epic: 데이터 모델 설계\nStory: 도메인 모델 정의\n\nSyncStatus: synced, pending, conflict\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"Firebase /rooms/{code} 구조 정의\" --body \"Epic: 데이터 모델 설계\nStory: Firebase 스키마 설계\n\nFirebase Realtime DB rooms 구조 설계\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"Firebase subscriptions 구조 정의\" --body \"Epic: 데이터 모델 설계\nStory: Firebase 스키마 설계\n\n/rooms/{code}/subscriptions/{id} 구조 설계\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"Firebase Security Rules 작성\" --body \"Epic: 데이터 모델 설계\nStory: Firebase 스키마 설계\n\nrooms 접근 보안 규칙 작성\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"rooms 테이블 추가 \\(Drift\\)\" --body \"Epic: 데이터 모델 설계\nStory: 로컬 DB 스키마 확장\n\n로컬 SQLite rooms 테이블 추가\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"shared_subscriptions 테이블 추가\" --body \"Epic: 데이터 모델 설계\nStory: 로컬 DB 스키마 확장\n\n로컬 SQLite shared_subscriptions 테이블 추가\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"pending_changes 테이블 추가\" --body \"Epic: 데이터 모델 설계\nStory: 로컬 DB 스키마 확장\n\n오프라인 변경 추적용 pending_changes 테이블\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create:*)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"코드 중복 체크 로직\" --body \"Epic: 공유방 기본 기능\nStory: 코드 생성 시스템\n\nFirebase에서 코드 중복 여부 확인\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"공유방 생성 UI\" --body \"Epic: 공유방 기본 기능\nStory: 공유방 생성\n\n방 이름 입력 다이얼로그\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"CreateRoomUseCase 구현\" --body \"Epic: 공유방 기본 기능\nStory: 공유방 생성\n\n공유방 생성 유스케이스\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"Firebase에 Room 저장\" --body \"Epic: 공유방 기본 기능\nStory: 공유방 생성\n\nFirebase Realtime DB에 Room 데이터 저장\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 1 --repo Bongpal-dev/subby --body \"BottomNavigationBar 또는 TabBar 컴포넌트 추가\")",
+      "Bash(/tmp/set_epic_remaining.sh)"
+    ]
+  }
+}

@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
-import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 
 class HomeState {
-  final List<Subscription> subscriptions;
+  final List<UserSubscription> subscriptions;
   final bool isLoading;
   final double totalKrw;
 
@@ -14,7 +14,7 @@ class HomeState {
   });
 
   HomeState copyWith({
-    List<Subscription>? subscriptions,
+    List<UserSubscription>? subscriptions,
     bool? isLoading,
     double? totalKrw,
   }) {
@@ -45,7 +45,7 @@ class HomeViewModel extends Notifier<HomeState> {
     });
   }
 
-  double _calculateTotal(List<Subscription> subscriptions) {
+  double _calculateTotal(List<UserSubscription> subscriptions) {
     double total = 0;
     for (final sub in subscriptions) {
       if (sub.currency == 'KRW') {
