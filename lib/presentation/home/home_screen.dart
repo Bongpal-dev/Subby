@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bongpal/domain/model/subscription.dart';
-import 'package:bongpal/presentation/common/subby_app_bar.dart';
-import 'package:bongpal/presentation/home/home_view_model.dart';
-import 'package:bongpal/presentation/subscription/subscription_add_screen.dart';
-import 'package:bongpal/presentation/subscription/subscription_edit_screen.dart';
+import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/presentation/common/subby_app_bar.dart';
+import 'package:subby/presentation/home/home_view_model.dart';
+import 'package:subby/presentation/subscription/subscription_add_screen.dart';
+import 'package:subby/presentation/subscription/subscription_edit_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

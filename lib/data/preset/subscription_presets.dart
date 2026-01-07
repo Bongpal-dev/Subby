@@ -1,4 +1,4 @@
-import 'package:bongpal/domain/model/subscription_preset.dart';
+import 'package:subby/domain/model/subscription_preset.dart';
 
 const List<SubscriptionPreset> subscriptionPresets = [
   // ========== VIDEO ==========

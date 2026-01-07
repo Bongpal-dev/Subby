@@ -4,7 +4,10 @@ class PresetRemoteDataSource {
   final DatabaseReference _dbRef;
 
   PresetRemoteDataSource()
-      : _dbRef = FirebaseDatabase.instance.ref();
+      : _dbRef = FirebaseDatabase.instanceFor(
+          app: FirebaseDatabase.instance.app,
+          databaseURL: 'https://subby-91b88-default-rtdb.asia-southeast1.firebasedatabase.app',
+        ).ref();
 
   Future<Map<String, dynamic>?> fetchPresets() async {
     final snapshot = await _dbRef.child('presets').get();

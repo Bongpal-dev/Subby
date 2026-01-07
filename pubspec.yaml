@@ -1,5 +1,5 @@
-name: bongpal
-description: "구독관리 프로젝트"
+name: subby
+description: "Subby - 구독 관리 앱"
 publish_to: 'none'
 
 version: 1.0.0+1

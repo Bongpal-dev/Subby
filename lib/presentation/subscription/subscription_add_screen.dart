@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bongpal/domain/model/subscription_preset.dart';
-import 'package:bongpal/presentation/common/subby_app_bar.dart';
-import 'package:bongpal/presentation/subscription/subscription_add_view_model.dart';
+import 'package:subby/domain/model/subscription_preset.dart';
+import 'package:subby/presentation/common/subby_app_bar.dart';
+import 'package:subby/presentation/subscription/subscription_add_view_model.dart';
 
 class SubscriptionAddScreen extends ConsumerStatefulWidget {
   const SubscriptionAddScreen({super.key});

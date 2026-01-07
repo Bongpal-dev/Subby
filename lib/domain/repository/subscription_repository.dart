@@ -1,4 +1,4 @@
-import 'package:bongpal/domain/model/subscription.dart';
+import 'package:subby/domain/model/subscription.dart';
 
 abstract class SubscriptionRepository {
   Future<List<Subscription>> getAll();

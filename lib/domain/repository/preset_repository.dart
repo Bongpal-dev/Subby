@@ -1,4 +1,4 @@
-import 'package:bongpal/domain/model/subscription_preset.dart';
+import 'package:subby/domain/model/subscription_preset.dart';
 
 abstract class PresetRepository {
   Future<List<SubscriptionPreset>> getPresets({bool forceRefresh = false});

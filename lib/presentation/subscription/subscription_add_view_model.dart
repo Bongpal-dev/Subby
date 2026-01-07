@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:bongpal/core/di/providers.dart';
-import 'package:bongpal/domain/model/subscription.dart';
-import 'package:bongpal/domain/model/subscription_preset.dart';
+import 'package:subby/core/di/providers.dart';
+import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/model/subscription_preset.dart';
 
 class SubscriptionAddState {
   final List<SubscriptionPreset> presets;
@@ -96,13 +96,19 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
   }
 
   Future<void> _loadPresets() async {
-    final getPresetsUseCase = ref.read(getPresetsUseCaseProvider);
-    final presets = await getPresetsUseCase();
-    state = state.copyWith(
-      presets: presets,
-      filteredPresets: presets,
-      isLoadingPresets: false,
-    );
+    try {
+      final getPresetsUseCase = ref.read(getPresetsUseCaseProvider);
+      final presets = await getPresetsUseCase();
+      print('Loaded ${presets.length} presets'); // debug
+      state = state.copyWith(
+        presets: presets,
+        filteredPresets: presets,
+        isLoadingPresets: false,
+      );
+    } catch (e) {
+      print('Error loading presets: $e'); // debug
+      state = state.copyWith(isLoadingPresets: false);
+    }
   }
 
   void filterPresets(String query, Locale locale) {

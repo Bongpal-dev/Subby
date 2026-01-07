@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:bongpal/firebase_options.dart';
-import 'package:bongpal/core/theme/app_theme.dart';
-import 'package:bongpal/presentation/home/home_screen.dart';
+import 'package:subby/firebase_options.dart';
+import 'package:subby/core/theme/app_theme.dart';
+import 'package:subby/presentation/home/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

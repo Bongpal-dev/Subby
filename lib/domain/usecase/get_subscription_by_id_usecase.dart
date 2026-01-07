@@ -1,5 +1,5 @@
-import 'package:bongpal/domain/model/subscription.dart';
-import 'package:bongpal/domain/repository/subscription_repository.dart';
+import 'package:subby/domain/model/subscription.dart';
+import 'package:subby/domain/repository/subscription_repository.dart';
 
 class GetSubscriptionByIdUseCase {
   final SubscriptionRepository _repository;

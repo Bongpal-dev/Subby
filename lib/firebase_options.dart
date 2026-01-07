@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '665221207042',
     projectId: 'subby-91b88',
     storageBucket: 'subby-91b88.firebasestorage.app',
-    iosBundleId: 'com.bongpal.subby.bongpal',
+    iosBundleId: 'com.bongpal.subby',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '665221207042',
     projectId: 'subby-91b88',
     storageBucket: 'subby-91b88.firebasestorage.app',
-    iosBundleId: 'com.bongpal.subby.bongpal',
+    iosBundleId: 'com.bongpal.subby',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

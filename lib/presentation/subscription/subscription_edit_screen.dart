@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bongpal/presentation/common/subby_app_bar.dart';
-import 'package:bongpal/presentation/subscription/subscription_edit_view_model.dart';
+import 'package:subby/presentation/common/subby_app_bar.dart';
+import 'package:subby/presentation/subscription/subscription_edit_view_model.dart';
 
 class SubscriptionEditScreen extends ConsumerStatefulWidget {
   final String subscriptionId;

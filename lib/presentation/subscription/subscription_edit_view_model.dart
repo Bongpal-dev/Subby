@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bongpal/core/di/providers.dart';
-import 'package:bongpal/domain/model/subscription.dart';
+import 'package:subby/core/di/providers.dart';
+import 'package:subby/domain/model/subscription.dart';
 
 class SubscriptionEditState {
   final bool isLoading;

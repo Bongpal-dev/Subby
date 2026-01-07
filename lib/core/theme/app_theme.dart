@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bongpal/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_colors.dart';
 
 abstract class AppTheme {
   static ThemeData get light {

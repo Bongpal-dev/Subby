@@ -1,5 +1,5 @@
-import 'package:bongpal/domain/model/subscription_preset.dart';
-import 'package:bongpal/domain/repository/preset_repository.dart';
+import 'package:subby/domain/model/subscription_preset.dart';
+import 'package:subby/domain/repository/preset_repository.dart';
 
 class GetPresetsUseCase {
   final PresetRepository _repository;

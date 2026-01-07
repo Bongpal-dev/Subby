@@ -1,4 +1,4 @@
-import 'package:bongpal/domain/repository/subscription_repository.dart';
+import 'package:subby/domain/repository/subscription_repository.dart';
 
 class DeleteSubscriptionUseCase {
   final SubscriptionRepository _repository;

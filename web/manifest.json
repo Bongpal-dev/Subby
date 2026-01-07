@@ -1,11 +1,11 @@
 {
-    "name": "bongpal",
-    "short_name": "bongpal",
+    "name": "Subby",
+    "short_name": "Subby",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "구독관리 프로젝트",
+    "description": "Subby - 구독 관리 앱",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

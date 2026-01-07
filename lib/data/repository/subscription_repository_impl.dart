@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:bongpal/data/database/database.dart';
-import 'package:bongpal/domain/model/subscription.dart' as domain;
-import 'package:bongpal/domain/repository/subscription_repository.dart';
+import 'package:subby/data/database/database.dart';
+import 'package:subby/domain/model/subscription.dart' as domain;
+import 'package:subby/domain/repository/subscription_repository.dart';
 
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
   final AppDatabase _db;

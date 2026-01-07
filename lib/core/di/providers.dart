@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bongpal/data/database/database.dart';
-import 'package:bongpal/data/datasource/preset_local_datasource.dart';
-import 'package:bongpal/data/datasource/preset_remote_datasource.dart';
-import 'package:bongpal/data/repository/preset_repository.dart';
-import 'package:bongpal/data/repository/subscription_repository_impl.dart';
-import 'package:bongpal/domain/repository/preset_repository.dart';
-import 'package:bongpal/domain/repository/subscription_repository.dart';
-import 'package:bongpal/domain/usecase/add_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/delete_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/get_presets_usecase.dart';
-import 'package:bongpal/domain/usecase/get_subscription_by_id_usecase.dart';
-import 'package:bongpal/domain/usecase/update_subscription_usecase.dart';
-import 'package:bongpal/domain/usecase/watch_subscriptions_usecase.dart';
+import 'package:subby/data/database/database.dart';
+import 'package:subby/data/datasource/preset_local_datasource.dart';
+import 'package:subby/data/datasource/preset_remote_datasource.dart';
+import 'package:subby/data/repository/preset_repository.dart';
+import 'package:subby/data/repository/subscription_repository_impl.dart';
+import 'package:subby/domain/repository/preset_repository.dart';
+import 'package:subby/domain/repository/subscription_repository.dart';
+import 'package:subby/domain/usecase/add_subscription_usecase.dart';
+import 'package:subby/domain/usecase/delete_subscription_usecase.dart';
+import 'package:subby/domain/usecase/get_presets_usecase.dart';
+import 'package:subby/domain/usecase/get_subscription_by_id_usecase.dart';
+import 'package:subby/domain/usecase/update_subscription_usecase.dart';
+import 'package:subby/domain/usecase/watch_subscriptions_usecase.dart';
 
 // Database
 final databaseProvider = Provider<AppDatabase>((ref) {

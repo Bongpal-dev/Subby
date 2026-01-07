@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:bongpal/data/datasource/preset_local_datasource.dart';
-import 'package:bongpal/data/datasource/preset_remote_datasource.dart';
-import 'package:bongpal/data/database/database.dart';
-import 'package:bongpal/domain/model/subscription_preset.dart';
-import 'package:bongpal/domain/repository/preset_repository.dart';
+import 'package:subby/data/datasource/preset_local_datasource.dart';
+import 'package:subby/data/datasource/preset_remote_datasource.dart';
+import 'package:subby/data/database/database.dart';
+import 'package:subby/domain/model/subscription_preset.dart';
+import 'package:subby/domain/repository/preset_repository.dart';
 
 class PresetRepositoryImpl implements PresetRepository {
   final PresetRemoteDataSource _remoteDataSource;
@@ -18,14 +18,18 @@ class PresetRepositoryImpl implements PresetRepository {
   @override
   Future<List<SubscriptionPreset>> getPresetsFromCache() async {
     final rows = await _localDataSource.getAll();
+    print('[PresetRepo] Cache count: ${rows.length}');
     return rows.map(_rowToPreset).toList();
   }
 
   @override
   Future<List<SubscriptionPreset>> fetchAndCachePresets() async {
     try {
+      print('[PresetRepo] Fetching from Firebase...');
       final data = await _remoteDataSource.fetchPresets();
+      print('[PresetRepo] Firebase data: ${data?.length ?? 'null'}');
       if (data == null) {
+        print('[PresetRepo] Firebase returned null, using cache');
         return getPresetsFromCache();
       }
 
@@ -35,11 +39,13 @@ class PresetRepositoryImpl implements PresetRepository {
           .toList();
 
       await _localDataSource.cachePresets(companions);
+      print('[PresetRepo] Cached ${companions.length} presets');
 
       return data.entries
           .map((e) => _jsonToPreset(Map<String, dynamic>.from(e.value as Map)))
           .toList();
     } catch (e) {
+      print('[PresetRepo] Error fetching: $e');
       return getPresetsFromCache();
     }
   }
