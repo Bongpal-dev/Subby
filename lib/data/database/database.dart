@@ -79,7 +79,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -87,6 +87,10 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.createTable(presetCache);
+          }
+          if (from < 3) {
+            // subscriptions → user_subscriptions 테이블명 변경
+            await m.renameTable(userSubscriptions, 'subscriptions');
           }
         },
       );
