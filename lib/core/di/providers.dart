@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/data/database/database.dart';
 import 'package:subby/data/datasource/preset_local_datasource.dart';
 import 'package:subby/data/datasource/preset_remote_datasource.dart';
-import 'package:subby/data/repository/preset_repository.dart';
+import 'package:subby/data/repository/preset_repository_impl.dart';
 import 'package:subby/data/repository/subscription_repository_impl.dart';
 import 'package:subby/domain/repository/preset_repository.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
