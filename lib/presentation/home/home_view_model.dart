@@ -1,25 +1,41 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/domain/model/share_group.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 
 class HomeState {
   final List<UserSubscription> subscriptions;
+  final List<ShareGroup> shareGroups;
+  final String? selectedGroupCode;
   final bool isLoading;
   final double totalKrw;
 
   const HomeState({
     this.subscriptions = const [],
+    this.shareGroups = const [],
+    this.selectedGroupCode,
     this.isLoading = true,
     this.totalKrw = 0,
   });
 
+  String get currentGroupName {
+    if (selectedGroupCode == null) return '내 구독';
+    final group = shareGroups.where((g) => g.code == selectedGroupCode).firstOrNull;
+    return group?.name ?? '내 구독';
+  }
+
   HomeState copyWith({
     List<UserSubscription>? subscriptions,
+    List<ShareGroup>? shareGroups,
+    String? selectedGroupCode,
+    bool clearSelectedGroup = false,
     bool? isLoading,
     double? totalKrw,
   }) {
     return HomeState(
       subscriptions: subscriptions ?? this.subscriptions,
+      shareGroups: shareGroups ?? this.shareGroups,
+      selectedGroupCode: clearSelectedGroup ? null : (selectedGroupCode ?? this.selectedGroupCode),
       isLoading: isLoading ?? this.isLoading,
       totalKrw: totalKrw ?? this.totalKrw,
     );
@@ -36,13 +52,27 @@ class HomeViewModel extends Notifier<HomeState> {
   void _watchSubscriptions() {
     final watchUseCase = ref.read(watchSubscriptionsUseCaseProvider);
     watchUseCase().listen((subscriptions) {
-      final total = _calculateTotal(subscriptions);
+      final filtered = _filterByGroup(subscriptions);
+      final total = _calculateTotal(filtered);
       state = state.copyWith(
-        subscriptions: subscriptions,
+        subscriptions: filtered,
         isLoading: false,
         totalKrw: total,
       );
     });
+  }
+
+  List<UserSubscription> _filterByGroup(List<UserSubscription> subscriptions) {
+    final groupCode = state.selectedGroupCode;
+    return subscriptions.where((s) => s.groupCode == groupCode).toList();
+  }
+
+  void selectGroup(String? groupCode) {
+    state = state.copyWith(
+      selectedGroupCode: groupCode,
+      clearSelectedGroup: groupCode == null,
+    );
+    _watchSubscriptions();
   }
 
   double _calculateTotal(List<UserSubscription> subscriptions) {
@@ -51,7 +81,7 @@ class HomeViewModel extends Notifier<HomeState> {
       if (sub.currency == 'KRW') {
         total += sub.amount;
       } else {
-        total += sub.amount * 1450; // TODO: 실제 환율 적용
+        total += sub.amount * 1450;
       }
     }
     return total;

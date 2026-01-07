@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/domain/model/user_subscription.dart';
-import 'package:subby/presentation/common/subby_app_bar.dart';
+import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
 import 'package:subby/presentation/subscription/subscription_edit_screen.dart';
@@ -15,7 +15,16 @@ class HomeScreen extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: const SubbyAppBar(title: '', showBackButton: false),
+      appBar: AppBar(
+        title: Text(state.currentGroupName),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
+      drawer: const AppDrawer(),
       body: Column(
         children: [
           // 상단 헤더
