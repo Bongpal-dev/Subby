@@ -46,12 +46,12 @@ class AppDrawer extends ConsumerWidget {
                     },
                   ),
 
-                  // 공유 그룹 목록
-                  if (state.shareGroups.isNotEmpty) ...[
+                  // 그룹 목록
+                  if (state.groups.isNotEmpty) ...[
                     const Padding(
                       padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                       child: Text(
-                        '공유 그룹',
+                        '다른 그룹',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -59,7 +59,7 @@ class AppDrawer extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    ...state.shareGroups.map((group) => _GroupTile(
+                    ...state.groups.map((group) => _GroupTile(
                           title: group.name,
                           subtitle: '${group.members.length}명 참여',
                           icon: Icons.group_outlined,

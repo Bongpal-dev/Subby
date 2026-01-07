@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
+import 'package:subby/presentation/home/home_view_model.dart';
 
 class SubscriptionAddState {
   final List<SubscriptionPreset> presets;
@@ -240,8 +241,13 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
 
     try {
       final addUseCase = ref.read(addSubscriptionUseCaseProvider);
+      final homeState = ref.read(homeViewModelProvider);
+      // 현재 선택된 그룹 또는 기본 그룹 사용
+      final groupCode = homeState.selectedGroupCode ?? 'default';
+
       final subscription = UserSubscription(
         id: const Uuid().v4(),
+        groupCode: groupCode,
         name: state.name,
         amount: state.amount,
         currency: state.currency,

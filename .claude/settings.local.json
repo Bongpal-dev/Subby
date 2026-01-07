@@ -30,7 +30,13 @@
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"CreateRoomUseCase 구현\" --body \"Epic: 공유방 기본 기능\nStory: 공유방 생성\n\n공유방 생성 유스케이스\")",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue create --title \"Firebase에 Room 저장\" --body \"Epic: 공유방 기본 기능\nStory: 공유방 생성\n\nFirebase Realtime DB에 Room 데이터 저장\")",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 1 --repo Bongpal-dev/subby --body \"BottomNavigationBar 또는 TabBar 컴포넌트 추가\")",
-      "Bash(/tmp/set_epic_remaining.sh)"
+      "Bash(/tmp/set_epic_remaining.sh)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 20 --repo Bongpal-dev/subby --title \"Firebase에 ShareGroup 저장\" --body \"Firebase Realtime DB에 ShareGroup 데이터 저장\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 24 --repo Bongpal-dev/subby --title \"JoinShareGroupUseCase 구현\" --body \"공유 그룹 참여 유스케이스\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 36 --repo Bongpal-dev/subby --title \"ShareGroup 데이터 실시간 구독 \\(StreamProvider\\)\" --body \"Firebase 실시간 데이터 구독\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 32 --repo Bongpal-dev/subby --title \"공유 구독 추가 기능\" --body \"공유 그룹에 구독 추가 \\(UserSubscription + groupCode\\)\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 33 --repo Bongpal-dev/subby --title \"공유 구독 수정 기능\" --body \"공유 그룹 구독 수정 \\(Firebase 동기화\\)\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue edit 34 --repo Bongpal-dev/subby --title \"공유 구독 삭제 기능\" --body \"공유 그룹 구독 삭제 \\(Firebase 동기화\\)\")"
     ]
   }
 }

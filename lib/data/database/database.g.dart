@@ -18,6 +18,17 @@ class $UserSubscriptionsTable extends UserSubscriptions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _groupCodeMeta = const VerificationMeta(
+    'groupCode',
+  );
+  @override
+  late final GeneratedColumn<String> groupCode = GeneratedColumn<String>(
+    'group_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -112,6 +123,7 @@ class $UserSubscriptionsTable extends UserSubscriptions
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    groupCode,
     name,
     amount,
     currency,
@@ -138,6 +150,14 @@ class $UserSubscriptionsTable extends UserSubscriptions
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('group_code')) {
+      context.handle(
+        _groupCodeMeta,
+        groupCode.isAcceptableOrUnknown(data['group_code']!, _groupCodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_groupCodeMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -221,6 +241,10 @@ class $UserSubscriptionsTable extends UserSubscriptions
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
+      groupCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_code'],
+      )!,
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -269,6 +293,7 @@ class $UserSubscriptionsTable extends UserSubscriptions
 class UserSubscription extends DataClass
     implements Insertable<UserSubscription> {
   final String id;
+  final String groupCode;
   final String name;
   final double amount;
   final String currency;
@@ -280,6 +305,7 @@ class UserSubscription extends DataClass
   final DateTime createdAt;
   const UserSubscription({
     required this.id,
+    required this.groupCode,
     required this.name,
     required this.amount,
     required this.currency,
@@ -294,6 +320,7 @@ class UserSubscription extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['group_code'] = Variable<String>(groupCode);
     map['name'] = Variable<String>(name);
     map['amount'] = Variable<double>(amount);
     map['currency'] = Variable<String>(currency);
@@ -315,6 +342,7 @@ class UserSubscription extends DataClass
   UserSubscriptionsCompanion toCompanion(bool nullToAbsent) {
     return UserSubscriptionsCompanion(
       id: Value(id),
+      groupCode: Value(groupCode),
       name: Value(name),
       amount: Value(amount),
       currency: Value(currency),
@@ -338,6 +366,7 @@ class UserSubscription extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserSubscription(
       id: serializer.fromJson<String>(json['id']),
+      groupCode: serializer.fromJson<String>(json['groupCode']),
       name: serializer.fromJson<String>(json['name']),
       amount: serializer.fromJson<double>(json['amount']),
       currency: serializer.fromJson<String>(json['currency']),
@@ -354,6 +383,7 @@ class UserSubscription extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'groupCode': serializer.toJson<String>(groupCode),
       'name': serializer.toJson<String>(name),
       'amount': serializer.toJson<double>(amount),
       'currency': serializer.toJson<String>(currency),
@@ -368,6 +398,7 @@ class UserSubscription extends DataClass
 
   UserSubscription copyWith({
     String? id,
+    String? groupCode,
     String? name,
     double? amount,
     String? currency,
@@ -379,6 +410,7 @@ class UserSubscription extends DataClass
     DateTime? createdAt,
   }) => UserSubscription(
     id: id ?? this.id,
+    groupCode: groupCode ?? this.groupCode,
     name: name ?? this.name,
     amount: amount ?? this.amount,
     currency: currency ?? this.currency,
@@ -394,6 +426,7 @@ class UserSubscription extends DataClass
   UserSubscription copyWithCompanion(UserSubscriptionsCompanion data) {
     return UserSubscription(
       id: data.id.present ? data.id.value : this.id,
+      groupCode: data.groupCode.present ? data.groupCode.value : this.groupCode,
       name: data.name.present ? data.name.value : this.name,
       amount: data.amount.present ? data.amount.value : this.amount,
       currency: data.currency.present ? data.currency.value : this.currency,
@@ -414,6 +447,7 @@ class UserSubscription extends DataClass
   String toString() {
     return (StringBuffer('UserSubscription(')
           ..write('id: $id, ')
+          ..write('groupCode: $groupCode, ')
           ..write('name: $name, ')
           ..write('amount: $amount, ')
           ..write('currency: $currency, ')
@@ -430,6 +464,7 @@ class UserSubscription extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    groupCode,
     name,
     amount,
     currency,
@@ -445,6 +480,7 @@ class UserSubscription extends DataClass
       identical(this, other) ||
       (other is UserSubscription &&
           other.id == this.id &&
+          other.groupCode == this.groupCode &&
           other.name == this.name &&
           other.amount == this.amount &&
           other.currency == this.currency &&
@@ -458,6 +494,7 @@ class UserSubscription extends DataClass
 
 class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   final Value<String> id;
+  final Value<String> groupCode;
   final Value<String> name;
   final Value<double> amount;
   final Value<String> currency;
@@ -470,6 +507,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   final Value<int> rowid;
   const UserSubscriptionsCompanion({
     this.id = const Value.absent(),
+    this.groupCode = const Value.absent(),
     this.name = const Value.absent(),
     this.amount = const Value.absent(),
     this.currency = const Value.absent(),
@@ -483,6 +521,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   });
   UserSubscriptionsCompanion.insert({
     required String id,
+    required String groupCode,
     required String name,
     required double amount,
     required String currency,
@@ -494,6 +533,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
+       groupCode = Value(groupCode),
        name = Value(name),
        amount = Value(amount),
        currency = Value(currency),
@@ -502,6 +542,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
        createdAt = Value(createdAt);
   static Insertable<UserSubscription> custom({
     Expression<String>? id,
+    Expression<String>? groupCode,
     Expression<String>? name,
     Expression<double>? amount,
     Expression<String>? currency,
@@ -515,6 +556,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (groupCode != null) 'group_code': groupCode,
       if (name != null) 'name': name,
       if (amount != null) 'amount': amount,
       if (currency != null) 'currency': currency,
@@ -530,6 +572,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
 
   UserSubscriptionsCompanion copyWith({
     Value<String>? id,
+    Value<String>? groupCode,
     Value<String>? name,
     Value<double>? amount,
     Value<String>? currency,
@@ -543,6 +586,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   }) {
     return UserSubscriptionsCompanion(
       id: id ?? this.id,
+      groupCode: groupCode ?? this.groupCode,
       name: name ?? this.name,
       amount: amount ?? this.amount,
       currency: currency ?? this.currency,
@@ -561,6 +605,9 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (groupCode.present) {
+      map['group_code'] = Variable<String>(groupCode.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -599,6 +646,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   String toString() {
     return (StringBuffer('UserSubscriptionsCompanion(')
           ..write('id: $id, ')
+          ..write('groupCode: $groupCode, ')
           ..write('name: $name, ')
           ..write('amount: $amount, ')
           ..write('currency: $currency, ')
@@ -1516,6 +1564,371 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
   }
 }
 
+class $SubscriptionGroupsTable extends SubscriptionGroups
+    with TableInfo<$SubscriptionGroupsTable, SubscriptionGroup> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SubscriptionGroupsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    code,
+    name,
+    ownerId,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'subscription_groups';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SubscriptionGroup> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {code};
+  @override
+  SubscriptionGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SubscriptionGroup(
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+    );
+  }
+
+  @override
+  $SubscriptionGroupsTable createAlias(String alias) {
+    return $SubscriptionGroupsTable(attachedDatabase, alias);
+  }
+}
+
+class SubscriptionGroup extends DataClass
+    implements Insertable<SubscriptionGroup> {
+  final String code;
+  final String name;
+  final String ownerId;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  const SubscriptionGroup({
+    required this.code,
+    required this.name,
+    required this.ownerId,
+    required this.createdAt,
+    this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['code'] = Variable<String>(code);
+    map['name'] = Variable<String>(name);
+    map['owner_id'] = Variable<String>(ownerId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  SubscriptionGroupsCompanion toCompanion(bool nullToAbsent) {
+    return SubscriptionGroupsCompanion(
+      code: Value(code),
+      name: Value(name),
+      ownerId: Value(ownerId),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory SubscriptionGroup.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SubscriptionGroup(
+      code: serializer.fromJson<String>(json['code']),
+      name: serializer.fromJson<String>(json['name']),
+      ownerId: serializer.fromJson<String>(json['ownerId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'code': serializer.toJson<String>(code),
+      'name': serializer.toJson<String>(name),
+      'ownerId': serializer.toJson<String>(ownerId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  SubscriptionGroup copyWith({
+    String? code,
+    String? name,
+    String? ownerId,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+  }) => SubscriptionGroup(
+    code: code ?? this.code,
+    name: name ?? this.name,
+    ownerId: ownerId ?? this.ownerId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+  );
+  SubscriptionGroup copyWithCompanion(SubscriptionGroupsCompanion data) {
+    return SubscriptionGroup(
+      code: data.code.present ? data.code.value : this.code,
+      name: data.name.present ? data.name.value : this.name,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubscriptionGroup(')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(code, name, ownerId, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SubscriptionGroup &&
+          other.code == this.code &&
+          other.name == this.name &&
+          other.ownerId == this.ownerId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
+  final Value<String> code;
+  final Value<String> name;
+  final Value<String> ownerId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<int> rowid;
+  const SubscriptionGroupsCompanion({
+    this.code = const Value.absent(),
+    this.name = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SubscriptionGroupsCompanion.insert({
+    required String code,
+    required String name,
+    required String ownerId,
+    required DateTime createdAt,
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : code = Value(code),
+       name = Value(name),
+       ownerId = Value(ownerId),
+       createdAt = Value(createdAt);
+  static Insertable<SubscriptionGroup> custom({
+    Expression<String>? code,
+    Expression<String>? name,
+    Expression<String>? ownerId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (code != null) 'code': code,
+      if (name != null) 'name': name,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SubscriptionGroupsCompanion copyWith({
+    Value<String>? code,
+    Value<String>? name,
+    Value<String>? ownerId,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return SubscriptionGroupsCompanion(
+      code: code ?? this.code,
+      name: name ?? this.name,
+      ownerId: ownerId ?? this.ownerId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubscriptionGroupsCompanion(')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PaymentLogsTable extends PaymentLogs
     with TableInfo<$PaymentLogsTable, PaymentLog> {
   @override
@@ -2092,6 +2505,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UserSubscriptionsTable(this);
   late final $FxRatesDailyTable fxRatesDaily = $FxRatesDailyTable(this);
   late final $PresetCacheTable presetCache = $PresetCacheTable(this);
+  late final $SubscriptionGroupsTable subscriptionGroups =
+      $SubscriptionGroupsTable(this);
   late final $PaymentLogsTable paymentLogs = $PaymentLogsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -2101,6 +2516,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSubscriptions,
     fxRatesDaily,
     presetCache,
+    subscriptionGroups,
     paymentLogs,
   ];
 }
@@ -2108,6 +2524,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$UserSubscriptionsTableCreateCompanionBuilder =
     UserSubscriptionsCompanion Function({
       required String id,
+      required String groupCode,
       required String name,
       required double amount,
       required String currency,
@@ -2122,6 +2539,7 @@ typedef $$UserSubscriptionsTableCreateCompanionBuilder =
 typedef $$UserSubscriptionsTableUpdateCompanionBuilder =
     UserSubscriptionsCompanion Function({
       Value<String> id,
+      Value<String> groupCode,
       Value<String> name,
       Value<double> amount,
       Value<String> currency,
@@ -2145,6 +2563,11 @@ class $$UserSubscriptionsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get groupCode => $composableBuilder(
+    column: $table.groupCode,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2208,6 +2631,11 @@ class $$UserSubscriptionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get groupCode => $composableBuilder(
+    column: $table.groupCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -2265,6 +2693,9 @@ class $$UserSubscriptionsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get groupCode =>
+      $composableBuilder(column: $table.groupCode, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -2339,6 +2770,7 @@ class $$UserSubscriptionsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
+                Value<String> groupCode = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<double> amount = const Value.absent(),
                 Value<String> currency = const Value.absent(),
@@ -2351,6 +2783,7 @@ class $$UserSubscriptionsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => UserSubscriptionsCompanion(
                 id: id,
+                groupCode: groupCode,
                 name: name,
                 amount: amount,
                 currency: currency,
@@ -2365,6 +2798,7 @@ class $$UserSubscriptionsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
+                required String groupCode,
                 required String name,
                 required double amount,
                 required String currency,
@@ -2377,6 +2811,7 @@ class $$UserSubscriptionsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => UserSubscriptionsCompanion.insert(
                 id: id,
+                groupCode: groupCode,
                 name: name,
                 amount: amount,
                 currency: currency,
@@ -2882,6 +3317,219 @@ typedef $$PresetCacheTableProcessedTableManager =
       PresetCacheData,
       PrefetchHooks Function()
     >;
+typedef $$SubscriptionGroupsTableCreateCompanionBuilder =
+    SubscriptionGroupsCompanion Function({
+      required String code,
+      required String name,
+      required String ownerId,
+      required DateTime createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$SubscriptionGroupsTableUpdateCompanionBuilder =
+    SubscriptionGroupsCompanion Function({
+      Value<String> code,
+      Value<String> name,
+      Value<String> ownerId,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$SubscriptionGroupsTableFilterComposer
+    extends Composer<_$AppDatabase, $SubscriptionGroupsTable> {
+  $$SubscriptionGroupsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SubscriptionGroupsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SubscriptionGroupsTable> {
+  $$SubscriptionGroupsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SubscriptionGroupsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SubscriptionGroupsTable> {
+  $$SubscriptionGroupsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$SubscriptionGroupsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SubscriptionGroupsTable,
+          SubscriptionGroup,
+          $$SubscriptionGroupsTableFilterComposer,
+          $$SubscriptionGroupsTableOrderingComposer,
+          $$SubscriptionGroupsTableAnnotationComposer,
+          $$SubscriptionGroupsTableCreateCompanionBuilder,
+          $$SubscriptionGroupsTableUpdateCompanionBuilder,
+          (
+            SubscriptionGroup,
+            BaseReferences<
+              _$AppDatabase,
+              $SubscriptionGroupsTable,
+              SubscriptionGroup
+            >,
+          ),
+          SubscriptionGroup,
+          PrefetchHooks Function()
+        > {
+  $$SubscriptionGroupsTableTableManager(
+    _$AppDatabase db,
+    $SubscriptionGroupsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SubscriptionGroupsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SubscriptionGroupsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SubscriptionGroupsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> code = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> ownerId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SubscriptionGroupsCompanion(
+                code: code,
+                name: name,
+                ownerId: ownerId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String code,
+                required String name,
+                required String ownerId,
+                required DateTime createdAt,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SubscriptionGroupsCompanion.insert(
+                code: code,
+                name: name,
+                ownerId: ownerId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SubscriptionGroupsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SubscriptionGroupsTable,
+      SubscriptionGroup,
+      $$SubscriptionGroupsTableFilterComposer,
+      $$SubscriptionGroupsTableOrderingComposer,
+      $$SubscriptionGroupsTableAnnotationComposer,
+      $$SubscriptionGroupsTableCreateCompanionBuilder,
+      $$SubscriptionGroupsTableUpdateCompanionBuilder,
+      (
+        SubscriptionGroup,
+        BaseReferences<
+          _$AppDatabase,
+          $SubscriptionGroupsTable,
+          SubscriptionGroup
+        >,
+      ),
+      SubscriptionGroup,
+      PrefetchHooks Function()
+    >;
 typedef $$PaymentLogsTableCreateCompanionBuilder =
     PaymentLogsCompanion Function({
       required String id,
@@ -3172,6 +3820,8 @@ class $AppDatabaseManager {
       $$FxRatesDailyTableTableManager(_db, _db.fxRatesDaily);
   $$PresetCacheTableTableManager get presetCache =>
       $$PresetCacheTableTableManager(_db, _db.presetCache);
+  $$SubscriptionGroupsTableTableManager get subscriptionGroups =>
+      $$SubscriptionGroupsTableTableManager(_db, _db.subscriptionGroups);
   $$PaymentLogsTableTableManager get paymentLogs =>
       $$PaymentLogsTableTableManager(_db, _db.paymentLogs);
 }

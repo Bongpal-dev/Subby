@@ -7,6 +7,7 @@ class SubscriptionEditState {
   final bool isSaving;
   final bool isDeleting;
   final String subscriptionId;
+  final String groupCode;
   final String name;
   final String currency;
   final double amount;
@@ -23,6 +24,7 @@ class SubscriptionEditState {
     this.isSaving = false,
     this.isDeleting = false,
     this.subscriptionId = '',
+    this.groupCode = 'default',
     this.name = '',
     this.currency = 'KRW',
     this.amount = 0,
@@ -40,6 +42,7 @@ class SubscriptionEditState {
     bool? isSaving,
     bool? isDeleting,
     String? subscriptionId,
+    String? groupCode,
     String? name,
     String? currency,
     double? amount,
@@ -57,6 +60,7 @@ class SubscriptionEditState {
       isSaving: isSaving ?? this.isSaving,
       isDeleting: isDeleting ?? this.isDeleting,
       subscriptionId: subscriptionId ?? this.subscriptionId,
+      groupCode: groupCode ?? this.groupCode,
       name: name ?? this.name,
       currency: currency ?? this.currency,
       amount: amount ?? this.amount,
@@ -92,6 +96,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
     if (subscription != null) {
       state = state.copyWith(
         isLoading: false,
+        groupCode: subscription.groupCode,
         name: subscription.name,
         currency: subscription.currency,
         amount: subscription.amount,
@@ -162,6 +167,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
       final updateUseCase = ref.read(updateSubscriptionUseCaseProvider);
       final subscription = UserSubscription(
         id: state.subscriptionId,
+        groupCode: state.groupCode,
         name: state.name,
         amount: state.amount,
         currency: state.currency,

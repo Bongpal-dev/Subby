@@ -49,6 +49,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   domain.UserSubscription _toDomain(UserSubscription row) {
     return domain.UserSubscription(
       id: row.id,
+      groupCode: row.groupCode,
       name: row.name,
       amount: row.amount,
       currency: row.currency,
@@ -64,6 +65,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   UserSubscriptionsCompanion _toCompanion(domain.UserSubscription subscription) {
     return UserSubscriptionsCompanion.insert(
       id: subscription.id,
+      groupCode: subscription.groupCode,
       name: subscription.name,
       amount: subscription.amount,
       currency: subscription.currency,

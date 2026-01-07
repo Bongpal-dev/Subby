@@ -2,6 +2,7 @@ import 'package:subby/domain/model/sync_status.dart';
 
 class UserSubscription {
   final String id;
+  final String groupCode; // 필수 - 모든 구독은 그룹에 속함
   final String name;
   final double amount;
   final String currency;
@@ -12,8 +13,7 @@ class UserSubscription {
   final double? feeRatePercent;
   final DateTime createdAt;
 
-  // 공유 관련 필드 (groupCode가 null이면 개인 구독)
-  final String? groupCode;
+  // 동기화 관련 필드
   final String? createdBy;
   final String? lastModifiedBy;
   final DateTime? updatedAt;
@@ -21,6 +21,7 @@ class UserSubscription {
 
   UserSubscription({
     required this.id,
+    required this.groupCode,
     required this.name,
     required this.amount,
     required this.currency,
@@ -30,21 +31,15 @@ class UserSubscription {
     this.memo,
     this.feeRatePercent,
     required this.createdAt,
-    this.groupCode,
     this.createdBy,
     this.lastModifiedBy,
     this.updatedAt,
     this.syncStatus = SyncStatus.synced,
   });
 
-  /// 개인 구독 여부
-  bool get isPersonal => groupCode == null;
-
-  /// 공유 구독 여부
-  bool get isShared => groupCode != null;
-
   UserSubscription copyWith({
     String? id,
+    String? groupCode,
     String? name,
     double? amount,
     String? currency,
@@ -56,8 +51,6 @@ class UserSubscription {
     bool clearMemo = false,
     double? feeRatePercent,
     DateTime? createdAt,
-    String? groupCode,
-    bool clearGroupCode = false,
     String? createdBy,
     String? lastModifiedBy,
     DateTime? updatedAt,
@@ -65,6 +58,7 @@ class UserSubscription {
   }) {
     return UserSubscription(
       id: id ?? this.id,
+      groupCode: groupCode ?? this.groupCode,
       name: name ?? this.name,
       amount: amount ?? this.amount,
       currency: currency ?? this.currency,
@@ -74,7 +68,6 @@ class UserSubscription {
       memo: clearMemo ? null : (memo ?? this.memo),
       feeRatePercent: feeRatePercent ?? this.feeRatePercent,
       createdAt: createdAt ?? this.createdAt,
-      groupCode: clearGroupCode ? null : (groupCode ?? this.groupCode),
       createdBy: createdBy ?? this.createdBy,
       lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -82,10 +75,11 @@ class UserSubscription {
     );
   }
 
-  /// Firebase Realtime DB JSON으로 변환 (공유 구독용)
+  /// Firestore JSON으로 변환
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'groupCode': groupCode,
       'name': name,
       'amount': amount,
       'currency': currency,
@@ -95,17 +89,17 @@ class UserSubscription {
       'memo': memo,
       'feeRatePercent': feeRatePercent,
       'createdAt': createdAt.millisecondsSinceEpoch,
-      'groupCode': groupCode,
       'createdBy': createdBy,
       'lastModifiedBy': lastModifiedBy,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
   }
 
-  /// Firebase Realtime DB JSON에서 생성
+  /// Firestore JSON에서 생성
   factory UserSubscription.fromJson(Map<String, dynamic> json) {
     return UserSubscription(
       id: json['id'] as String,
+      groupCode: json['groupCode'] as String,
       name: json['name'] as String,
       amount: (json['amount'] as num).toDouble(),
       currency: json['currency'] as String,
@@ -117,7 +111,6 @@ class UserSubscription {
           ? (json['feeRatePercent'] as num).toDouble()
           : null,
       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
-      groupCode: json['groupCode'] as String?,
       createdBy: json['createdBy'] as String?,
       lastModifiedBy: json['lastModifiedBy'] as String?,
       updatedAt: json['updatedAt'] != null

@@ -8,6 +8,7 @@ part 'database.g.dart';
 // ──────────────────────────────────────────────
 class UserSubscriptions extends Table {
   TextColumn get id => text()();
+  TextColumn get groupCode => text()(); // 필수 - 소속 그룹 코드
   TextColumn get name => text()();
   RealColumn get amount => real()();
   TextColumn get currency => text()(); // KRW, USD
@@ -54,7 +55,21 @@ class PresetCache extends Table {
 }
 
 // ──────────────────────────────────────────────
-// 4) payment_logs 테이블
+// 4) subscription_groups 테이블
+// ──────────────────────────────────────────────
+class SubscriptionGroups extends Table {
+  TextColumn get code => text()(); // 12자리 고유 코드 (PK)
+  TextColumn get name => text()();
+  TextColumn get ownerId => text()(); // 그룹장 UID
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {code};
+}
+
+// ──────────────────────────────────────────────
+// 5) payment_logs 테이블
 // ──────────────────────────────────────────────
 class PaymentLogs extends Table {
   TextColumn get id => text()();
@@ -74,26 +89,12 @@ class PaymentLogs extends Table {
 // ──────────────────────────────────────────────
 // AppDatabase
 // ──────────────────────────────────────────────
-@DriftDatabase(tables: [UserSubscriptions, FxRatesDaily, PresetCache, PaymentLogs])
+@DriftDatabase(tables: [UserSubscriptions, FxRatesDaily, PresetCache, SubscriptionGroups, PaymentLogs])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
-
-  @override
-  MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
-        onUpgrade: (m, from, to) async {
-          if (from < 2) {
-            await m.createTable(presetCache);
-          }
-          if (from < 3) {
-            // subscriptions → user_subscriptions 테이블명 변경
-            await m.renameTable(userSubscriptions, 'subscriptions');
-          }
-        },
-      );
+  int get schemaVersion => 1; // 초기화
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'subby.db');

@@ -1,18 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
-import 'package:subby/domain/model/share_group.dart';
+import 'package:subby/domain/model/subscription_group.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 
 class HomeState {
   final List<UserSubscription> subscriptions;
-  final List<ShareGroup> shareGroups;
+  final List<SubscriptionGroup> groups;
   final String? selectedGroupCode;
   final bool isLoading;
   final double totalKrw;
 
   const HomeState({
     this.subscriptions = const [],
-    this.shareGroups = const [],
+    this.groups = const [],
     this.selectedGroupCode,
     this.isLoading = true,
     this.totalKrw = 0,
@@ -20,13 +20,13 @@ class HomeState {
 
   String get currentGroupName {
     if (selectedGroupCode == null) return '내 구독';
-    final group = shareGroups.where((g) => g.code == selectedGroupCode).firstOrNull;
+    final group = groups.where((g) => g.code == selectedGroupCode).firstOrNull;
     return group?.name ?? '내 구독';
   }
 
   HomeState copyWith({
     List<UserSubscription>? subscriptions,
-    List<ShareGroup>? shareGroups,
+    List<SubscriptionGroup>? groups,
     String? selectedGroupCode,
     bool clearSelectedGroup = false,
     bool? isLoading,
@@ -34,7 +34,7 @@ class HomeState {
   }) {
     return HomeState(
       subscriptions: subscriptions ?? this.subscriptions,
-      shareGroups: shareGroups ?? this.shareGroups,
+      groups: groups ?? this.groups,
       selectedGroupCode: clearSelectedGroup ? null : (selectedGroupCode ?? this.selectedGroupCode),
       isLoading: isLoading ?? this.isLoading,
       totalKrw: totalKrw ?? this.totalKrw,
@@ -64,6 +64,7 @@ class HomeViewModel extends Notifier<HomeState> {
 
   List<UserSubscription> _filterByGroup(List<UserSubscription> subscriptions) {
     final groupCode = state.selectedGroupCode;
+    if (groupCode == null) return subscriptions;
     return subscriptions.where((s) => s.groupCode == groupCode).toList();
   }
 
