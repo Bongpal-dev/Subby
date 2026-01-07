@@ -1,11 +1,23 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subby/data/database/database.dart';
 
 class PresetLocalDataSource {
   final AppDatabase _db;
+  static const _versionKey = 'preset_version';
 
   PresetLocalDataSource(this._db);
+
+  Future<int?> getLocalVersion() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_versionKey);
+  }
+
+  Future<void> saveLocalVersion(int version) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_versionKey, version);
+  }
 
   Future<List<PresetCacheData>> getAll() async {
     return _db.select(_db.presetCache).get();

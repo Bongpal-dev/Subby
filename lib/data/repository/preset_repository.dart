@@ -27,7 +27,8 @@ class PresetRepositoryImpl implements PresetRepository {
     try {
       print('[PresetRepo] Fetching from Firebase...');
       final data = await _remoteDataSource.fetchPresets();
-      print('[PresetRepo] Firebase data: ${data?.length ?? 'null'}');
+      final remoteVersion = await _remoteDataSource.fetchVersion();
+      print('[PresetRepo] Firebase data: ${data?.length ?? 'null'}, version: $remoteVersion');
       if (data == null) {
         print('[PresetRepo] Firebase returned null, using cache');
         return getPresetsFromCache();
@@ -39,6 +40,10 @@ class PresetRepositoryImpl implements PresetRepository {
           .toList();
 
       await _localDataSource.cachePresets(companions);
+      if (remoteVersion != null) {
+        await _localDataSource.saveLocalVersion(remoteVersion);
+        print('[PresetRepo] Saved version: $remoteVersion');
+      }
       print('[PresetRepo] Cached ${companions.length} presets');
 
       return data.entries
@@ -58,12 +63,30 @@ class PresetRepositoryImpl implements PresetRepository {
 
     final cached = await getPresetsFromCache();
     if (cached.isNotEmpty) {
-      // 백그라운드에서 업데이트
-      fetchAndCachePresets();
+      // 버전 체크 후 필요시에만 업데이트
+      _checkAndUpdateIfNeeded();
       return cached;
     }
 
     return fetchAndCachePresets();
+  }
+
+  Future<void> _checkAndUpdateIfNeeded() async {
+    try {
+      final localVersion = await _localDataSource.getLocalVersion();
+      final remoteVersion = await _remoteDataSource.fetchVersion();
+
+      print('[PresetRepo] Version check - local: $localVersion, remote: $remoteVersion');
+
+      if (remoteVersion != null && remoteVersion != localVersion) {
+        print('[PresetRepo] Version changed, updating...');
+        await fetchAndCachePresets();
+      } else {
+        print('[PresetRepo] Version unchanged, using cache');
+      }
+    } catch (e) {
+      print('[PresetRepo] Version check failed: $e');
+    }
   }
 
   SubscriptionPreset _rowToPreset(PresetCacheData row) {
