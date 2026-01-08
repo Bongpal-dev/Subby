@@ -58,9 +58,10 @@ class PresetCache extends Table {
 // 4) subscription_groups 테이블
 // ──────────────────────────────────────────────
 class SubscriptionGroups extends Table {
-  TextColumn get code => text()(); // 12자리 고유 코드 (PK)
+  TextColumn get code => text()();
   TextColumn get name => text()();
-  TextColumn get ownerId => text()(); // 그룹장 UID
+  TextColumn get displayName => text().nullable()();
+  TextColumn get ownerId => text()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
 
@@ -94,7 +95,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1; // 초기화
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (migrator, from, to) async {
+      if (from < 2) {
+        await migrator.addColumn(subscriptionGroups, subscriptionGroups.displayName);
+      }
+    },
+  );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'subby.db');

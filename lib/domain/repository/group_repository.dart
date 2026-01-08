@@ -26,4 +26,7 @@ abstract class GroupRepository {
 
   /// 그룹 이름 존재 여부 확인
   Future<bool> existsByName(String name);
+
+  /// 표시 이름 변경 (로컬 전용)
+  Future<void> updateDisplayName(String code, String? displayName);
 }

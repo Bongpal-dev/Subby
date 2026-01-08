@@ -37,7 +37,7 @@ class AppDrawer extends ConsumerWidget {
                 children: [
                   // 모든 그룹 표시 (기본 그룹 포함)
                   ...state.groups.map((group) => _GroupTile(
-                        title: group.name,
+                        title: group.effectiveName,
                         subtitle: group.members.length > 1
                             ? '${group.members.length}명 참여'
                             : '나만 사용',
@@ -51,6 +51,12 @@ class AppDrawer extends ConsumerWidget {
                               .selectGroup(group.code);
                           Navigator.pop(context);
                         },
+                        onEdit: () => _showRenameGroupDialog(
+                          context,
+                          ref,
+                          group.code,
+                          group.effectiveName,
+                        ),
                       )),
 
                   // 그룹이 없는 경우 (초기화 중)
@@ -112,6 +118,21 @@ class AppDrawer extends ConsumerWidget {
       const SnackBar(content: Text('그룹 참여 기능 준비 중')),
     );
   }
+
+  void _showRenameGroupDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String groupCode,
+    String currentName,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => _RenameGroupDialog(
+        groupCode: groupCode,
+        currentName: currentName,
+      ),
+    );
+  }
 }
 
 class _GroupTile extends StatelessWidget {
@@ -120,6 +141,7 @@ class _GroupTile extends StatelessWidget {
   final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
 
   const _GroupTile({
     required this.title,
@@ -127,6 +149,7 @@ class _GroupTile extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     required this.onTap,
+    required this.onEdit,
   });
 
   @override
@@ -148,6 +171,10 @@ class _GroupTile extends StatelessWidget {
       subtitle: Text(
         subtitle,
         style: AppTypography.captionLarge.copyWith(color: colors.textTertiary),
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.edit_outlined, size: 20),
+        onPressed: onEdit,
       ),
       selected: isSelected,
       selectedTileColor: colors.selectedBg,
@@ -262,5 +289,99 @@ class _CreateGroupDialogState extends ConsumerState<_CreateGroupDialog> {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
       });
     }
+  }
+}
+
+class _RenameGroupDialog extends ConsumerStatefulWidget {
+  final String groupCode;
+  final String currentName;
+
+  const _RenameGroupDialog({
+    required this.groupCode,
+    required this.currentName,
+  });
+
+  @override
+  ConsumerState<_RenameGroupDialog> createState() => _RenameGroupDialogState();
+}
+
+class _RenameGroupDialogState extends ConsumerState<_RenameGroupDialog> {
+  late final TextEditingController _controller;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.currentName);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('그룹 이름 변경'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: '그룹 이름',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.4),
+                  ),
+                ),
+                maxLength: 10,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return '그룹 이름을 입력해주세요';
+                  }
+                  if (value.length >= 10) {
+                    return '최대 10자까지 입력 가능합니다';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+        FilledButton(
+          onPressed: _onSave,
+          child: const Text('저장'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _onSave() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final newName = _controller.text.trim();
+    final groupRepository = ref.read(groupRepositoryProvider);
+
+    await groupRepository.updateDisplayName(widget.groupCode, newName);
+
+    if (!mounted) return;
+    Navigator.pop(context);
   }
 }

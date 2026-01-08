@@ -69,12 +69,22 @@ class GroupRepositoryImpl implements GroupRepository {
     return row != null;
   }
 
+  @override
+  Future<void> updateDisplayName(String code, String? displayName) async {
+    await (_db.update(_db.subscriptionGroups)
+          ..where((t) => t.code.equals(code)))
+        .write(SubscriptionGroupsCompanion(
+          displayName: Value(displayName),
+        ));
+  }
+
   domain.SubscriptionGroup _toDomain(SubscriptionGroup row) {
     return domain.SubscriptionGroup(
       code: row.code,
       name: row.name,
+      displayName: row.displayName,
       ownerId: row.ownerId,
-      members: [row.ownerId], // 로컬에서는 멤버 목록을 별도 관리하지 않음
+      members: [row.ownerId],
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -84,6 +94,7 @@ class GroupRepositoryImpl implements GroupRepository {
     return SubscriptionGroupsCompanion.insert(
       code: group.code,
       name: group.name,
+      displayName: Value(group.displayName),
       ownerId: group.ownerId,
       createdAt: group.createdAt,
       updatedAt: Value.absentIfNull(group.updatedAt),
