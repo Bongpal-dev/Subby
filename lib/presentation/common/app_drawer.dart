@@ -57,6 +57,12 @@ class AppDrawer extends ConsumerWidget {
                           group.code,
                           group.effectiveName,
                         ),
+                        onLeave: () => _showLeaveGroupDialog(
+                          context,
+                          ref,
+                          group.code,
+                          group.effectiveName,
+                        ),
                       )),
 
                   // 그룹이 없는 경우 (초기화 중)
@@ -133,6 +139,21 @@ class AppDrawer extends ConsumerWidget {
       ),
     );
   }
+
+  void _showLeaveGroupDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String groupCode,
+    String groupName,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => _LeaveGroupDialog(
+        groupCode: groupCode,
+        groupName: groupName,
+      ),
+    );
+  }
 }
 
 class _GroupTile extends StatelessWidget {
@@ -142,6 +163,7 @@ class _GroupTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final VoidCallback onEdit;
+  final VoidCallback onLeave;
 
   const _GroupTile({
     required this.title,
@@ -150,6 +172,7 @@ class _GroupTile extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     required this.onEdit,
+    required this.onLeave,
   });
 
   @override
@@ -172,9 +195,34 @@ class _GroupTile extends StatelessWidget {
         subtitle,
         style: AppTypography.captionLarge.copyWith(color: colors.textTertiary),
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.edit_outlined, size: 20),
-        onPressed: onEdit,
+      trailing: PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert, size: 20),
+        onSelected: (value) {
+          if (value == 'edit') onEdit();
+          if (value == 'leave') onLeave();
+        },
+        itemBuilder: (context) => [
+          const PopupMenuItem(
+            value: 'edit',
+            child: Row(
+              children: [
+                Icon(Icons.edit_outlined, size: 20),
+                SizedBox(width: 8),
+                Text('이름 변경'),
+              ],
+            ),
+          ),
+          const PopupMenuItem(
+            value: 'leave',
+            child: Row(
+              children: [
+                Icon(Icons.logout, size: 20, color: Colors.red),
+                SizedBox(width: 8),
+                Text('나가기', style: TextStyle(color: Colors.red)),
+              ],
+            ),
+          ),
+        ],
       ),
       selected: isSelected,
       selectedTileColor: colors.selectedBg,
@@ -383,5 +431,76 @@ class _RenameGroupDialogState extends ConsumerState<_RenameGroupDialog> {
 
     if (!mounted) return;
     Navigator.pop(context);
+  }
+}
+
+class _LeaveGroupDialog extends ConsumerStatefulWidget {
+  final String groupCode;
+  final String groupName;
+
+  const _LeaveGroupDialog({
+    required this.groupCode,
+    required this.groupName,
+  });
+
+  @override
+  ConsumerState<_LeaveGroupDialog> createState() => _LeaveGroupDialogState();
+}
+
+class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('그룹 나가기'),
+      content: Text('"${widget.groupName}" 그룹에서 나가시겠습니까?\n\n그룹의 구독 내역이 삭제됩니다.'),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+        FilledButton(
+          onPressed: _isLoading ? null : _onLeave,
+          style: FilledButton.styleFrom(backgroundColor: Colors.red),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text('나가기'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _onLeave() async {
+    setState(() => _isLoading = true);
+
+    final leaveGroup = ref.read(leaveGroupUseCaseProvider);
+    final groups = ref.read(homeViewModelProvider).groups;
+
+    try {
+      await leaveGroup(widget.groupCode);
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      // 다른 그룹이 있으면 전환, 없으면 null
+      final remainingGroups = groups.where((g) => g.code != widget.groupCode);
+      if (remainingGroups.isNotEmpty) {
+        ref.read(homeViewModelProvider.notifier).selectGroup(remainingGroups.first.code);
+      }
+    } on Exception catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
   }
 }

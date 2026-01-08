@@ -6,6 +6,7 @@ import 'package:subby/data/repository/group_repository_impl.dart';
 import 'package:subby/domain/repository/group_repository.dart';
 import 'package:subby/domain/usecase/create_group_usecase.dart';
 import 'package:subby/domain/usecase/initialize_app_usecase.dart';
+import 'package:subby/domain/usecase/leave_group_usecase.dart';
 
 final groupRemoteDataSourceProvider = Provider<GroupRemoteDataSource>((ref) {
   return GroupRemoteDataSource();
@@ -33,6 +34,17 @@ final createGroupUseCaseProvider = Provider<CreateGroupUseCase>((ref) {
   return CreateGroupUseCase(
     authRepository: authRepository,
     groupRepository: groupRepository,
+  );
+});
+
+final leaveGroupUseCaseProvider = Provider<LeaveGroupUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final groupRepository = ref.watch(groupRepositoryProvider);
+  final remoteDataSource = ref.watch(groupRemoteDataSourceProvider);
+  return LeaveGroupUseCase(
+    authRepository: authRepository,
+    groupRepository: groupRepository,
+    remoteDataSource: remoteDataSource,
   );
 });
 
