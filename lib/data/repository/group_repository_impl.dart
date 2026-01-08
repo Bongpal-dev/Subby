@@ -27,9 +27,7 @@ class GroupRepositoryImpl implements GroupRepository {
   @override
   Future<void> create(domain.SubscriptionGroup group) async {
     await _db.into(_db.subscriptionGroups).insert(_toCompanion(group));
-    try {
-      await _remoteDataSource.saveGroup(group);
-    } catch (_) {}
+    _remoteDataSource.saveGroup(group).catchError((_) {});
   }
 
   @override
@@ -37,9 +35,7 @@ class GroupRepositoryImpl implements GroupRepository {
     await (_db.update(_db.subscriptionGroups)
           ..where((t) => t.code.equals(group.code)))
         .write(_toCompanion(group));
-    try {
-      await _remoteDataSource.saveGroup(group);
-    } catch (_) {}
+    _remoteDataSource.saveGroup(group).catchError((_) {});
   }
 
   @override
@@ -47,9 +43,7 @@ class GroupRepositoryImpl implements GroupRepository {
     await (_db.delete(_db.subscriptionGroups)
           ..where((t) => t.code.equals(code)))
         .go();
-    try {
-      await _remoteDataSource.deleteGroup(code);
-    } catch (_) {}
+    _remoteDataSource.deleteGroup(code).catchError((_) {});
   }
 
   @override
