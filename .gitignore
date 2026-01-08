@@ -4,6 +4,11 @@
 # Work documents
 .works/
 
+# Firebase
+**/google-services.json
+**/GoogleService-Info.plist
+lib/firebase_options.dart
+
 # Miscellaneous
 *.class
 *.log
