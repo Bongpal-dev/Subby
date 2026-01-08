@@ -34,44 +34,32 @@ class AppDrawer extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
-                  // 내 구독 (개인)
-                  _GroupTile(
-                    title: '내 구독',
-                    subtitle: '개인 구독 목록',
-                    icon: Icons.person_outline,
-                    isSelected: state.selectedGroupCode == null,
-                    onTap: () {
-                      ref.read(homeViewModelProvider.notifier).selectGroup(null);
-                      Navigator.pop(context);
-                    },
-                  ),
+                  // 모든 그룹 표시 (기본 그룹 포함)
+                  ...state.groups.map((group) => _GroupTile(
+                        title: group.name,
+                        subtitle: group.members.length > 1
+                            ? '${group.members.length}명 참여'
+                            : '나만 사용',
+                        icon: group.members.length > 1
+                            ? Icons.group_outlined
+                            : Icons.person_outline,
+                        isSelected: state.selectedGroupCode == group.code,
+                        onTap: () {
+                          ref
+                              .read(homeViewModelProvider.notifier)
+                              .selectGroup(group.code);
+                          Navigator.pop(context);
+                        },
+                      )),
 
-                  // 그룹 목록
-                  if (state.groups.isNotEmpty) ...[
+                  // 그룹이 없는 경우 (초기화 중)
+                  if (state.groups.isEmpty)
                     const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
-                        '다른 그룹',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
-                        ),
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
                     ),
-                    ...state.groups.map((group) => _GroupTile(
-                          title: group.name,
-                          subtitle: '${group.members.length}명 참여',
-                          icon: Icons.group_outlined,
-                          isSelected: state.selectedGroupCode == group.code,
-                          onTap: () {
-                            ref
-                                .read(homeViewModelProvider.notifier)
-                                .selectGroup(group.code);
-                            Navigator.pop(context);
-                          },
-                        )),
-                  ],
                 ],
               ),
             ),

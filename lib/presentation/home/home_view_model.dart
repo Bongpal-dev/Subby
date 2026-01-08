@@ -45,8 +45,20 @@ class HomeState {
 class HomeViewModel extends Notifier<HomeState> {
   @override
   HomeState build() {
+    _watchGroups();
     _watchSubscriptions();
     return const HomeState();
+  }
+
+  void _watchGroups() {
+    final groupRepository = ref.read(groupRepositoryProvider);
+    groupRepository.watchAll().listen((groups) {
+      final currentGroupCode = ref.read(currentGroupCodeProvider);
+      state = state.copyWith(
+        groups: groups,
+        selectedGroupCode: currentGroupCode ?? groups.firstOrNull?.code,
+      );
+    });
   }
 
   void _watchSubscriptions() {
