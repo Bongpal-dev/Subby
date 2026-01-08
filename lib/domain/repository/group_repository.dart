@@ -23,4 +23,7 @@ abstract class GroupRepository {
 
   /// 특정 그룹 실시간 감시
   Stream<SubscriptionGroup?> watchByCode(String code);
+
+  /// 그룹 이름 존재 여부 확인
+  Future<bool> existsByName(String name);
 }
