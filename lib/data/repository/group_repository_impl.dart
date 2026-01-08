@@ -1,13 +1,14 @@
 import 'package:drift/drift.dart';
 import 'package:subby/data/database/database.dart';
+import 'package:subby/data/datasource/group_remote_datasource.dart';
 import 'package:subby/domain/model/subscription_group.dart' as domain;
 import 'package:subby/domain/repository/group_repository.dart';
 
-/// 로컬 DB 기반 그룹 저장소 구현
-class LocalGroupRepositoryImpl implements GroupRepository {
+class GroupRepositoryImpl implements GroupRepository {
   final AppDatabase _db;
+  final GroupRemoteDataSource _remoteDataSource;
 
-  LocalGroupRepositoryImpl(this._db);
+  GroupRepositoryImpl(this._db, this._remoteDataSource);
 
   @override
   Future<List<domain.SubscriptionGroup>> getAll() async {
@@ -26,6 +27,9 @@ class LocalGroupRepositoryImpl implements GroupRepository {
   @override
   Future<void> create(domain.SubscriptionGroup group) async {
     await _db.into(_db.subscriptionGroups).insert(_toCompanion(group));
+    try {
+      await _remoteDataSource.saveGroup(group);
+    } catch (_) {}
   }
 
   @override
@@ -33,6 +37,9 @@ class LocalGroupRepositoryImpl implements GroupRepository {
     await (_db.update(_db.subscriptionGroups)
           ..where((t) => t.code.equals(group.code)))
         .write(_toCompanion(group));
+    try {
+      await _remoteDataSource.saveGroup(group);
+    } catch (_) {}
   }
 
   @override
@@ -40,6 +47,9 @@ class LocalGroupRepositoryImpl implements GroupRepository {
     await (_db.delete(_db.subscriptionGroups)
           ..where((t) => t.code.equals(code)))
         .go();
+    try {
+      await _remoteDataSource.deleteGroup(code);
+    } catch (_) {}
   }
 
   @override
