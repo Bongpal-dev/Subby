@@ -53,10 +53,9 @@ class HomeViewModel extends Notifier<HomeState> {
   void _watchGroups() {
     final groupRepository = ref.read(groupRepositoryProvider);
     groupRepository.watchAll().listen((groups) {
-      final currentGroupCode = ref.read(currentGroupCodeProvider);
       state = state.copyWith(
         groups: groups,
-        selectedGroupCode: currentGroupCode ?? groups.firstOrNull?.code,
+        selectedGroupCode: state.selectedGroupCode ?? groups.firstOrNull?.code,
       );
     });
   }

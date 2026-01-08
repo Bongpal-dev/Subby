@@ -251,8 +251,7 @@ class _CreateGroupDialogState extends ConsumerState<_CreateGroupDialog> {
       if (!mounted) return;
       Navigator.pop(context);
 
-      // 생성된 그룹으로 전환
-      ref.read(currentGroupCodeProvider.notifier).state = groupCode;
+      ref.read(homeViewModelProvider.notifier).selectGroup(groupCode);
     } on Exception catch (e) {
       if (!mounted) return;
       setState(() {
