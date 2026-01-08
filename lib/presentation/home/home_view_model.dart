@@ -21,7 +21,7 @@ class HomeState {
   String get currentGroupName {
     if (selectedGroupCode == null) return '내 구독';
     final group = groups.where((g) => g.code == selectedGroupCode).firstOrNull;
-    return group?.name ?? '내 구독';
+    return group?.effectiveName ?? '내 구독';
   }
 
   HomeState copyWith({

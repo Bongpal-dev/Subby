@@ -1588,6 +1588,17 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _ownerIdMeta = const VerificationMeta(
     'ownerId',
   );
@@ -1625,6 +1636,7 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
   List<GeneratedColumn> get $columns => [
     code,
     name,
+    displayName,
     ownerId,
     createdAt,
     updatedAt,
@@ -1656,6 +1668,15 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
     }
     if (data.containsKey('owner_id')) {
       context.handle(
@@ -1696,6 +1717,10 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      ),
       ownerId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}owner_id'],
@@ -1721,12 +1746,14 @@ class SubscriptionGroup extends DataClass
     implements Insertable<SubscriptionGroup> {
   final String code;
   final String name;
+  final String? displayName;
   final String ownerId;
   final DateTime createdAt;
   final DateTime? updatedAt;
   const SubscriptionGroup({
     required this.code,
     required this.name,
+    this.displayName,
     required this.ownerId,
     required this.createdAt,
     this.updatedAt,
@@ -1736,6 +1763,9 @@ class SubscriptionGroup extends DataClass
     final map = <String, Expression>{};
     map['code'] = Variable<String>(code);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || displayName != null) {
+      map['display_name'] = Variable<String>(displayName);
+    }
     map['owner_id'] = Variable<String>(ownerId);
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
@@ -1748,6 +1778,9 @@ class SubscriptionGroup extends DataClass
     return SubscriptionGroupsCompanion(
       code: Value(code),
       name: Value(name),
+      displayName: displayName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayName),
       ownerId: Value(ownerId),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
@@ -1764,6 +1797,7 @@ class SubscriptionGroup extends DataClass
     return SubscriptionGroup(
       code: serializer.fromJson<String>(json['code']),
       name: serializer.fromJson<String>(json['name']),
+      displayName: serializer.fromJson<String?>(json['displayName']),
       ownerId: serializer.fromJson<String>(json['ownerId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -1775,6 +1809,7 @@ class SubscriptionGroup extends DataClass
     return <String, dynamic>{
       'code': serializer.toJson<String>(code),
       'name': serializer.toJson<String>(name),
+      'displayName': serializer.toJson<String?>(displayName),
       'ownerId': serializer.toJson<String>(ownerId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -1784,12 +1819,14 @@ class SubscriptionGroup extends DataClass
   SubscriptionGroup copyWith({
     String? code,
     String? name,
+    Value<String?> displayName = const Value.absent(),
     String? ownerId,
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
   }) => SubscriptionGroup(
     code: code ?? this.code,
     name: name ?? this.name,
+    displayName: displayName.present ? displayName.value : this.displayName,
     ownerId: ownerId ?? this.ownerId,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -1798,6 +1835,9 @@ class SubscriptionGroup extends DataClass
     return SubscriptionGroup(
       code: data.code.present ? data.code.value : this.code,
       name: data.name.present ? data.name.value : this.name,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
       ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -1809,6 +1849,7 @@ class SubscriptionGroup extends DataClass
     return (StringBuffer('SubscriptionGroup(')
           ..write('code: $code, ')
           ..write('name: $name, ')
+          ..write('displayName: $displayName, ')
           ..write('ownerId: $ownerId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -1817,13 +1858,15 @@ class SubscriptionGroup extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(code, name, ownerId, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(code, name, displayName, ownerId, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SubscriptionGroup &&
           other.code == this.code &&
           other.name == this.name &&
+          other.displayName == this.displayName &&
           other.ownerId == this.ownerId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -1832,6 +1875,7 @@ class SubscriptionGroup extends DataClass
 class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
   final Value<String> code;
   final Value<String> name;
+  final Value<String?> displayName;
   final Value<String> ownerId;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
@@ -1839,6 +1883,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
   const SubscriptionGroupsCompanion({
     this.code = const Value.absent(),
     this.name = const Value.absent(),
+    this.displayName = const Value.absent(),
     this.ownerId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -1847,6 +1892,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
   SubscriptionGroupsCompanion.insert({
     required String code,
     required String name,
+    this.displayName = const Value.absent(),
     required String ownerId,
     required DateTime createdAt,
     this.updatedAt = const Value.absent(),
@@ -1858,6 +1904,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
   static Insertable<SubscriptionGroup> custom({
     Expression<String>? code,
     Expression<String>? name,
+    Expression<String>? displayName,
     Expression<String>? ownerId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -1866,6 +1913,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     return RawValuesInsertable({
       if (code != null) 'code': code,
       if (name != null) 'name': name,
+      if (displayName != null) 'display_name': displayName,
       if (ownerId != null) 'owner_id': ownerId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -1876,6 +1924,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
   SubscriptionGroupsCompanion copyWith({
     Value<String>? code,
     Value<String>? name,
+    Value<String?>? displayName,
     Value<String>? ownerId,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
@@ -1884,6 +1933,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     return SubscriptionGroupsCompanion(
       code: code ?? this.code,
       name: name ?? this.name,
+      displayName: displayName ?? this.displayName,
       ownerId: ownerId ?? this.ownerId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -1899,6 +1949,9 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
     }
     if (ownerId.present) {
       map['owner_id'] = Variable<String>(ownerId.value);
@@ -1920,6 +1973,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     return (StringBuffer('SubscriptionGroupsCompanion(')
           ..write('code: $code, ')
           ..write('name: $name, ')
+          ..write('displayName: $displayName, ')
           ..write('ownerId: $ownerId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -3321,6 +3375,7 @@ typedef $$SubscriptionGroupsTableCreateCompanionBuilder =
     SubscriptionGroupsCompanion Function({
       required String code,
       required String name,
+      Value<String?> displayName,
       required String ownerId,
       required DateTime createdAt,
       Value<DateTime?> updatedAt,
@@ -3330,6 +3385,7 @@ typedef $$SubscriptionGroupsTableUpdateCompanionBuilder =
     SubscriptionGroupsCompanion Function({
       Value<String> code,
       Value<String> name,
+      Value<String?> displayName,
       Value<String> ownerId,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
@@ -3352,6 +3408,11 @@ class $$SubscriptionGroupsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+    column: $table.displayName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3390,6 +3451,11 @@ class $$SubscriptionGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get ownerId => $composableBuilder(
     column: $table.ownerId,
     builder: (column) => ColumnOrderings(column),
@@ -3420,6 +3486,11 @@ class $$SubscriptionGroupsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get ownerId =>
       $composableBuilder(column: $table.ownerId, builder: (column) => column);
@@ -3473,6 +3544,7 @@ class $$SubscriptionGroupsTableTableManager
               ({
                 Value<String> code = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String?> displayName = const Value.absent(),
                 Value<String> ownerId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -3480,6 +3552,7 @@ class $$SubscriptionGroupsTableTableManager
               }) => SubscriptionGroupsCompanion(
                 code: code,
                 name: name,
+                displayName: displayName,
                 ownerId: ownerId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -3489,6 +3562,7 @@ class $$SubscriptionGroupsTableTableManager
               ({
                 required String code,
                 required String name,
+                Value<String?> displayName = const Value.absent(),
                 required String ownerId,
                 required DateTime createdAt,
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -3496,6 +3570,7 @@ class $$SubscriptionGroupsTableTableManager
               }) => SubscriptionGroupsCompanion.insert(
                 code: code,
                 name: name,
+                displayName: displayName,
                 ownerId: ownerId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
