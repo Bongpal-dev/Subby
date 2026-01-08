@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 
 class AppDrawer extends ConsumerWidget {
@@ -21,9 +23,7 @@ class AppDrawer extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: Text(
                 '구독 그룹',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                style: AppTypography.headlineLarge.copyWith(
                   color: colorScheme.onSurface,
                 ),
               ),
@@ -131,23 +131,26 @@ class _GroupTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
 
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+        color: isSelected ? colors.primary : colors.textPrimary,
       ),
       title: Text(
         title,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          color: isSelected ? colorScheme.primary : colorScheme.onSurface,
-        ),
+        style: (isSelected ? AppTypography.titleLarge : AppTypography.bodyLarge)
+            .copyWith(color: isSelected ? colors.primary : colors.textPrimary),
       ),
-      subtitle: Text(subtitle),
+      subtitle: Text(
+        subtitle,
+        style: AppTypography.captionLarge.copyWith(color: colors.textTertiary),
+      ),
       selected: isSelected,
-      selectedTileColor: colorScheme.primary.withValues(alpha: 0.1),
+      selectedTileColor: colors.selectedBg,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onTap: onTap,
     );
