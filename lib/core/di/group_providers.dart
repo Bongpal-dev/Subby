@@ -1,15 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/auth_providers.dart';
 import 'package:subby/core/di/database_provider.dart';
+import 'package:subby/data/datasource/group_remote_datasource.dart';
 import 'package:subby/data/repository/group_repository_impl.dart';
 import 'package:subby/domain/repository/group_repository.dart';
 import 'package:subby/domain/usecase/create_group_usecase.dart';
 import 'package:subby/domain/usecase/initialize_app_usecase.dart';
 
-// Repository
+final groupRemoteDataSourceProvider = Provider<GroupRemoteDataSource>((ref) {
+  return GroupRemoteDataSource();
+});
+
 final groupRepositoryProvider = Provider<GroupRepository>((ref) {
   final db = ref.watch(databaseProvider);
-  return LocalGroupRepositoryImpl(db);
+  final remoteDataSource = ref.watch(groupRemoteDataSourceProvider);
+  return GroupRepositoryImpl(db, remoteDataSource);
 });
 
 // UseCases
