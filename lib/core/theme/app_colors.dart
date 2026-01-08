@@ -2,13 +2,42 @@ import 'package:flutter/material.dart';
 
 abstract class AppColors {
   // Light Mode
-  static const light = _LightColors();
+  static const AppColorScheme light = _LightColors();
 
   // Dark Mode
-  static const dark = _DarkColors();
+  static const AppColorScheme dark = _DarkColors();
 }
 
-class _LightColors {
+abstract class AppColorScheme {
+  const AppColorScheme();
+
+  // 메인 컬러
+  Color get primary;
+  Color get secondary;
+
+  // 배경
+  Color get background;
+  Color get surface;
+
+  // 텍스트
+  Color get textPrimary;
+  Color get textSecondary;
+  Color get textTertiary;
+
+  // 상태
+  Color get error;
+  Color get success;
+  Color get warning;
+
+  // UI 요소
+  Color get border;
+  Color get divider;
+  Color get disabled;
+  Color get selectedBg;
+  Color get overlay;
+}
+
+class _LightColors extends AppColorScheme {
   const _LightColors();
 
   // 메인 컬러
@@ -37,7 +66,7 @@ class _LightColors {
   final Color overlay = const Color(0x52000000); // black 32%
 }
 
-class _DarkColors {
+class _DarkColors extends AppColorScheme {
   const _DarkColors();
 
   // 메인 컬러

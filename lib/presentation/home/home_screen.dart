@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
@@ -59,9 +61,9 @@ class HomeScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     '+ 구독 추가하기',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: AppTypography.titleLarge,
                   ),
                 ),
               ),
@@ -111,22 +113,14 @@ class _HeaderCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             '이번 달 구독료',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+            style: AppTypography.titleLarge.copyWith(color: Colors.white),
           ),
           const SizedBox(height: 8),
           Text(
             '\u20a9$formatted',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTypography.displayLarge.copyWith(color: Colors.white),
           ),
         ],
       ),
@@ -146,7 +140,9 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
 
     return Center(
       child: Column(
@@ -155,24 +151,17 @@ class _EmptyState extends StatelessWidget {
           Icon(
             Icons.subscriptions_outlined,
             size: 64,
-            color: colorScheme.primary.withValues(alpha: 0.5),
+            color: colors.primary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
             '아직 등록된 구독이 없습니다',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: AppTypography.titleLarge.copyWith(color: colors.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
             '아래 버튼을 눌러 첫 구독을 추가해보세요!',
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
+            style: AppTypography.bodySmall.copyWith(color: colors.textTertiary),
           ),
         ],
       ),
@@ -213,7 +202,9 @@ class _SubscriptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
     final isUsd = subscription.currency == 'USD';
 
     final currencySymbol = isUsd ? '\$' : '\u20a9';
@@ -238,18 +229,15 @@ class _SubscriptionTile extends StatelessWidget {
                   children: [
                     Text(
                       subscription.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: colorScheme.onSurface,
+                      style: AppTypography.titleLarge.copyWith(
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '매월 ${subscription.billingDay}일 결제',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      style: AppTypography.bodySmall.copyWith(
+                        color: colors.textTertiary,
                       ),
                     ),
                   ],
@@ -260,19 +248,16 @@ class _SubscriptionTile extends StatelessWidget {
                 children: [
                   Text(
                     '$currencySymbol$formattedAmount',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: colorScheme.primary,
+                    style: AppTypography.titleLarge.copyWith(
+                      color: colors.primary,
                     ),
                   ),
                   if (krwConverted != null) ...[
                     const SizedBox(height: 4),
                     Text(
                       '\u2248 \u20a9${_formatKrw(krwConverted)}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      style: AppTypography.captionLarge.copyWith(
+                        color: colors.textTertiary,
                       ),
                     ),
                   ],
