@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/subby_app_bar.dart';
 import 'package:subby/presentation/subscription/subscription_edit_view_model.dart';
 
@@ -70,7 +72,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                         const SizedBox(width: 12),
                         Text(
                           state.name,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                          style: AppTypography.headlineSmall,
                         ),
                       ],
                     ),
@@ -114,9 +116,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                                   child: Center(
                                     child: Text(
                                       vm.formatAmount(),
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
+                                      style: AppTypography.displaySmall.copyWith(
                                         color: colorScheme.primary,
                                       ),
                                     ),
@@ -160,9 +160,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                                   child: Center(
                                     child: Text(
                                       '매월 ${state.billingDay}일',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                                      style: AppTypography.titleLarge.copyWith(
                                         color: colorScheme.primary,
                                       ),
                                     ),
@@ -237,7 +235,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                           height: 24,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      : Text('저장', style: AppTypography.titleLarge),
                 ),
               ),
             ),
@@ -259,13 +257,12 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
   }
 
   Widget _buildLabel(String text) {
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-      ),
+      style: AppTypography.captionLarge.copyWith(color: colors.textTertiary),
     );
   }
 
@@ -277,6 +274,9 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
     bool compact = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
 
     return Container(
       padding: const EdgeInsets.all(4),
@@ -299,10 +299,8 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                 child: Center(
                   child: Text(
                     labels[index],
-                    style: TextStyle(
-                      fontSize: compact ? 13 : 14,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.6),
+                    style: (compact ? AppTypography.labelSmall : AppTypography.labelLarge).copyWith(
+                      color: isSelected ? Colors.white : colors.textTertiary,
                     ),
                   ),
                 ),
