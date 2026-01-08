@@ -34,6 +34,29 @@ class GroupRemoteDataSource {
     await _groupsRef.doc(code).delete();
   }
 
+  Future<void> leaveGroup(String code, String userId) async {
+    final doc = await _groupsRef.doc(code).get();
+    if (!doc.exists || doc.data() == null) return;
+
+    final data = doc.data()!;
+    final members = List<String>.from(data['members'] ?? []);
+
+    if (members.length <= 1) {
+      await deleteGroup(code);
+      return;
+    }
+
+    members.remove(userId);
+    final updates = <String, dynamic>{'members': members};
+
+    // 방장이 나가면 다음 멤버에게 이전
+    if (data['ownerId'] == userId && members.isNotEmpty) {
+      updates['ownerId'] = members.first;
+    }
+
+    await _groupsRef.doc(code).update(updates);
+  }
+
   SubscriptionGroup _toGroup(Map<String, dynamic> data) {
     return SubscriptionGroup(
       code: data['code'] as String,
