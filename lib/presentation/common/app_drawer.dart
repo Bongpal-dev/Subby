@@ -98,9 +98,9 @@ class AppDrawer extends ConsumerWidget {
 
   void _showCreateGroupDialog(BuildContext context, WidgetRef ref) {
     Navigator.pop(context);
-    // TODO: 그룹 생성 다이얼로그
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('그룹 만들기 기능 준비 중')),
+    showDialog(
+      context: context,
+      builder: (context) => const _CreateGroupDialog(),
     );
   }
 
@@ -149,6 +149,81 @@ class _GroupTile extends StatelessWidget {
       selectedTileColor: colorScheme.primary.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onTap: onTap,
+    );
+  }
+}
+
+class _CreateGroupDialog extends StatefulWidget {
+  const _CreateGroupDialog();
+
+  @override
+  State<_CreateGroupDialog> createState() => _CreateGroupDialogState();
+}
+
+class _CreateGroupDialogState extends State<_CreateGroupDialog> {
+  final _controller = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('새 그룹 만들기'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: TextFormField(
+          controller: _controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: '그룹 이름',
+            hintText: '예: 가족 구독, 친구들',
+            hintStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+          ),
+          maxLength: 10,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return '그룹 이름을 입력해주세요';
+            }
+            if (value.length >= 10) {
+              return '최대 10자까지 입력 가능합니다';
+            }
+            return null;
+          },
+        ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+        FilledButton(
+          onPressed: _onCreate,
+          child: const Text('만들기'),
+        ),
+      ],
+    );
+  }
+
+  void _onCreate() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final groupName = _controller.text.trim();
+    Navigator.pop(context);
+
+    // TODO: #19 CreateGroupUseCase 연동
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('그룹 "$groupName" 생성 예정 (UseCase 연동 필요)')),
     );
   }
 }
