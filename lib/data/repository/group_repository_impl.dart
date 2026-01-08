@@ -57,6 +57,14 @@ class LocalGroupRepositoryImpl implements GroupRepository {
         .map((row) => row != null ? _toDomain(row) : null);
   }
 
+  @override
+  Future<bool> existsByName(String name) async {
+    final row = await (_db.select(_db.subscriptionGroups)
+          ..where((t) => t.name.equals(name)))
+        .getSingleOrNull();
+    return row != null;
+  }
+
   domain.SubscriptionGroup _toDomain(SubscriptionGroup row) {
     return domain.SubscriptionGroup(
       code: row.code,
