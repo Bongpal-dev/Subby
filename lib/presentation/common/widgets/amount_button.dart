@@ -19,15 +19,15 @@ class AmountButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 56,
-        height: 56,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           color: isPrimary ? colorScheme.primary : colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
           icon,
-          size: 28,
+          size: 24,
           color: isPrimary ? Colors.white : colorScheme.onSurface,
         ),
       ),
