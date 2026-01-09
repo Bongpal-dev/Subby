@@ -29,6 +29,7 @@ dependencies:
   firebase_database: ^12.1.1
   flutter_riverpod: ^2.6.1
   shared_preferences: ^2.3.5
+  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:

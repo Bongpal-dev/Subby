@@ -88,20 +88,37 @@ class PaymentLogs extends Table {
 }
 
 // ──────────────────────────────────────────────
+// 6) pending_changes 테이블 (오프라인 동기화 큐)
+// ──────────────────────────────────────────────
+class PendingChanges extends Table {
+  TextColumn get entityId => text()(); // PK - 대상 엔티티 ID
+  TextColumn get entityType => text()(); // 'subscription', 'group'
+  TextColumn get action => text()(); // 'create', 'update', 'delete'
+  TextColumn get payload => text()(); // JSON 데이터
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {entityId};
+}
+
+// ──────────────────────────────────────────────
 // AppDatabase
 // ──────────────────────────────────────────────
-@DriftDatabase(tables: [UserSubscriptions, FxRatesDaily, PresetCache, SubscriptionGroups, PaymentLogs])
+@DriftDatabase(tables: [UserSubscriptions, FxRatesDaily, PresetCache, SubscriptionGroups, PaymentLogs, PendingChanges])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
         await migrator.addColumn(subscriptionGroups, subscriptionGroups.displayName);
+      }
+      if (from < 3) {
+        await migrator.createTable(pendingChanges);
       }
     },
   );
