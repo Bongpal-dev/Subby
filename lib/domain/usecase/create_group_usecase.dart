@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/core/util/group_code_generator.dart';
 import 'package:subby/domain/model/pending_change.dart';
@@ -47,14 +45,9 @@ class CreateGroupUseCase {
     try {
       await _groupRepository.create(newGroup);
     } on FirebaseSyncException {
-      await _pendingChangeRepository.save(
-        PendingChange(
-          entityId: newGroup.code,
-          entityType: EntityType.group,
-          action: ChangeAction.create,
-          payload: jsonEncode(newGroup.toJson()),
-          createdAt: DateTime.now(),
-        ),
+      await _pendingChangeRepository.saveGroupChange(
+        newGroup,
+        ChangeAction.create,
       );
     }
 

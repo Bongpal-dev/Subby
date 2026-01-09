@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
@@ -36,7 +34,7 @@ class LeaveGroupUseCase {
           entityId: groupCode,
           entityType: EntityType.group,
           action: ChangeAction.delete,
-          payload: jsonEncode({'userId': userId}),
+          payload: '',
           createdAt: DateTime.now(),
         ),
       );

@@ -3,6 +3,7 @@ import 'package:subby/core/di/database_provider.dart';
 import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/data/datasource/group_local_datasource.dart';
 import 'package:subby/data/datasource/group_remote_datasource.dart';
+import 'package:subby/data/datasource/pending_change_local_datasource.dart';
 import 'package:subby/data/datasource/preset_local_datasource.dart';
 import 'package:subby/data/datasource/preset_remote_datasource.dart';
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
@@ -35,4 +36,10 @@ final presetLocalDataSourceProvider = Provider<PresetLocalDataSource>((ref) {
   final db = ref.watch(databaseProvider);
 
   return PresetLocalDataSource(db);
+});
+
+final pendingChangeLocalDataSourceProvider = Provider<PendingChangeLocalDataSource>((ref) {
+  final db = ref.watch(databaseProvider);
+
+  return PendingChangeLocalDataSource(db);
 });

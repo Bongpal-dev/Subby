@@ -74,49 +74,4 @@ class UserSubscription {
       syncStatus: syncStatus ?? this.syncStatus,
     );
   }
-
-  /// Firestore JSON으로 변환
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'groupCode': groupCode,
-      'name': name,
-      'amount': amount,
-      'currency': currency,
-      'billingDay': billingDay,
-      'period': period,
-      'category': category,
-      'memo': memo,
-      'feeRatePercent': feeRatePercent,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'createdBy': createdBy,
-      'lastModifiedBy': lastModifiedBy,
-      'updatedAt': updatedAt?.millisecondsSinceEpoch,
-    };
-  }
-
-  /// Firestore JSON에서 생성
-  factory UserSubscription.fromJson(Map<String, dynamic> json) {
-    return UserSubscription(
-      id: json['id'] as String,
-      groupCode: json['groupCode'] as String,
-      name: json['name'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      currency: json['currency'] as String,
-      billingDay: json['billingDay'] as int,
-      period: json['period'] as String,
-      category: json['category'] as String?,
-      memo: json['memo'] as String?,
-      feeRatePercent: json['feeRatePercent'] != null
-          ? (json['feeRatePercent'] as num).toDouble()
-          : null,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
-      createdBy: json['createdBy'] as String?,
-      lastModifiedBy: json['lastModifiedBy'] as String?,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int)
-          : null,
-      syncStatus: SyncStatus.synced,
-    );
-  }
 }

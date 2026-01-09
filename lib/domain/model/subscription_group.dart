@@ -42,43 +42,6 @@ class SubscriptionGroup {
     );
   }
 
-  /// Firestore JSON으로 변환
-  /// members는 map 형태로 저장 (Security Rules 활용 용이)
-  Map<String, dynamic> toJson() {
-    return {
-      'code': code,
-      'name': name,
-      'ownerId': ownerId,
-      'members': {for (var uid in members) uid: true},
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt?.millisecondsSinceEpoch,
-    };
-  }
-
-  /// Firestore JSON에서 생성
-  factory SubscriptionGroup.fromJson(Map<String, dynamic> json) {
-    // members가 map 형태인 경우 key 목록 추출
-    List<String> memberList = [];
-    if (json['members'] != null) {
-      if (json['members'] is Map) {
-        memberList = (json['members'] as Map).keys.cast<String>().toList();
-      } else if (json['members'] is List) {
-        memberList = List<String>.from(json['members']);
-      }
-    }
-
-    return SubscriptionGroup(
-      code: json['code'] as String,
-      name: json['name'] as String,
-      ownerId: json['ownerId'] as String,
-      members: memberList,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int)
-          : null,
-    );
-  }
-
   /// 그룹장 여부 확인
   bool isOwner(String userId) => ownerId == userId;
 
