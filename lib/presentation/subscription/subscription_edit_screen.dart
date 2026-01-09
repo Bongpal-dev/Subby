@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/subby_app_bar.dart';
+import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/subscription/subscription_edit_view_model.dart';
 
 class SubscriptionEditScreen extends ConsumerStatefulWidget {
@@ -65,7 +66,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                 padding: const EdgeInsets.all(16),
                 children: [
                   // 서비스명 (읽기 전용)
-                  _buildCard(
+                  AppCard(
                     child: Row(
                       children: [
                         Icon(Icons.subscriptions_outlined, color: colorScheme.primary),
@@ -80,7 +81,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                   const SizedBox(height: 12),
 
                   // 통화 + 금액 그룹
-                  _buildCard(
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -140,7 +141,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                   const SizedBox(height: 12),
 
                   // 결제일 + 결제 주기 그룹
-                  _buildCard(
+                  AppCard(
                     child: Row(
                       children: [
                         Expanded(
@@ -193,7 +194,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                   const SizedBox(height: 12),
 
                   // 메모
-                  _buildCard(
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -242,17 +243,6 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildCard({required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: child,
     );
   }
 

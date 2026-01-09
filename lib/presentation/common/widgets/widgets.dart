@@ -1,1 +1,1 @@
-// Common widgets barrel file
+export 'app_card.dart';
