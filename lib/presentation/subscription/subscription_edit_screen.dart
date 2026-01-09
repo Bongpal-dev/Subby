@@ -99,10 +99,9 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            _buildAmountButton(
+                            AmountButton(
                               icon: Icons.remove,
                               onTap: () => vm.changeAmount(-1),
-                              isPrimary: false,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -126,7 +125,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                               ),
                             ),
                             const SizedBox(width: 12),
-                            _buildAmountButton(
+                            AmountButton(
                               icon: Icons.add,
                               onTap: () => vm.changeAmount(1),
                               isPrimary: true,
@@ -298,31 +297,6 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
             ),
           );
         }),
-      ),
-    );
-  }
-
-  Widget _buildAmountButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    required bool isPrimary,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: isPrimary ? colorScheme.primary : colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(
-          icon,
-          size: 28,
-          color: isPrimary ? Colors.white : colorScheme.onSurface,
-        ),
       ),
     );
   }
