@@ -194,22 +194,12 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
 
                   // 메모
                   AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('메모 (선택)'),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _memoController,
-                          decoration: const InputDecoration(
-                            hintText: '메모를 입력하세요',
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          maxLines: 3,
-                          onChanged: vm.setMemo,
-                        ),
-                      ],
+                    child: AppTextField(
+                      label: '메모 (선택)',
+                      hint: '메모를 입력하세요',
+                      controller: _memoController,
+                      onChanged: vm.setMemo,
+                      maxLines: 3,
                     ),
                   ),
                   const SizedBox(height: 80),
