@@ -7,8 +7,9 @@ abstract class AppTypography {
   // Font Weights
   static const FontWeight light = FontWeight.w300;
   static const FontWeight regular = FontWeight.w400;
+  static const FontWeight medium = FontWeight.w500;
+  static const FontWeight semibold = FontWeight.w600;
   static const FontWeight bold = FontWeight.w700;
-  static const FontWeight extraBold = FontWeight.w800;
 
   // ============================================
   // Display - 큰 숫자, 금액
@@ -16,13 +17,13 @@ abstract class AppTypography {
   static const TextStyle displayLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 32,
-    fontWeight: extraBold,
+    fontWeight: bold,
   );
 
   static const TextStyle displaySmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 24,
-    fontWeight: extraBold,
+    fontWeight: bold,
   );
 
   // ============================================
@@ -37,7 +38,7 @@ abstract class AppTypography {
   static const TextStyle headlineSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 18,
-    fontWeight: bold,
+    fontWeight: semibold,
   );
 
   // ============================================
@@ -46,13 +47,13 @@ abstract class AppTypography {
   static const TextStyle titleLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
-    fontWeight: bold,
+    fontWeight: semibold,
   );
 
   static const TextStyle titleSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
-    fontWeight: bold,
+    fontWeight: medium,
   );
 
   // ============================================
@@ -76,13 +77,13 @@ abstract class AppTypography {
   static const TextStyle labelLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
-    fontWeight: bold,
+    fontWeight: medium,
   );
 
   static const TextStyle labelSmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
-    fontWeight: bold,
+    fontWeight: medium,
   );
 
   // ============================================
