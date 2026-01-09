@@ -2552,6 +2552,374 @@ class PaymentLogsCompanion extends UpdateCompanion<PaymentLog> {
   }
 }
 
+class $PendingChangesTable extends PendingChanges
+    with TableInfo<$PendingChangesTable, PendingChange> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PendingChangesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+    'action',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    entityId,
+    entityType,
+    action,
+    payload,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pending_changes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PendingChange> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('action')) {
+      context.handle(
+        _actionMeta,
+        action.isAcceptableOrUnknown(data['action']!, _actionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entityId};
+  @override
+  PendingChange map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PendingChange(
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      action: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}action'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PendingChangesTable createAlias(String alias) {
+    return $PendingChangesTable(attachedDatabase, alias);
+  }
+}
+
+class PendingChange extends DataClass implements Insertable<PendingChange> {
+  final String entityId;
+  final String entityType;
+  final String action;
+  final String payload;
+  final DateTime createdAt;
+  const PendingChange({
+    required this.entityId,
+    required this.entityType,
+    required this.action,
+    required this.payload,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entity_id'] = Variable<String>(entityId);
+    map['entity_type'] = Variable<String>(entityType);
+    map['action'] = Variable<String>(action);
+    map['payload'] = Variable<String>(payload);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PendingChangesCompanion toCompanion(bool nullToAbsent) {
+    return PendingChangesCompanion(
+      entityId: Value(entityId),
+      entityType: Value(entityType),
+      action: Value(action),
+      payload: Value(payload),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PendingChange.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PendingChange(
+      entityId: serializer.fromJson<String>(json['entityId']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      action: serializer.fromJson<String>(json['action']),
+      payload: serializer.fromJson<String>(json['payload']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entityId': serializer.toJson<String>(entityId),
+      'entityType': serializer.toJson<String>(entityType),
+      'action': serializer.toJson<String>(action),
+      'payload': serializer.toJson<String>(payload),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PendingChange copyWith({
+    String? entityId,
+    String? entityType,
+    String? action,
+    String? payload,
+    DateTime? createdAt,
+  }) => PendingChange(
+    entityId: entityId ?? this.entityId,
+    entityType: entityType ?? this.entityType,
+    action: action ?? this.action,
+    payload: payload ?? this.payload,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PendingChange copyWithCompanion(PendingChangesCompanion data) {
+    return PendingChange(
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      action: data.action.present ? data.action.value : this.action,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingChange(')
+          ..write('entityId: $entityId, ')
+          ..write('entityType: $entityType, ')
+          ..write('action: $action, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(entityId, entityType, action, payload, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PendingChange &&
+          other.entityId == this.entityId &&
+          other.entityType == this.entityType &&
+          other.action == this.action &&
+          other.payload == this.payload &&
+          other.createdAt == this.createdAt);
+}
+
+class PendingChangesCompanion extends UpdateCompanion<PendingChange> {
+  final Value<String> entityId;
+  final Value<String> entityType;
+  final Value<String> action;
+  final Value<String> payload;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const PendingChangesCompanion({
+    this.entityId = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.action = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PendingChangesCompanion.insert({
+    required String entityId,
+    required String entityType,
+    required String action,
+    required String payload,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : entityId = Value(entityId),
+       entityType = Value(entityType),
+       action = Value(action),
+       payload = Value(payload),
+       createdAt = Value(createdAt);
+  static Insertable<PendingChange> custom({
+    Expression<String>? entityId,
+    Expression<String>? entityType,
+    Expression<String>? action,
+    Expression<String>? payload,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entityId != null) 'entity_id': entityId,
+      if (entityType != null) 'entity_type': entityType,
+      if (action != null) 'action': action,
+      if (payload != null) 'payload': payload,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PendingChangesCompanion copyWith({
+    Value<String>? entityId,
+    Value<String>? entityType,
+    Value<String>? action,
+    Value<String>? payload,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return PendingChangesCompanion(
+      entityId: entityId ?? this.entityId,
+      entityType: entityType ?? this.entityType,
+      action: action ?? this.action,
+      payload: payload ?? this.payload,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingChangesCompanion(')
+          ..write('entityId: $entityId, ')
+          ..write('entityType: $entityType, ')
+          ..write('action: $action, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2562,6 +2930,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SubscriptionGroupsTable subscriptionGroups =
       $SubscriptionGroupsTable(this);
   late final $PaymentLogsTable paymentLogs = $PaymentLogsTable(this);
+  late final $PendingChangesTable pendingChanges = $PendingChangesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2572,6 +2941,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     presetCache,
     subscriptionGroups,
     paymentLogs,
+    pendingChanges,
   ];
 }
 
@@ -3885,6 +4255,210 @@ typedef $$PaymentLogsTableProcessedTableManager =
       PaymentLog,
       PrefetchHooks Function()
     >;
+typedef $$PendingChangesTableCreateCompanionBuilder =
+    PendingChangesCompanion Function({
+      required String entityId,
+      required String entityType,
+      required String action,
+      required String payload,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$PendingChangesTableUpdateCompanionBuilder =
+    PendingChangesCompanion Function({
+      Value<String> entityId,
+      Value<String> entityType,
+      Value<String> action,
+      Value<String> payload,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$PendingChangesTableFilterComposer
+    extends Composer<_$AppDatabase, $PendingChangesTable> {
+  $$PendingChangesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PendingChangesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PendingChangesTable> {
+  $$PendingChangesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PendingChangesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PendingChangesTable> {
+  $$PendingChangesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$PendingChangesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PendingChangesTable,
+          PendingChange,
+          $$PendingChangesTableFilterComposer,
+          $$PendingChangesTableOrderingComposer,
+          $$PendingChangesTableAnnotationComposer,
+          $$PendingChangesTableCreateCompanionBuilder,
+          $$PendingChangesTableUpdateCompanionBuilder,
+          (
+            PendingChange,
+            BaseReferences<_$AppDatabase, $PendingChangesTable, PendingChange>,
+          ),
+          PendingChange,
+          PrefetchHooks Function()
+        > {
+  $$PendingChangesTableTableManager(
+    _$AppDatabase db,
+    $PendingChangesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PendingChangesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingChangesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PendingChangesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> entityId = const Value.absent(),
+                Value<String> entityType = const Value.absent(),
+                Value<String> action = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PendingChangesCompanion(
+                entityId: entityId,
+                entityType: entityType,
+                action: action,
+                payload: payload,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String entityId,
+                required String entityType,
+                required String action,
+                required String payload,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PendingChangesCompanion.insert(
+                entityId: entityId,
+                entityType: entityType,
+                action: action,
+                payload: payload,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PendingChangesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PendingChangesTable,
+      PendingChange,
+      $$PendingChangesTableFilterComposer,
+      $$PendingChangesTableOrderingComposer,
+      $$PendingChangesTableAnnotationComposer,
+      $$PendingChangesTableCreateCompanionBuilder,
+      $$PendingChangesTableUpdateCompanionBuilder,
+      (
+        PendingChange,
+        BaseReferences<_$AppDatabase, $PendingChangesTable, PendingChange>,
+      ),
+      PendingChange,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3899,4 +4473,6 @@ class $AppDatabaseManager {
       $$SubscriptionGroupsTableTableManager(_db, _db.subscriptionGroups);
   $$PaymentLogsTableTableManager get paymentLogs =>
       $$PaymentLogsTableTableManager(_db, _db.paymentLogs);
+  $$PendingChangesTableTableManager get pendingChanges =>
+      $$PendingChangesTableTableManager(_db, _db.pendingChanges);
 }

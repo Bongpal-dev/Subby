@@ -1,0 +1,62 @@
+import 'package:subby/data/datasource/pending_change_local_datasource.dart';
+import 'package:subby/data/mapper/pending_change_mapper.dart';
+import 'package:subby/domain/model/pending_change.dart';
+import 'package:subby/domain/repository/pending_change_repository.dart';
+
+class PendingChangeRepositoryImpl implements PendingChangeRepository {
+  final PendingChangeLocalDataSource _localDataSource;
+
+  PendingChangeRepositoryImpl(this._localDataSource);
+
+  @override
+  Future<List<PendingChange>> getAll() async {
+    final dtos = await _localDataSource.getAll();
+    return dtos.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Future<PendingChange?> getByEntityId(String entityId) async {
+    final dto = await _localDataSource.getByEntityId(entityId);
+    return dto?.toDomain();
+  }
+
+  @override
+  Future<void> save(PendingChange change) async {
+    final existing = await _localDataSource.getByEntityId(change.entityId);
+
+    // 기존 pending이 있는 경우 특수 처리
+    if (existing != null) {
+      final existingAction = ChangeAction.values.firstWhere(
+        (e) => e.name == existing.action,
+      );
+
+      // create → delete: pending에서 제거 (Firebase에 없으니까)
+      if (existingAction == ChangeAction.create &&
+          change.action == ChangeAction.delete) {
+        await _localDataSource.delete(change.entityId);
+        return;
+      }
+
+      // create → update: action은 create 유지, payload만 갱신
+      if (existingAction == ChangeAction.create &&
+          change.action == ChangeAction.update) {
+        final updatedChange = change.copyWith(action: ChangeAction.create);
+        await _localDataSource.upsert(updatedChange.toDto());
+        return;
+      }
+    }
+
+    // 그 외: 그대로 저장 (upsert)
+    await _localDataSource.upsert(change.toDto());
+  }
+
+  @override
+  Future<void> delete(String entityId) async {
+    await _localDataSource.delete(entityId);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _localDataSource.deleteAll();
+  }
+}

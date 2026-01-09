@@ -1,3 +1,4 @@
+import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/data/datasource/group_local_datasource.dart';
 import 'package:subby/data/datasource/group_remote_datasource.dart';
 import 'package:subby/data/mapper/group_mapper.dart';
@@ -13,33 +14,53 @@ class GroupRepositoryImpl implements GroupRepository {
   @override
   Future<List<SubscriptionGroup>> getAll() async {
     final dtos = await _localDataSource.getAll();
-
     return dtos.map((e) => e.toDomain()).toList();
   }
 
   @override
   Future<SubscriptionGroup?> getByCode(String code) async {
     final dto = await _localDataSource.getByCode(code);
-
     return dto?.toDomain();
+  }
+
+  @override
+  Future<bool> existsByName(String name) async {
+    return await _localDataSource.existsByName(name);
   }
 
   @override
   Future<void> create(SubscriptionGroup group) async {
     await _localDataSource.insert(group.toDto());
-    _remoteDataSource.saveGroup(group).catchError((_) {});
+    try {
+      await _remoteDataSource.saveGroup(group);
+    } catch (e) {
+      throw FirebaseSyncException(e);
+    }
   }
 
   @override
   Future<void> update(SubscriptionGroup group) async {
     await _localDataSource.update(group.toDto());
-    _remoteDataSource.saveGroup(group).catchError((_) {});
+    try {
+      await _remoteDataSource.saveGroup(group);
+    } catch (e) {
+      throw FirebaseSyncException(e);
+    }
   }
 
   @override
   Future<void> leaveGroup(String code, String userId) async {
     await _localDataSource.delete(code);
-    _remoteDataSource.leaveGroup(code, userId).catchError((_) {});
+    try {
+      await _remoteDataSource.leaveGroup(code, userId);
+    } catch (e) {
+      throw FirebaseSyncException(e);
+    }
+  }
+
+  @override
+  Future<void> updateDisplayName(String code, String? displayName) async {
+    await _localDataSource.updateDisplayName(code, displayName);
   }
 
   @override
@@ -57,12 +78,17 @@ class GroupRepositoryImpl implements GroupRepository {
   }
 
   @override
-  Future<bool> existsByName(String name) async {
-    return await _localDataSource.existsByName(name);
+  Future<void> syncCreate(SubscriptionGroup group) async {
+    await _remoteDataSource.saveGroup(group);
   }
 
   @override
-  Future<void> updateDisplayName(String code, String? displayName) async {
-    await _localDataSource.updateDisplayName(code, displayName);
+  Future<void> syncUpdate(SubscriptionGroup group) async {
+    await _remoteDataSource.saveGroup(group);
+  }
+
+  @override
+  Future<void> syncLeave(String code, String userId) async {
+    await _remoteDataSource.leaveGroup(code, userId);
   }
 }
