@@ -4,6 +4,7 @@ import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
 import 'package:subby/presentation/common/subby_app_bar.dart';
+import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/subscription/subscription_add_view_model.dart';
 
 class SubscriptionAddScreen extends ConsumerStatefulWidget {
@@ -62,7 +63,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // 선택된 서비스 표시
-                _buildCard(
+                AppCard(
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(
@@ -86,7 +87,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
 
                 // 직접 입력인 경우에만 서비스명 입력 가능
                 if (state.selectedPreset == null) ...[
-                  _buildCard(
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -115,7 +116,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                 ],
 
                 // 통화 + 금액 그룹
-                _buildCard(
+                AppCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -182,7 +183,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                 const SizedBox(height: 12),
 
                 // 결제일 + 결제 주기 그룹
-                _buildCard(
+                AppCard(
                   child: Row(
                     children: [
                       // 결제일
@@ -237,7 +238,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                 const SizedBox(height: 12),
 
                 // 메모
-                _buildCard(
+                AppCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -285,17 +286,6 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCard({required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: child,
     );
   }
 
