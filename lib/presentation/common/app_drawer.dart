@@ -4,6 +4,7 @@ import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
+import 'package:subby/presentation/common/widgets/widgets.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -131,12 +132,31 @@ class AppDrawer extends ConsumerWidget {
     String groupCode,
     String currentName,
   ) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => _RenameGroupDialog(
-        groupCode: groupCode,
-        currentName: currentName,
-      ),
+      barrierDismissible: true,
+      barrierLabel: '',
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return _RenameGroupDialog(
+          groupCode: groupCode,
+          currentName: currentName,
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return FadeTransition(
+          opacity: curvedAnimation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.95, end: 1.0).animate(curvedAnimation),
+            child: child,
+          ),
+        );
+      },
     );
   }
 
@@ -244,11 +264,25 @@ class _CreateGroupDialogState extends ConsumerState<_CreateGroupDialog> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _errorMessage;
+  bool _showLimitError = false;
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onTextChanged(String value) {
+    if (value.length > 10) {
+      final trimmed = value.substring(0, 10);
+      _controller.text = trimmed;
+      _controller.selection = TextSelection.collapsed(offset: trimmed.length);
+      setState(() => _showLimitError = true);
+    } else {
+      if (_showLimitError) {
+        setState(() => _showLimitError = false);
+      }
+    }
   }
 
   @override
@@ -277,13 +311,14 @@ class _CreateGroupDialogState extends ConsumerState<_CreateGroupDialog> {
                         .withValues(alpha: 0.4),
                   ),
                   errorText: _errorMessage,
+                  counterText: '${_controller.text.length}/10',
                 ),
-                maxLength: 10,
+                onChanged: _onTextChanged,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return '그룹 이름을 입력해주세요';
                   }
-                  if (value.length >= 10) {
+                  if (_showLimitError) {
                     return '최대 10자까지 입력 가능합니다';
                   }
                   return null;
@@ -356,6 +391,7 @@ class _RenameGroupDialog extends ConsumerStatefulWidget {
 class _RenameGroupDialogState extends ConsumerState<_RenameGroupDialog> {
   late final TextEditingController _controller;
   final _formKey = GlobalKey<FormState>();
+  bool _showLimitError = false;
 
   @override
   void initState() {
@@ -369,71 +405,69 @@ class _RenameGroupDialogState extends ConsumerState<_RenameGroupDialog> {
     super.dispose();
   }
 
+  void _onTextChanged(String value) {
+    if (value.length > 10) {
+      // 10글자로 자르기
+      final trimmed = value.substring(0, 10);
+      _controller.text = trimmed;
+      _controller.selection = TextSelection.collapsed(offset: trimmed.length);
+      setState(() => _showLimitError = true);
+    } else {
+      if (_showLimitError) {
+        setState(() => _showLimitError = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('그룹 이름 변경'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _controller,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: '그룹 이름',
-                  hintStyle: TextStyle(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.4),
-                  ),
-                ),
-                maxLength: 10,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '그룹 이름을 입력해주세요';
-                  }
-                  if (value.length >= 10) {
-                    return '최대 10자까지 입력 가능합니다';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
+    return AppDialog(
+      title: '그룹 이름 변경',
+      content: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: AppTextField(
+          hint: '그룹 이름을 입력하세요',
+          controller: _controller,
+          showCounter: true,
+          maxLength: 10,
+          onChanged: _onTextChanged,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return '그룹 이름을 입력해주세요';
+            }
+            if (_showLimitError) {
+              return '최대 10자까지 입력 가능합니다';
+            }
+            return null;
+          },
         ),
       ),
       actions: [
-        TextButton(
+        AppDialogAction(
+          label: '취소',
           onPressed: () => Navigator.pop(context),
-          child: const Text('취소'),
         ),
-        FilledButton(
+        AppDialogAction(
+          label: '저장',
+          isDefault: true,
           onPressed: _onSave,
-          child: const Text('저장'),
         ),
       ],
     );
   }
 
   Future<void> _onSave() async {
-    if (!_formKey.currentState!.validate()) return;
-
     final newName = _controller.text.trim();
-    final groupRepository = ref.read(groupRepositoryProvider);
+    if (newName.isEmpty) return;
 
+    final groupRepository = ref.read(groupRepositoryProvider);
     await groupRepository.updateDisplayName(widget.groupCode, newName);
 
     if (!mounted) return;
     Navigator.pop(context);
   }
 }
-
 class _LeaveGroupDialog extends ConsumerStatefulWidget {
   final String groupCode;
   final String groupName;

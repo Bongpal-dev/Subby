@@ -88,28 +88,17 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                 // 직접 입력인 경우에만 서비스명 입력 가능
                 if (state.selectedPreset == null) ...[
                   AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('서비스명'),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            hintText: '예: Netflix, Spotify',
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          style: AppTypography.bodyLarge,
-                          onChanged: vm.setName,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return '서비스명을 입력해주세요';
-                            }
-                            return null;
-                          },
-                        ),
-                      ],
+                    child: AppTextField(
+                      label: '서비스명',
+                      hint: '예: Netflix, Spotify',
+                      controller: _nameController,
+                      onChanged: vm.setName,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '서비스명을 입력해주세요';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -238,22 +227,12 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
 
                 // 메모
                 AppCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLabel('메모 (선택)'),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _memoController,
-                        decoration: const InputDecoration(
-                          hintText: '메모를 입력하세요',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        maxLines: 3,
-                        onChanged: vm.setMemo,
-                      ),
-                    ],
+                  child: AppTextField(
+                    label: '메모 (선택)',
+                    hint: '메모를 입력하세요',
+                    controller: _memoController,
+                    onChanged: vm.setMemo,
+                    maxLines: 3,
                   ),
                 ),
                 const SizedBox(height: 80),
