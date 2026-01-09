@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/core/di/providers.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
-/// 앱 초기화 래퍼
-/// 초기화 완료 전까지 로딩 화면 표시
 class AppInitializationWrapper extends ConsumerWidget {
   final Widget child;
 

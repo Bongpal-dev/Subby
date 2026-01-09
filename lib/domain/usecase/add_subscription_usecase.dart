@@ -6,5 +6,5 @@ class AddSubscriptionUseCase {
 
   AddSubscriptionUseCase(this._repository);
 
-  Future<void> call(UserSubscription subscription) => _repository.insert(subscription);
+  Future<void> call(UserSubscription subscription) => _repository.create(subscription);
 }
