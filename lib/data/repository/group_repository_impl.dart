@@ -30,9 +30,11 @@ class GroupRepositoryImpl implements GroupRepository {
 
   @override
   Future<void> create(SubscriptionGroup group) async {
-    await _localDataSource.insert(group.toDto());
+    final dto = group.toDto();
+
+    await _localDataSource.insert(dto);
     try {
-      await _remoteDataSource.saveGroup(group);
+      await _remoteDataSource.saveGroup(dto);
     } catch (e) {
       throw FirebaseSyncException(e);
     }
@@ -40,9 +42,11 @@ class GroupRepositoryImpl implements GroupRepository {
 
   @override
   Future<void> update(SubscriptionGroup group) async {
-    await _localDataSource.update(group.toDto());
+    final dto = group.toDto();
+
+    await _localDataSource.update(dto);
     try {
-      await _remoteDataSource.saveGroup(group);
+      await _remoteDataSource.saveGroup(dto);
     } catch (e) {
       throw FirebaseSyncException(e);
     }
@@ -79,12 +83,12 @@ class GroupRepositoryImpl implements GroupRepository {
 
   @override
   Future<void> syncCreate(SubscriptionGroup group) async {
-    await _remoteDataSource.saveGroup(group);
+    await _remoteDataSource.saveGroup(group.toDto());
   }
 
   @override
   Future<void> syncUpdate(SubscriptionGroup group) async {
-    await _remoteDataSource.saveGroup(group);
+    await _remoteDataSource.saveGroup(group.toDto());
   }
 
   @override

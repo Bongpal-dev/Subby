@@ -1,4 +1,5 @@
 import 'package:subby/domain/model/pending_change.dart';
+import 'package:subby/domain/model/subscription_group.dart';
 
 abstract class PendingChangeRepository {
   Future<List<PendingChange>> getAll();
@@ -6,4 +7,7 @@ abstract class PendingChangeRepository {
   Future<void> save(PendingChange change);
   Future<void> delete(String entityId);
   Future<void> deleteAll();
+
+  Future<void> saveGroupChange(SubscriptionGroup group, ChangeAction action);
+  Future<List<(PendingChange, SubscriptionGroup?)>> getGroupChanges();
 }

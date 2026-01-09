@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:subby/domain/model/subscription_group.dart';
+import 'package:subby/data/dto/group_dto.dart';
+import 'package:subby/data/mapper/group_mapper.dart';
+import 'package:subby/data/response/group_response.dart';
 
 class GroupRemoteDataSource {
   final FirebaseFirestore _firestore;
@@ -9,25 +11,29 @@ class GroupRemoteDataSource {
   CollectionReference<Map<String, dynamic>> get _groupsRef =>
       _firestore.collection('groups');
 
-  Future<void> saveGroup(SubscriptionGroup group) async {
-    await _groupsRef.doc(group.code).set({
-      'code': group.code,
-      'name': group.name,
-      'ownerId': group.ownerId,
-      'members': group.members,
-      'createdAt': Timestamp.fromDate(group.createdAt),
-      'updatedAt': group.updatedAt != null
-          ? Timestamp.fromDate(group.updatedAt!)
-          : null,
-    });
+  Future<void> saveGroup(GroupDto dto) async {
+    final response = GroupResponse(
+      code: dto.code,
+      name: dto.name,
+      ownerId: dto.ownerId,
+      members: dto.members,
+      createdAt: dto.createdAt.millisecondsSinceEpoch,
+      updatedAt: dto.updatedAt?.millisecondsSinceEpoch,
+    );
+
+    await _groupsRef.doc(dto.code).set(response.toJson());
   }
 
-  Future<SubscriptionGroup?> getGroup(String code) async {
+  Future<GroupDto?> getGroup(String code) async {
     final doc = await _groupsRef.doc(code).get();
+
     if (!doc.exists || doc.data() == null) {
       return null;
     }
-    return _toGroup(doc.data()!);
+
+    final response = _toResponse(doc.data()!);
+
+    return response.toDto();
   }
 
   Future<void> deleteGroup(String code) async {
@@ -36,10 +42,13 @@ class GroupRemoteDataSource {
 
   Future<void> leaveGroup(String code, String userId) async {
     final doc = await _groupsRef.doc(code).get();
+
     if (!doc.exists || doc.data() == null) return;
 
     final data = doc.data()!;
-    final members = List<String>.from(data['members'] ?? []);
+    final members = List<String>.from(data['members'] is Map
+        ? (data['members'] as Map).keys
+        : data['members'] ?? []);
 
     if (members.length <= 1) {
       await deleteGroup(code);
@@ -47,9 +56,10 @@ class GroupRemoteDataSource {
     }
 
     members.remove(userId);
-    final updates = <String, dynamic>{'members': members};
+    final updates = <String, dynamic>{
+      'members': {for (var uid in members) uid: true},
+    };
 
-    // 방장이 나가면 다음 멤버에게 이전
     if (data['ownerId'] == userId && members.isNotEmpty) {
       updates['ownerId'] = members.first;
     }
@@ -57,16 +67,24 @@ class GroupRemoteDataSource {
     await _groupsRef.doc(code).update(updates);
   }
 
-  SubscriptionGroup _toGroup(Map<String, dynamic> data) {
-    return SubscriptionGroup(
+  GroupResponse _toResponse(Map<String, dynamic> data) {
+    List<String> memberList = [];
+
+    if (data['members'] != null) {
+      if (data['members'] is Map) {
+        memberList = (data['members'] as Map).keys.cast<String>().toList();
+      } else if (data['members'] is List) {
+        memberList = List<String>.from(data['members']);
+      }
+    }
+
+    return GroupResponse(
       code: data['code'] as String,
       name: data['name'] as String,
       ownerId: data['ownerId'] as String,
-      members: List<String>.from(data['members'] ?? []),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: data['updatedAt'] != null
-          ? (data['updatedAt'] as Timestamp).toDate()
-          : null,
+      members: memberList,
+      createdAt: data['createdAt'] as int,
+      updatedAt: data['updatedAt'] as int?,
     );
   }
 }

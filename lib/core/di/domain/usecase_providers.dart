@@ -23,10 +23,12 @@ final initializeAppUseCaseProvider = Provider<InitializeAppUseCase>((ref) {
 final createGroupUseCaseProvider = Provider<CreateGroupUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final groupRepository = ref.watch(groupRepositoryProvider);
+  final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
 
   return CreateGroupUseCase(
     authRepository: authRepository,
     groupRepository: groupRepository,
+    pendingChangeRepository: pendingChangeRepository,
   );
 });
 
@@ -34,11 +36,13 @@ final leaveGroupUseCaseProvider = Provider<LeaveGroupUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final groupRepository = ref.watch(groupRepositoryProvider);
   final subscriptionRepository = ref.watch(subscriptionRepositoryProvider);
+  final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
 
   return LeaveGroupUseCase(
     authRepository: authRepository,
     groupRepository: groupRepository,
     subscriptionRepository: subscriptionRepository,
+    pendingChangeRepository: pendingChangeRepository,
   );
 });
 
