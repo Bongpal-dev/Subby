@@ -15,8 +15,8 @@ abstract class GroupRepository {
   /// 그룹 수정 (이름 변경 등)
   Future<void> update(SubscriptionGroup group);
 
-  /// 그룹 삭제
-  Future<void> delete(String code);
+  /// 그룹 나가기 (로컬 삭제 + remote 멤버 제거)
+  Future<void> leaveGroup(String code, String userId);
 
   /// 그룹 목록 실시간 감시
   Stream<List<SubscriptionGroup>> watchAll();

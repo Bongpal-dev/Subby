@@ -1,6 +1,4 @@
-// Barrel file - exports all providers
 export 'database_provider.dart';
-export 'auth_providers.dart';
-export 'group_providers.dart';
-export 'subscription_providers.dart';
-export 'preset_providers.dart';
+export 'data/datasource_providers.dart';
+export 'domain/repository_providers.dart';
+export 'domain/usecase_providers.dart';
