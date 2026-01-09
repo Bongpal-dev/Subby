@@ -137,10 +137,9 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                       Row(
                         children: [
                           // 마이너스 버튼
-                          _buildAmountButton(
+                          AmountButton(
                             icon: Icons.remove,
                             onTap: () => vm.changeAmount(-1),
-                            isPrimary: false,
                           ),
                           const SizedBox(width: 12),
                           // 금액 표시 (터치하면 직접 입력)
@@ -166,7 +165,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                           ),
                           const SizedBox(width: 12),
                           // 플러스 버튼
-                          _buildAmountButton(
+                          AmountButton(
                             icon: Icons.add,
                             onTap: () => vm.changeAmount(1),
                             isPrimary: true,
@@ -341,31 +340,6 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
             ),
           );
         }),
-      ),
-    );
-  }
-
-  Widget _buildAmountButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    required bool isPrimary,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: isPrimary ? colorScheme.primary : colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(
-          icon,
-          size: 28,
-          color: isPrimary ? Colors.white : colorScheme.onSurface,
-        ),
       ),
     );
   }
