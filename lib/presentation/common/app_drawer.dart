@@ -110,12 +110,37 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
-  void _showCreateGroupDialog(BuildContext context, WidgetRef ref) {
+  Future<void> _showCreateGroupDialog(BuildContext context, WidgetRef ref) async {
     Navigator.pop(context);
-    showDialog(
+
+    final groupName = await showAppTextInputDialog(
       context: context,
-      builder: (context) => const _CreateGroupDialog(),
+      title: '새 그룹 만들기',
+      hint: '예: 가족 구독, 친구들',
+      maxLength: 10,
+      confirmLabel: '만들기',
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return '그룹 이름을 입력해주세요';
+        }
+        return null;
+      },
     );
+
+    if (groupName != null && context.mounted) {
+      try {
+        final createGroup = ref.read(createGroupUseCaseProvider);
+        final groupCode = await createGroup(groupName);
+
+        ref.read(homeViewModelProvider.notifier).selectGroup(groupCode);
+      } on Exception catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+          );
+        }
+      }
+    }
   }
 
   void _showJoinGroupDialog(BuildContext context, WidgetRef ref) {
@@ -126,38 +151,31 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
-  void _showRenameGroupDialog(
+  Future<void> _showRenameGroupDialog(
     BuildContext context,
     WidgetRef ref,
     String groupCode,
     String currentName,
-  ) {
-    showGeneralDialog(
+  ) async {
+    final newName = await showAppTextInputDialog(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      barrierColor: Colors.black.withValues(alpha: 0.3),
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return _RenameGroupDialog(
-          groupCode: groupCode,
-          currentName: currentName,
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        );
-        return FadeTransition(
-          opacity: curvedAnimation,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.95, end: 1.0).animate(curvedAnimation),
-            child: child,
-          ),
-        );
+      title: '그룹 이름 변경',
+      hint: '그룹 이름을 입력하세요',
+      initialValue: currentName,
+      maxLength: 10,
+      confirmLabel: '저장',
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return '그룹 이름을 입력해주세요';
+        }
+        return null;
       },
     );
+
+    if (newName != null && context.mounted) {
+      final groupRepository = ref.read(groupRepositoryProvider);
+      await groupRepository.updateDisplayName(groupCode, newName);
+    }
   }
 
   void _showLeaveGroupDialog(
@@ -252,222 +270,6 @@ class _GroupTile extends StatelessWidget {
   }
 }
 
-class _CreateGroupDialog extends ConsumerStatefulWidget {
-  const _CreateGroupDialog();
-
-  @override
-  ConsumerState<_CreateGroupDialog> createState() => _CreateGroupDialogState();
-}
-
-class _CreateGroupDialogState extends ConsumerState<_CreateGroupDialog> {
-  final _controller = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
-  String? _errorMessage;
-  bool _showLimitError = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onTextChanged(String value) {
-    if (value.length > 10) {
-      final trimmed = value.substring(0, 10);
-      _controller.text = trimmed;
-      _controller.selection = TextSelection.collapsed(offset: trimmed.length);
-      setState(() => _showLimitError = true);
-    } else {
-      if (_showLimitError) {
-        setState(() => _showLimitError = false);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('새 그룹 만들기'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _controller,
-                autofocus: true,
-                enabled: !_isLoading,
-                decoration: InputDecoration(
-                  labelText: '그룹 이름',
-                  hintText: '예: 가족 구독, 친구들',
-                  hintStyle: TextStyle(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.4),
-                  ),
-                  errorText: _errorMessage,
-                  counterText: '${_controller.text.length}/10',
-                ),
-                onChanged: _onTextChanged,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '그룹 이름을 입력해주세요';
-                  }
-                  if (_showLimitError) {
-                    return '최대 10자까지 입력 가능합니다';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
-          child: const Text('취소'),
-        ),
-        FilledButton(
-          onPressed: _isLoading ? null : _onCreate,
-          child: _isLoading
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('만들기'),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _onCreate() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final groupName = _controller.text.trim();
-    final createGroup = ref.read(createGroupUseCaseProvider);
-
-    try {
-      final groupCode = await createGroup(groupName);
-
-      if (!mounted) return;
-      Navigator.pop(context);
-
-      ref.read(homeViewModelProvider.notifier).selectGroup(groupCode);
-    } on Exception catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
-    }
-  }
-}
-
-class _RenameGroupDialog extends ConsumerStatefulWidget {
-  final String groupCode;
-  final String currentName;
-
-  const _RenameGroupDialog({
-    required this.groupCode,
-    required this.currentName,
-  });
-
-  @override
-  ConsumerState<_RenameGroupDialog> createState() => _RenameGroupDialogState();
-}
-
-class _RenameGroupDialogState extends ConsumerState<_RenameGroupDialog> {
-  late final TextEditingController _controller;
-  final _formKey = GlobalKey<FormState>();
-  bool _showLimitError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.currentName);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onTextChanged(String value) {
-    if (value.length > 10) {
-      // 10글자로 자르기
-      final trimmed = value.substring(0, 10);
-      _controller.text = trimmed;
-      _controller.selection = TextSelection.collapsed(offset: trimmed.length);
-      setState(() => _showLimitError = true);
-    } else {
-      if (_showLimitError) {
-        setState(() => _showLimitError = false);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AppDialog(
-      title: '그룹 이름 변경',
-      content: Form(
-        key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: AppTextField(
-          hint: '그룹 이름을 입력하세요',
-          controller: _controller,
-          showCounter: true,
-          maxLength: 10,
-          onChanged: _onTextChanged,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return '그룹 이름을 입력해주세요';
-            }
-            if (_showLimitError) {
-              return '최대 10자까지 입력 가능합니다';
-            }
-            return null;
-          },
-        ),
-      ),
-      actions: [
-        AppDialogAction(
-          label: '취소',
-          onPressed: () => Navigator.pop(context),
-        ),
-        AppDialogAction(
-          label: '저장',
-          isDefault: true,
-          onPressed: _onSave,
-        ),
-      ],
-    );
-  }
-
-  Future<void> _onSave() async {
-    final newName = _controller.text.trim();
-    if (newName.isEmpty) return;
-
-    final groupRepository = ref.read(groupRepositoryProvider);
-    await groupRepository.updateDisplayName(widget.groupCode, newName);
-
-    if (!mounted) return;
-    Navigator.pop(context);
-  }
-}
 class _LeaveGroupDialog extends ConsumerStatefulWidget {
   final String groupCode;
   final String groupName;
