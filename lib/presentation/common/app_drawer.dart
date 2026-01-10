@@ -111,6 +111,10 @@ class AppDrawer extends ConsumerWidget {
   }
 
   Future<void> _showCreateGroupDialog(BuildContext context, WidgetRef ref) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final createGroup = ref.read(createGroupUseCaseProvider);
+    final homeViewModel = ref.read(homeViewModelProvider.notifier);
+
     Navigator.pop(context);
 
     final groupName = await showAppTextInputDialog(
@@ -127,18 +131,14 @@ class AppDrawer extends ConsumerWidget {
       },
     );
 
-    if (groupName != null && context.mounted) {
+    if (groupName != null) {
       try {
-        final createGroup = ref.read(createGroupUseCaseProvider);
         final groupCode = await createGroup(groupName);
-
-        ref.read(homeViewModelProvider.notifier).selectGroup(groupCode);
+        homeViewModel.selectGroup(groupCode);
       } on Exception catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
-          );
-        }
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
       }
     }
   }
