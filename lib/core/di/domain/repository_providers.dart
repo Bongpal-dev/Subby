@@ -26,8 +26,9 @@ final groupRepositoryProvider = Provider<GroupRepository>((ref) {
 
 final subscriptionRepositoryProvider = Provider<SubscriptionRepository>((ref) {
   final localDataSource = ref.watch(subscriptionLocalDataSourceProvider);
+  final remoteDataSource = ref.watch(subscriptionRemoteDataSourceProvider);
 
-  return SubscriptionRepositoryImpl(localDataSource);
+  return SubscriptionRepositoryImpl(localDataSource, remoteDataSource);
 });
 
 final presetRepositoryProvider = Provider<PresetRepository>((ref) {

@@ -7,6 +7,7 @@ import 'package:subby/data/datasource/pending_change_local_datasource.dart';
 import 'package:subby/data/datasource/preset_local_datasource.dart';
 import 'package:subby/data/datasource/preset_remote_datasource.dart';
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
+import 'package:subby/data/datasource/subscription_remote_datasource.dart';
 
 final firebaseAuthDataSourceProvider = Provider<FirebaseAuthDataSource>((ref) {
   return FirebaseAuthDataSource();
@@ -26,6 +27,10 @@ final subscriptionLocalDataSourceProvider = Provider<SubscriptionLocalDataSource
   final db = ref.watch(databaseProvider);
 
   return SubscriptionLocalDataSource(db);
+});
+
+final subscriptionRemoteDataSourceProvider = Provider<SubscriptionRemoteDataSource>((ref) {
+  return SubscriptionRemoteDataSource();
 });
 
 final presetRemoteDataSourceProvider = Provider<PresetRemoteDataSource>((ref) {

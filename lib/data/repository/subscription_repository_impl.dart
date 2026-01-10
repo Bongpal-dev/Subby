@@ -1,12 +1,15 @@
+import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
+import 'package:subby/data/datasource/subscription_remote_datasource.dart';
 import 'package:subby/data/mapper/subscription_mapper.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
 
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
   final SubscriptionLocalDataSource _localDataSource;
+  final SubscriptionRemoteDataSource _remoteDataSource;
 
-  SubscriptionRepositoryImpl(this._localDataSource);
+  SubscriptionRepositoryImpl(this._localDataSource, this._remoteDataSource);
 
   @override
   Future<List<UserSubscription>> getAll() async {
@@ -22,17 +25,40 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
   @override
   Future<void> create(UserSubscription subscription) async {
-    await _localDataSource.insert(subscription.toDto());
+    final dto = subscription.toDto();
+
+    await _localDataSource.insert(dto);
+    try {
+      await _remoteDataSource.saveSubscription(dto);
+    } catch (e) {
+      throw FirebaseSyncException(e);
+    }
   }
 
   @override
   Future<void> update(UserSubscription subscription) async {
-    await _localDataSource.update(subscription.toDto());
+    final dto = subscription.toDto();
+
+    await _localDataSource.update(dto);
+    try {
+      await _remoteDataSource.saveSubscription(dto);
+    } catch (e) {
+      throw FirebaseSyncException(e);
+    }
   }
 
   @override
   Future<void> delete(String id) async {
+    final dto = await _localDataSource.getById(id);
+
     await _localDataSource.delete(id);
+    if (dto != null) {
+      try {
+        await _remoteDataSource.deleteSubscription(dto.groupCode, id);
+      } catch (e) {
+        throw FirebaseSyncException(e);
+      }
+    }
   }
 
   @override
@@ -45,5 +71,20 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     return _localDataSource.watchAll().map(
           (dtos) => dtos.map((e) => e.toDomain()).toList(),
         );
+  }
+
+  @override
+  Future<void> syncCreate(UserSubscription subscription) async {
+    await _remoteDataSource.saveSubscription(subscription.toDto());
+  }
+
+  @override
+  Future<void> syncUpdate(UserSubscription subscription) async {
+    await _remoteDataSource.saveSubscription(subscription.toDto());
+  }
+
+  @override
+  Future<void> syncDelete(String groupCode, String subscriptionId) async {
+    await _remoteDataSource.deleteSubscription(groupCode, subscriptionId);
   }
 }
