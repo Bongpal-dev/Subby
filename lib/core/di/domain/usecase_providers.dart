@@ -68,8 +68,9 @@ final getSubscriptionByIdUseCaseProvider = Provider<GetSubscriptionByIdUseCase>(
 
 final updateSubscriptionUseCaseProvider = Provider<UpdateSubscriptionUseCase>((ref) {
   final repository = ref.watch(subscriptionRepositoryProvider);
+  final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
 
-  return UpdateSubscriptionUseCase(repository);
+  return UpdateSubscriptionUseCase(repository, pendingChangeRepository);
 });
 
 final deleteSubscriptionUseCaseProvider = Provider<DeleteSubscriptionUseCase>((ref) {
