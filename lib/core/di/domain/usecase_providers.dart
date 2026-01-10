@@ -7,6 +7,7 @@ import 'package:subby/domain/usecase/get_presets_usecase.dart';
 import 'package:subby/domain/usecase/get_subscription_by_id_usecase.dart';
 import 'package:subby/domain/usecase/initialize_app_usecase.dart';
 import 'package:subby/domain/usecase/leave_group_usecase.dart';
+import 'package:subby/domain/usecase/process_pending_changes_usecase.dart';
 import 'package:subby/domain/usecase/update_subscription_usecase.dart';
 import 'package:subby/domain/usecase/watch_subscriptions_usecase.dart';
 
@@ -80,4 +81,18 @@ final getPresetsUseCaseProvider = Provider<GetPresetsUseCase>((ref) {
   final repository = ref.watch(presetRepositoryProvider);
 
   return GetPresetsUseCase(repository);
+});
+
+final processPendingChangesUseCaseProvider = Provider<ProcessPendingChangesUseCase>((ref) {
+  final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
+  final groupRepository = ref.watch(groupRepositoryProvider);
+  final subscriptionRepository = ref.watch(subscriptionRepositoryProvider);
+  final authRepository = ref.watch(authRepositoryProvider);
+
+  return ProcessPendingChangesUseCase(
+    pendingChangeRepository,
+    groupRepository,
+    subscriptionRepository,
+    authRepository,
+  );
 });

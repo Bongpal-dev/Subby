@@ -2,21 +2,24 @@ import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
+import 'package:subby/domain/repository/subscription_repository.dart';
 
 class ProcessPendingChangesUseCase {
   final PendingChangeRepository _pendingChangeRepository;
   final GroupRepository _groupRepository;
+  final SubscriptionRepository _subscriptionRepository;
   final AuthRepository _authRepository;
 
   ProcessPendingChangesUseCase(
     this._pendingChangeRepository,
     this._groupRepository,
+    this._subscriptionRepository,
     this._authRepository,
   );
 
   Future<void> call() async {
     await _processGroupChanges();
-    // TODO: _processSubscriptionChanges() 구독 Firebase 연동 후 구현
+    await _processSubscriptionChanges();
   }
 
   Future<void> _processGroupChanges() async {
@@ -32,6 +35,36 @@ class ProcessPendingChangesUseCase {
           case ChangeAction.delete:
             final userId = _authRepository.currentUserId!;
             await _groupRepository.syncLeave(change.entityId, userId);
+        }
+
+        await _pendingChangeRepository.delete(change.entityId);
+      } catch (e) {
+        continue;
+      }
+    }
+  }
+
+  Future<void> _processSubscriptionChanges() async {
+    final subscriptionChanges = await _pendingChangeRepository.getSubscriptionChanges();
+
+    for (final (change, subscription) in subscriptionChanges) {
+      try {
+        switch (change.action) {
+          case ChangeAction.create:
+            if (subscription != null) {
+              await _subscriptionRepository.syncCreate(subscription);
+            }
+          case ChangeAction.update:
+            if (subscription != null) {
+              await _subscriptionRepository.syncUpdate(subscription);
+            }
+          case ChangeAction.delete:
+            if (subscription != null) {
+              await _subscriptionRepository.syncDelete(
+                subscription.groupCode,
+                change.entityId,
+              );
+            }
         }
 
         await _pendingChangeRepository.delete(change.entityId);
