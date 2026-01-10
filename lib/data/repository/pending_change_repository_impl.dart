@@ -1,8 +1,10 @@
 import 'package:subby/data/datasource/pending_change_local_datasource.dart';
 import 'package:subby/data/mapper/group_mapper.dart';
 import 'package:subby/data/mapper/pending_change_mapper.dart';
+import 'package:subby/data/mapper/subscription_mapper.dart';
 import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/model/subscription_group.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
 
 class PendingChangeRepositoryImpl implements PendingChangeRepository {
@@ -80,6 +82,27 @@ class PendingChangeRepositoryImpl implements PendingChangeRepository {
       final change = tuple.$1.toDomain();
       final group = tuple.$2?.toDomain();
       return (change, group);
+    }).toList();
+  }
+
+  @override
+  Future<void> saveSubscriptionChange(
+    UserSubscription subscription,
+    ChangeAction action,
+  ) async {
+    final dto = subscription.toDto();
+
+    await _localDataSource.saveSubscriptionChange(dto, action.name, subscription.id);
+  }
+
+  @override
+  Future<List<(PendingChange, UserSubscription?)>> getSubscriptionChanges() async {
+    final results = await _localDataSource.getSubscriptionChanges();
+
+    return results.map((tuple) {
+      final change = tuple.$1.toDomain();
+      final subscription = tuple.$2?.toDomain();
+      return (change, subscription);
     }).toList();
   }
 }
