@@ -1,4 +1,5 @@
 import 'package:subby/data/dto/subscription_dto.dart';
+import 'package:subby/data/response/subscription_response.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 
 extension SubscriptionDtoToDomain on SubscriptionDto {
@@ -33,6 +34,24 @@ extension UserSubscriptionToDto on UserSubscription {
       memo: memo,
       feeRatePercent: feeRatePercent,
       createdAt: createdAt,
+    );
+  }
+}
+
+extension SubscriptionResponseToDto on SubscriptionResponse {
+  SubscriptionDto toDto() {
+    return SubscriptionDto(
+      id: id,
+      groupCode: groupCode,
+      name: name,
+      amount: amount,
+      currency: currency,
+      billingDay: billingDay,
+      period: period,
+      category: category,
+      memo: memo,
+      feeRatePercent: feeRatePercent,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(createdAt),
     );
   }
 }
