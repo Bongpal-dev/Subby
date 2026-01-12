@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
@@ -122,7 +123,7 @@ class _HeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final formatted = _formatKrw(total.toInt());
+    final formatted = CurrencyFormatter.formatKrw(total.toInt());
 
     return Container(
       width: double.infinity,
@@ -145,13 +146,6 @@ class _HeaderCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  String _formatKrw(int value) {
-    return value.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
     );
   }
 }
@@ -231,7 +225,7 @@ class _SubscriptionTile extends StatelessWidget {
     final currencySymbol = isUsd ? '\$' : '\u20a9';
     final formattedAmount = isUsd
         ? subscription.amount.toStringAsFixed(2)
-        : _formatKrw(subscription.amount.toInt());
+        : CurrencyFormatter.formatKrw(subscription.amount.toInt());
 
     final krwConverted = isUsd ? (subscription.amount * 1450).toInt() : null;
 
@@ -276,7 +270,7 @@ class _SubscriptionTile extends StatelessWidget {
                   if (krwConverted != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      '\u2248 \u20a9${_formatKrw(krwConverted)}',
+                      '\u2248 \u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
                       style: AppTypography.captionLarge.copyWith(
                         color: colors.textTertiary,
                       ),
@@ -288,13 +282,6 @@ class _SubscriptionTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  String _formatKrw(int value) {
-    return value.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
     );
   }
 }
