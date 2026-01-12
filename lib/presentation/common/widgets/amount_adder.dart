@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/core/util/currency_formatter.dart';
 
 /// 금액 추가 버튼 위젯
 class AmountAdder extends StatelessWidget {
@@ -71,15 +72,9 @@ class AmountAdder extends StatelessWidget {
 
   String _formatLabel(num step) {
     if (currency == 'KRW') {
-      final intStep = step.toInt();
-      final formatted = intStep.toString().replaceAllMapped(
-            RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-            (m) => '${m[1]},',
-          );
-      return '+\u20a9$formatted';
+      return '+\u20a9${CurrencyFormatter.formatKrw(step.toInt())}';
     } else {
-      final doubleStep = step.toDouble();
-      final formatted = doubleStep.toString().replaceAll(RegExp(r'\.0$'), '');
+      final formatted = step.toString().replaceAll(RegExp(r'\.0$'), '');
       return '+\$$formatted';
     }
   }

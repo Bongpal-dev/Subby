@@ -148,14 +148,6 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
     state = state.copyWith(memo: memo);
   }
 
-  String formatAmount() {
-    if (state.currency == 'KRW') {
-      return '\u20a9${state.amount.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
-    } else {
-      return '\$${state.amount.toStringAsFixed(2)}';
-    }
-  }
-
   Future<bool> save() async {
     if (state.name.isEmpty || state.amount <= 0) {
       return false;
