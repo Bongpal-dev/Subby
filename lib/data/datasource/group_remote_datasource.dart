@@ -24,7 +24,7 @@ class GroupRemoteDataSource {
     await _groupsRef.doc(dto.code).set(response.toJson());
   }
 
-  Future<GroupDto?> getGroup(String code) async {
+  Future<GroupDto?> fetchGroup(String code) async {
     final doc = await _groupsRef.doc(code).get();
 
     if (!doc.exists || doc.data() == null) {
