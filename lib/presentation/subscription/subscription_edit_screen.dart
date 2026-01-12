@@ -96,48 +96,11 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
 
                         Text('금액', style: Theme.of(context).textTheme.labelSmall),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            AmountButton(
-                              icon: Icons.remove,
-                              onTap: () => vm.changeAmount(-1),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => _showAmountInput(state, vm),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      vm.formatAmount(),
-                                      style: AppTypography.displaySmall.copyWith(
-                                        color: colorScheme.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            AmountButton(
-                              icon: Icons.add,
-                              onTap: () => vm.changeAmount(1),
-                              isPrimary: true,
-                            ),
-                          ],
-                        ),
+                        _buildAmountTextField(state, vm, colorScheme),
                         const SizedBox(height: 12),
-                        StepSelector(
+                        AmountAdder(
                           currency: state.currency,
-                          currentStep: state.currency == 'KRW'
-                              ? state.amountStepKRW
-                              : state.amountStepUSD,
-                          onStepChanged: vm.setAmountStep,
+                          onAdd: (step) => vm.setAmount(state.amount + step),
                         ),
                       ],
                     ),
@@ -240,43 +203,50 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
     );
   }
 
-  void _showAmountInput(SubscriptionEditState state, SubscriptionEditViewModel vm) {
-    final controller = TextEditingController(
-      text: state.amount > 0 ? (state.currency == 'KRW' ? state.amount.toInt().toString() : state.amount.toString()) : '',
-    );
+  Widget _buildAmountTextField(
+    SubscriptionEditState state,
+    SubscriptionEditViewModel vm,
+    ColorScheme colorScheme,
+  ) {
+    final prefix = state.currency == 'KRW' ? '\u20a9 ' : '\$ ';
+    final displayValue = state.amount > 0
+        ? (state.currency == 'KRW'
+            ? state.amount.toInt().toString()
+            : state.amount.toString())
+        : '';
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('금액 입력'),
-        content: TextField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          autofocus: true,
-          decoration: InputDecoration(
-            prefixText: state.currency == 'KRW' ? '\u20a9 ' : '\$ ',
-            hintText: state.currency == 'KRW' ? '0' : '0.00',
-          ),
-          style: const TextStyle(fontSize: 20),
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextField(
+        controller: TextEditingController(text: displayValue),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        textAlign: TextAlign.center,
+        style: AppTypography.displaySmall.copyWith(
+          color: colorScheme.primary,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
+        decoration: InputDecoration(
+          prefixText: prefix,
+          prefixStyle: AppTypography.displaySmall.copyWith(
+            color: colorScheme.primary,
           ),
-          FilledButton(
-            onPressed: () {
-              final value = double.tryParse(controller.text) ?? 0;
-              if (state.currency == 'KRW') {
-                vm.setAmount(value.roundToDouble());
-              } else {
-                vm.setAmount((value * 100).round() / 100);
-              }
-              Navigator.pop(context);
-            },
-            child: const Text('확인'),
+          hintText: '0',
+          hintStyle: AppTypography.displaySmall.copyWith(
+            color: colorScheme.onSurface.withValues(alpha: 0.3),
           ),
-        ],
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        ),
+        onChanged: (value) {
+          final parsed = double.tryParse(value) ?? 0;
+          if (state.currency == 'KRW') {
+            vm.setAmount(parsed.roundToDouble());
+          } else {
+            vm.setAmount((parsed * 100).round() / 100);
+          }
+        },
       ),
     );
   }
