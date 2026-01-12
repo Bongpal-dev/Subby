@@ -110,7 +110,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 통화 선택
-                      _buildLabel('통화'),
+                      Text('통화', style: Theme.of(context).textTheme.labelSmall),
                       const SizedBox(height: 8),
                       _buildSegmentedButton(
                         options: const ['KRW', 'USD'],
@@ -121,7 +121,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                       const SizedBox(height: 20),
 
                       // 금액
-                      _buildLabel('금액'),
+                      Text('금액', style: Theme.of(context).textTheme.labelSmall),
                       const SizedBox(height: 12),
                       Row(
                         children: [
@@ -179,7 +179,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildLabel('결제일'),
+                            Text('결제일', style: Theme.of(context).textTheme.labelSmall),
                             const SizedBox(height: 8),
                             GestureDetector(
                               onTap: () => _showDayPicker(state, vm),
@@ -208,7 +208,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildLabel('결제 주기'),
+                            Text('결제 주기', style: Theme.of(context).textTheme.labelSmall),
                             const SizedBox(height: 8),
                             _buildSegmentedButton(
                               options: const ['MONTHLY', 'YEARLY'],
@@ -264,16 +264,6 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    final colors = Theme.of(context).brightness == Brightness.dark
-        ? AppColors.dark
-        : AppColors.light;
-    return Text(
-      text,
-      style: AppTypography.captionLarge.copyWith(color: colors.textTertiary),
     );
   }
 
