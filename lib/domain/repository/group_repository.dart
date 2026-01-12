@@ -22,4 +22,7 @@ abstract class GroupRepository {
 
   /// 그룹 참여 (원격 멤버 추가 + 로컬 저장)
   Future<void> joinGroup(String code, String userId);
+
+  /// 로컬에만 저장 (Cloud Function 응답 저장용)
+  Future<void> saveToLocal(SubscriptionGroup group);
 }

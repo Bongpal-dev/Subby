@@ -49,11 +49,9 @@ final leaveGroupUseCaseProvider = Provider<LeaveGroupUseCase>((ref) {
 });
 
 final joinGroupUseCaseProvider = Provider<JoinGroupUseCase>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
   final groupRepository = ref.watch(groupRepositoryProvider);
 
   return JoinGroupUseCase(
-    authRepository: authRepository,
     groupRepository: groupRepository,
   );
 });
