@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
@@ -25,6 +27,17 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            tooltip: '초대하기',
+            onPressed: () => _onInvite(
+              context,
+              state.currentGroupName,
+              state.selectedGroupCode,
+            ),
+          ),
+        ],
       ),
       drawer: const AppDrawer(),
       body: Column(
@@ -89,6 +102,17 @@ class HomeScreen extends ConsumerWidget {
       MaterialPageRoute(
         builder: (context) => SubscriptionEditScreen(subscriptionId: id),
       ),
+    );
+  }
+
+  void _onInvite(BuildContext context, String groupName, String? groupCode) {
+    if (groupCode == null) return;
+
+    final link = InviteLinkGenerator.generate(groupCode);
+
+    Share.share(
+      '"$groupName" 그룹에 참여하세요!\n$link',
+      subject: 'Subby 그룹 초대',
     );
   }
 }
