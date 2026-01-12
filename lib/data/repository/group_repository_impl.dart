@@ -95,4 +95,22 @@ class GroupRepositoryImpl implements GroupRepository {
   Future<void> syncLeave(String code, String userId) async {
     await _remoteDataSource.leaveGroup(code, userId);
   }
+
+  @override
+  Future<SubscriptionGroup?> fetchRemoteByCode(String code) async {
+    final dto = await _remoteDataSource.fetchGroup(code);
+
+    return dto?.toDomain();
+  }
+
+  @override
+  Future<void> joinGroup(String code, String userId) async {
+    await _remoteDataSource.addMember(code, userId);
+
+    final dto = await _remoteDataSource.fetchGroup(code);
+
+    if (dto != null) {
+      await _localDataSource.insert(dto);
+    }
+  }
 }

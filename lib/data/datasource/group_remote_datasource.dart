@@ -79,6 +79,12 @@ class GroupRemoteDataSource {
     await _groupsRef.doc(code).update(updates);
   }
 
+  Future<void> addMember(String code, String userId) async {
+    await _groupsRef.doc(code).update({
+      'members.$userId': true,
+    });
+  }
+
   GroupResponse _toResponse(Map<String, dynamic> data) {
     List<String> memberList = [];
 
