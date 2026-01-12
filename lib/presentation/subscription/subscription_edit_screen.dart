@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/subby_app_bar.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
@@ -62,14 +63,14 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(AppSpacing.lg),
                 children: [
                   // 서비스명 (읽기 전용)
                   AppCard(
                     child: Row(
                       children: [
                         Icon(Icons.subscriptions_outlined, color: colorScheme.primary),
-                        const SizedBox(width: 12),
+                        SizedBox(width: AppSpacing.md),
                         Text(
                           state.name,
                           style: AppTypography.headlineSmall,
@@ -77,7 +78,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: AppSpacing.md),
 
                   // 통화 + 금액 그룹
                   AppCard(
@@ -85,19 +86,19 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('통화', style: Theme.of(context).textTheme.labelSmall),
-                        const SizedBox(height: 8),
+                        SizedBox(height: AppSpacing.sm),
                         SegmentedSelector(
                           options: const ['KRW', 'USD'],
                           labels: const ['\u20a9 원화', '\$ 달러'],
                           selected: state.currency,
                           onChanged: vm.setCurrency,
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: AppSpacing.lg),
 
                         Text('금액', style: Theme.of(context).textTheme.labelSmall),
-                        const SizedBox(height: 12),
+                        SizedBox(height: AppSpacing.md),
                         _buildAmountTextField(state, vm, colorScheme),
-                        const SizedBox(height: 12),
+                        SizedBox(height: AppSpacing.md),
                         AmountAdder(
                           currency: state.currency,
                           onAdd: (step) => vm.setAmount(state.amount + step),
@@ -105,7 +106,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: AppSpacing.md),
 
                   // 결제일 + 결제 주기 그룹
                   AppCard(
@@ -116,7 +117,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('결제일', style: Theme.of(context).textTheme.labelSmall),
-                              const SizedBox(height: 8),
+                              SizedBox(height: AppSpacing.sm),
                               GestureDetector(
                                 onTap: () async {
                                 final result = await showDayPickerDialog(
@@ -129,7 +130,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                                 }
                               },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                                   decoration: BoxDecoration(
                                     color: colorScheme.surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(12),
@@ -147,13 +148,13 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                             ],
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('결제 주기', style: Theme.of(context).textTheme.labelSmall),
-                              const SizedBox(height: 8),
+                              SizedBox(height: AppSpacing.sm),
                               SegmentedSelector(
                                 options: const ['MONTHLY', 'YEARLY'],
                                 labels: const ['매월', '매년'],
@@ -167,7 +168,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: AppSpacing.md),
 
                   // 메모
                   AppCard(
@@ -186,7 +187,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
 
             // 저장 버튼 - 하단 고정
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.lg),
               child: SafeArea(
                 child: FilledButton(
                   onPressed: state.isSaving ? null : () => _onSave(state, vm),
@@ -246,7 +247,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
             color: colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          contentPadding: EdgeInsets.all(AppSpacing.lg),
         ),
         onChanged: (value) {
           final parsed = double.tryParse(value) ?? 0;

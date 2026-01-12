@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 
 /// 결제일 선택 다이얼로그 (1-31일)
 class DayPickerDialog extends StatefulWidget {
@@ -62,7 +63,7 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: AppSpacing.lg),
 
                     // 날짜 그리드
                     GridView.builder(
@@ -117,12 +118,12 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
                         );
                       },
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppSpacing.lg),
 
                     // 선택된 날짜 표시
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
@@ -203,7 +204,7 @@ class _ActionButton extends StatelessWidget {
               onTap: onPressed,
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
                 alignment: Alignment.center,
                 child: Text(
                   label,

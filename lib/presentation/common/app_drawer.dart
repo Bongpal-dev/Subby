@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
@@ -21,7 +22,7 @@ class AppDrawer extends ConsumerWidget {
           children: [
             // 헤더
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.lg),
               child: Text(
                 '구독 그룹',
                 style: AppTypography.headlineLarge.copyWith(
@@ -34,7 +35,7 @@ class AppDrawer extends ConsumerWidget {
             // 그룹 목록
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
                 children: [
                   // 모든 그룹 표시 (기본 그룹 포함)
                   ...state.groups.map((group) => _GroupTile(
@@ -69,7 +70,7 @@ class AppDrawer extends ConsumerWidget {
                   // 그룹이 없는 경우 (초기화 중)
                   if (state.groups.isEmpty)
                     const Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(AppSpacing.lg),
                       child: Center(
                         child: CircularProgressIndicator(),
                       ),
@@ -81,7 +82,7 @@ class AppDrawer extends ConsumerWidget {
             // 하단 버튼들
             const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 children: [
                   SizedBox(
@@ -92,7 +93,7 @@ class AppDrawer extends ConsumerWidget {
                       label: const Text('새 그룹 만들기'),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: AppSpacing.sm),
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
@@ -275,7 +276,7 @@ class _GroupTile extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.edit_outlined, size: 20),
-                SizedBox(width: 8),
+                SizedBox(width: AppSpacing.sm),
                 Text('이름 변경'),
               ],
             ),
@@ -285,7 +286,7 @@ class _GroupTile extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.logout, size: 20, color: Colors.red),
-                SizedBox(width: 8),
+                SizedBox(width: AppSpacing.sm),
                 Text('나가기', style: TextStyle(color: Colors.red)),
               ],
             ),

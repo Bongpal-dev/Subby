@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// 커스텀 텍스트 필드
@@ -55,7 +56,7 @@ class AppTextField extends StatelessWidget {
             label!,
             style: AppTypography.captionLarge.copyWith(color: colors.textTertiary),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppSpacing.sm),
         ],
 
         // Input or Display

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// 텍스트 입력 다이얼로그
@@ -100,7 +101,7 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
             children: [
               // Title + Input
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.lg),
                 child: Column(
                   children: [
                     Text(
@@ -110,7 +111,7 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: AppSpacing.md),
                     Form(
                       key: _formKey,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -246,7 +247,7 @@ class _ActionButton extends StatelessWidget {
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
           alignment: Alignment.center,
           child: Text(
             label,
