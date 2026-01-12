@@ -132,7 +132,13 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _buildStepSelector(state, vm),
+                        StepSelector(
+                          currency: state.currency,
+                          currentStep: state.currency == 'KRW'
+                              ? state.amountStepKRW
+                              : state.amountStepUSD,
+                          onStepChanged: vm.setAmountStep,
+                        ),
                       ],
                     ),
                   ),
@@ -230,54 +236,6 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStepSelector(SubscriptionEditState state, SubscriptionEditViewModel vm) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final steps = state.currency == 'KRW'
-        ? [100, 1000, 10000]
-        : [0.1, 1.0, 10.0];
-    final currentStep = state.currency == 'KRW' ? state.amountStepKRW : state.amountStepUSD;
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: steps.map((step) {
-          final isSelected = (state.currency == 'KRW' && step == currentStep) ||
-              (state.currency == 'USD' && step == currentStep);
-          final label = state.currency == 'KRW'
-              ? '\u20a9${(step as int).toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}'
-              : '\$${(step as double).toString().replaceAll(RegExp(r'\.0$'), '')}';
-
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => vm.setAmountStep(step),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: isSelected ? colorScheme.surface : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
       ),
     );
   }
