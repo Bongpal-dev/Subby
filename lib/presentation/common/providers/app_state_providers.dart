@@ -37,7 +37,6 @@ final currentGroupProvider = StreamProvider((ref) {
   return groupRepository.watchByCode(groupCode);
 });
 
-// 현재 그룹 실시간 동기화
 final realtimeSyncProvider = Provider<void>((ref) {
   final groupCode = ref.watch(currentGroupCodeProvider);
 
@@ -45,4 +44,19 @@ final realtimeSyncProvider = Provider<void>((ref) {
 
   final syncService = ref.read(realtimeSyncServiceProvider);
   syncService.startSync(groupCode);
+});
+
+final networkSyncProvider = Provider<void>((ref) {
+  final connectivityService = ref.watch(connectivityServiceProvider);
+  final processPendingChanges = ref.read(processPendingChangesUseCaseProvider);
+
+  connectivityService.startMonitoring();
+
+  connectivityService.onOnlineRestored.listen((_) {
+    processPendingChanges();
+  });
+
+  ref.onDispose(() {
+    connectivityService.dispose();
+  });
 });
