@@ -55,6 +55,15 @@ class SubscriptionRemoteDataSource {
     }).toList();
   }
 
+  Stream<List<SubscriptionDto>> watchSubscriptions(String groupCode) {
+    return _subscriptionsRef(groupCode).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final response = SubscriptionResponse.fromJson(doc.data());
+        return response.toDto();
+      }).toList();
+    });
+  }
+
   Future<void> deleteSubscription(
     String groupCode,
     String subscriptionId,
