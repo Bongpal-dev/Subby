@@ -143,11 +143,58 @@ class AppDrawer extends ConsumerWidget {
     }
   }
 
-  void _showJoinGroupDialog(BuildContext context, WidgetRef ref) {
+  Future<void> _showJoinGroupDialog(BuildContext context, WidgetRef ref) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final groupRepository = ref.read(groupRepositoryProvider);
+
     Navigator.pop(context);
-    // TODO: 그룹 참여 다이얼로그
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('그룹 참여 기능 준비 중')),
+
+    final groupCode = await showAppTextInputDialog(
+      context: context,
+      title: '그룹 참여하기',
+      hint: '12자리 그룹 코드 입력',
+      maxLength: 12,
+      confirmLabel: '확인',
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return '그룹 코드를 입력해주세요';
+        }
+
+        final code = value.trim().toUpperCase();
+
+        if (code.length != 12) {
+          return '12자리 코드를 입력해주세요';
+        }
+        if (!RegExp(r'^[A-Z0-9]+$').hasMatch(code)) {
+          return '영문 대문자와 숫자만 입력해주세요';
+        }
+
+        return null;
+      },
+    );
+
+    if (groupCode == null || !context.mounted) return;
+
+    final code = groupCode.trim().toUpperCase();
+
+    // 원격에서 그룹 정보 조회
+    final group = await groupRepository.fetchRemoteByCode(code);
+
+    if (group == null) {
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('존재하지 않는 그룹입니다')),
+      );
+      return;
+    }
+
+    if (!context.mounted) return;
+
+    // 참여 확인 다이얼로그 표시
+    showJoinGroupDialog(
+      context: context,
+      groupCode: code,
+      groupName: group.name,
+      memberCount: group.members.length,
     );
   }
 
