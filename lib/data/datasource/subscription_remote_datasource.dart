@@ -31,7 +31,7 @@ class SubscriptionRemoteDataSource {
     await _subscriptionsRef(dto.groupCode).doc(dto.id).set(response.toJson());
   }
 
-  Future<SubscriptionDto?> getSubscription(
+  Future<SubscriptionDto?> fetchSubscription(
     String groupCode,
     String subscriptionId,
   ) async {
@@ -44,6 +44,15 @@ class SubscriptionRemoteDataSource {
     final response = SubscriptionResponse.fromJson(doc.data()!);
 
     return response.toDto();
+  }
+
+  Future<List<SubscriptionDto>> fetchSubscriptions(String groupCode) async {
+    final snapshot = await _subscriptionsRef(groupCode).get();
+
+    return snapshot.docs.map((doc) {
+      final response = SubscriptionResponse.fromJson(doc.data());
+      return response.toDto();
+    }).toList();
   }
 
   Future<void> deleteSubscription(
