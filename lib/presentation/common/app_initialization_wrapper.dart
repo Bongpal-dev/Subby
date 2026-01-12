@@ -15,7 +15,12 @@ class AppInitializationWrapper extends ConsumerWidget {
     final appInit = ref.watch(appInitializedProvider);
 
     return appInit.when(
-      data: (_) => child,
+      data: (_) {
+        // 실시간 동기화 시작
+        ref.watch(realtimeSyncProvider);
+
+        return child;
+      },
       loading: () => const _LoadingScreen(),
       error: (error, stack) => _ErrorScreen(error: error),
     );
