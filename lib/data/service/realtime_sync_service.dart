@@ -31,28 +31,28 @@ class RealtimeSyncService {
     final localIds = localFiltered.map((e) => e.id).toSet();
     final localMap = {for (final e in localFiltered) e.id: e};
 
-    // #39: 추가 - Remote에만 있는 항목
-    final toInsert = remoteList.where((e) => !localIds.contains(e.id));
+    // 추가 - Remote에만 있는 항목
+    final toInsert = remoteList.where((e) => !localIds.contains(e.id)).toList();
 
     for (final dto in toInsert) {
       await _localDataSource.insert(dto);
     }
 
-    // #40: 수정 - 양쪽에 있지만 내용 다른 항목
+    // 수정 - 양쪽에 있지만 내용 다른 항목
     final toUpdate = remoteList.where((remote) {
       final local = localMap[remote.id];
 
       if (local == null) return false;
 
       return _isDifferent(remote, local);
-    });
+    }).toList();
 
     for (final dto in toUpdate) {
       await _localDataSource.update(dto);
     }
 
-    // #41: 삭제 - Local에만 있는 항목
-    final toDelete = localFiltered.where((e) => !remoteIds.contains(e.id));
+    // 삭제 - Local에만 있는 항목
+    final toDelete = localFiltered.where((e) => !remoteIds.contains(e.id)).toList();
 
     for (final dto in toDelete) {
       await _localDataSource.delete(dto.id);

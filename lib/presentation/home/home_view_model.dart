@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/domain/model/subscription_group.dart';
 import 'package:subby/domain/model/user_subscription.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
 class HomeState {
   final List<UserSubscription> subscriptions;
@@ -53,10 +54,17 @@ class HomeViewModel extends Notifier<HomeState> {
   void _watchGroups() {
     final groupRepository = ref.read(groupRepositoryProvider);
     groupRepository.watchAll().listen((groups) {
+      final newGroupCode = state.selectedGroupCode ?? groups.firstOrNull?.code;
+
       state = state.copyWith(
         groups: groups,
-        selectedGroupCode: state.selectedGroupCode ?? groups.firstOrNull?.code,
+        selectedGroupCode: newGroupCode,
       );
+
+      // currentGroupCodeProvider 동기화
+      if (newGroupCode != null) {
+        ref.read(currentGroupCodeProvider.notifier).state = newGroupCode;
+      }
     });
   }
 
@@ -84,6 +92,10 @@ class HomeViewModel extends Notifier<HomeState> {
       selectedGroupCode: groupCode,
       clearSelectedGroup: groupCode == null,
     );
+
+    // currentGroupCodeProvider 동기화
+    ref.read(currentGroupCodeProvider.notifier).state = groupCode;
+
     _watchSubscriptions();
   }
 

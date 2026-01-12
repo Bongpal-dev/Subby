@@ -17,13 +17,8 @@ final currentUserIdProvider = Provider<String?>((ref) {
 
 final appInitializedProvider = FutureProvider<String>((ref) async {
   final initializeApp = ref.watch(initializeAppUseCaseProvider);
-  final groupCode = await initializeApp();
 
-  // 실시간 동기화 시작
-  final syncService = ref.read(realtimeSyncServiceProvider);
-  syncService.startSync(groupCode);
-
-  return groupCode;
+  return initializeApp();
 });
 
 final currentGroupCodeProvider = StateProvider<String?>((ref) {
@@ -40,4 +35,14 @@ final currentGroupProvider = StreamProvider((ref) {
   final groupRepository = ref.watch(groupRepositoryProvider);
 
   return groupRepository.watchByCode(groupCode);
+});
+
+// 현재 그룹 실시간 동기화
+final realtimeSyncProvider = Provider<void>((ref) {
+  final groupCode = ref.watch(currentGroupCodeProvider);
+
+  if (groupCode == null) return;
+
+  final syncService = ref.read(realtimeSyncServiceProvider);
+  syncService.startSync(groupCode);
 });
