@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
+import 'package:subby/core/di/data/service_providers.dart';
 
 final authStateProvider = StreamProvider<String?>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
@@ -16,8 +17,13 @@ final currentUserIdProvider = Provider<String?>((ref) {
 
 final appInitializedProvider = FutureProvider<String>((ref) async {
   final initializeApp = ref.watch(initializeAppUseCaseProvider);
+  final groupCode = await initializeApp();
 
-  return initializeApp();
+  // 실시간 동기화 시작
+  final syncService = ref.read(realtimeSyncServiceProvider);
+  syncService.startSync(groupCode);
+
+  return groupCode;
 });
 
 final currentGroupCodeProvider = StateProvider<String?>((ref) {
