@@ -29,10 +29,9 @@ class _AppInitializationWrapperState
 
     return appInit.when(
       data: (_) {
-        // 실시간 동기화 시작
         ref.watch(realtimeSyncProvider);
+        ref.watch(networkSyncProvider);
 
-        // 초기 딥링크 처리 (한 번만)
         if (!_initialLinkHandled) {
           _initialLinkHandled = true;
           ref.listen(initialDeepLinkProvider, (prev, next) {
@@ -42,7 +41,6 @@ class _AppInitializationWrapperState
           });
         }
 
-        // 실시간 딥링크 처리
         ref.listen(deepLinkStreamProvider, (prev, next) {
           next.whenData((uri) => _handleDeepLink(uri));
         });
