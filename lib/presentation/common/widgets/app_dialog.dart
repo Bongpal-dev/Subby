@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// 커스텀 다이얼로그
@@ -41,7 +42,7 @@ class AppDialog extends StatelessWidget {
             children: [
               // Title + Content
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.lg),
                 child: Column(
                   children: [
                     Text(
@@ -52,7 +53,7 @@ class AppDialog extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     if (content != null) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: AppSpacing.md),
                       content!,
                     ],
                   ],
@@ -120,7 +121,7 @@ class _ActionButton extends StatelessWidget {
         onTap: action.onPressed,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
           alignment: Alignment.center,
           child: Text(
             action.label,
