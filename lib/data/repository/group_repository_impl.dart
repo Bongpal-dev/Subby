@@ -113,4 +113,11 @@ class GroupRepositoryImpl implements GroupRepository {
       await _localDataSource.insert(dto);
     }
   }
+
+  @override
+  Future<void> saveToLocal(SubscriptionGroup group) async {
+    final dto = group.toDto();
+
+    await _localDataSource.insert(dto);
+  }
 }

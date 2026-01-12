@@ -144,10 +144,8 @@ class AppDrawer extends ConsumerWidget {
   }
 
   Future<void> _showJoinGroupDialog(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final groupRepository = ref.read(groupRepositoryProvider);
-
-    Navigator.pop(context);
+    final navigator = Navigator.of(context);
+    navigator.pop();
 
     final groupCode = await showAppTextInputDialog(
       context: context,
@@ -173,28 +171,13 @@ class AppDrawer extends ConsumerWidget {
       },
     );
 
-    if (groupCode == null || !context.mounted) return;
+    if (groupCode == null) return;
 
     final code = groupCode.trim().toUpperCase();
 
-    // 원격에서 그룹 정보 조회
-    final group = await groupRepository.fetchRemoteByCode(code);
-
-    if (group == null) {
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('존재하지 않는 그룹입니다')),
-      );
-      return;
-    }
-
-    if (!context.mounted) return;
-
-    // 참여 확인 다이얼로그 표시
     showJoinGroupDialog(
-      context: context,
+      context: navigator.context,
       groupCode: code,
-      groupName: group.name,
-      memberCount: group.members.length,
     );
   }
 
