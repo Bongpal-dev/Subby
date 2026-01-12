@@ -36,6 +36,18 @@ class GroupRemoteDataSource {
     return response.toDto();
   }
 
+  Stream<GroupDto?> watchGroup(String code) {
+    return _groupsRef.doc(code).snapshots().map((doc) {
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+
+      final response = _toResponse(doc.data()!);
+
+      return response.toDto();
+    });
+  }
+
   Future<void> deleteGroup(String code) async {
     await _groupsRef.doc(code).delete();
   }
