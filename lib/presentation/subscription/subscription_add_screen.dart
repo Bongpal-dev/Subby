@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
 import 'package:subby/presentation/common/subby_app_bar.dart';
@@ -112,7 +111,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                       // 통화 선택
                       Text('통화', style: Theme.of(context).textTheme.labelSmall),
                       const SizedBox(height: 8),
-                      _buildSegmentedButton(
+                      SegmentedSelector(
                         options: const ['KRW', 'USD'],
                         labels: const ['\u20a9 원화', '\$ 달러'],
                         selected: state.currency,
@@ -210,7 +209,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                           children: [
                             Text('결제 주기', style: Theme.of(context).textTheme.labelSmall),
                             const SizedBox(height: 8),
-                            _buildSegmentedButton(
+                            SegmentedSelector(
                               options: const ['MONTHLY', 'YEARLY'],
                               labels: const ['매월', '매년'],
                               selected: state.period,
@@ -263,52 +262,6 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSegmentedButton({
-    required List<String> options,
-    required List<String> labels,
-    required String selected,
-    required void Function(String) onChanged,
-    bool compact = false,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final colors = Theme.of(context).brightness == Brightness.dark
-        ? AppColors.dark
-        : AppColors.light;
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: List.generate(options.length, (index) {
-          final isSelected = selected == options[index];
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged(options[index]),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: compact ? 10 : 12),
-                decoration: BoxDecoration(
-                  color: isSelected ? colorScheme.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    labels[index],
-                    style: (compact ? AppTypography.labelSmall : AppTypography.labelLarge).copyWith(
-                      color: isSelected ? Colors.white : colors.textTertiary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
       ),
     );
   }
