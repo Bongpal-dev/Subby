@@ -2,6 +2,7 @@ export 'amount_adder.dart';
 export 'app_card.dart';
 export 'app_dialog.dart';
 export 'app_text_field.dart';
+export 'day_picker_dialog.dart';
 export 'app_text_input_dialog.dart';
 export 'invite_dialog.dart';
 export 'join_group_dialog.dart';
