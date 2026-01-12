@@ -16,4 +16,10 @@ abstract class GroupRepository {
   Future<void> syncCreate(SubscriptionGroup group);
   Future<void> syncUpdate(SubscriptionGroup group);
   Future<void> syncLeave(String code, String userId);
+
+  /// 원격에서 그룹 정보 조회 (참여 전 확인용)
+  Future<SubscriptionGroup?> fetchRemoteByCode(String code);
+
+  /// 그룹 참여 (원격 멤버 추가 + 로컬 저장)
+  Future<void> joinGroup(String code, String userId);
 }

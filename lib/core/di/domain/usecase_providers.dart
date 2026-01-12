@@ -6,6 +6,7 @@ import 'package:subby/domain/usecase/delete_subscription_usecase.dart';
 import 'package:subby/domain/usecase/get_presets_usecase.dart';
 import 'package:subby/domain/usecase/get_subscription_by_id_usecase.dart';
 import 'package:subby/domain/usecase/initialize_app_usecase.dart';
+import 'package:subby/domain/usecase/join_group_usecase.dart';
 import 'package:subby/domain/usecase/leave_group_usecase.dart';
 import 'package:subby/domain/usecase/process_pending_changes_usecase.dart';
 import 'package:subby/domain/usecase/update_subscription_usecase.dart';
@@ -44,6 +45,16 @@ final leaveGroupUseCaseProvider = Provider<LeaveGroupUseCase>((ref) {
     groupRepository: groupRepository,
     subscriptionRepository: subscriptionRepository,
     pendingChangeRepository: pendingChangeRepository,
+  );
+});
+
+final joinGroupUseCaseProvider = Provider<JoinGroupUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final groupRepository = ref.watch(groupRepositoryProvider);
+
+  return JoinGroupUseCase(
+    authRepository: authRepository,
+    groupRepository: groupRepository,
   );
 });
 
