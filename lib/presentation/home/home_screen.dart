@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/user_subscription.dart';
@@ -60,7 +61,7 @@ class HomeScreen extends ConsumerWidget {
           SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.lg),
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -68,7 +69,7 @@ class HomeScreen extends ConsumerWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: colorScheme.secondary,
                     foregroundColor: colorScheme.onSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -127,8 +128,8 @@ class _HeaderCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      margin: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.lg),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.lg),
       decoration: BoxDecoration(
         color: colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
@@ -139,7 +140,7 @@ class _HeaderCard extends StatelessWidget {
             '이번 달 구독료',
             style: AppTypography.titleLarge.copyWith(color: Colors.white),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppSpacing.sm),
           Text(
             '\u20a9$formatted',
             style: AppTypography.displayLarge.copyWith(color: Colors.white),
@@ -168,12 +169,12 @@ class _EmptyState extends StatelessWidget {
             size: 64,
             color: colors.primary.withValues(alpha: 0.5),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: AppSpacing.lg),
           Text(
             '아직 등록된 구독이 없습니다',
             style: AppTypography.titleLarge.copyWith(color: colors.textPrimary),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppSpacing.sm),
           Text(
             '아래 버튼을 눌러 첫 구독을 추가해보세요!',
             style: AppTypography.bodySmall.copyWith(color: colors.textTertiary),
@@ -196,7 +197,7 @@ class _SubscriptionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       itemCount: subscriptions.length,
       itemBuilder: (context, index) {
         final sub = subscriptions[index];
@@ -230,12 +231,12 @@ class _SubscriptionTile extends StatelessWidget {
     final krwConverted = isUsd ? (subscription.amount * 1450).toInt() : null;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(AppSpacing.lg),
           child: Row(
             children: [
               Expanded(
@@ -248,7 +249,7 @@ class _SubscriptionTile extends StatelessWidget {
                         color: colors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: AppSpacing.xs),
                     Text(
                       '매월 ${subscription.billingDay}일 결제',
                       style: AppTypography.bodySmall.copyWith(
@@ -268,7 +269,7 @@ class _SubscriptionTile extends StatelessWidget {
                     ),
                   ),
                   if (krwConverted != null) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: AppSpacing.xs),
                     Text(
                       '\u2248 \u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
                       style: AppTypography.captionLarge.copyWith(

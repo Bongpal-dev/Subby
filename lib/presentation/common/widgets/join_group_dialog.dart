@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:subby/core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/domain/usecase/join_group_usecase.dart';
@@ -27,8 +28,8 @@ class _JoinGroupDialogState extends ConsumerState<JoinGroupDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('이 그룹에 참여하시겠습니까?'),
-          const SizedBox(height: 8),
+const Text('이 그룹에 참여하시겠습니까?'),
+          SizedBox(height: AppSpacing.sm),
           Text(
             '코드: ${widget.groupCode}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
