@@ -45,6 +45,26 @@ dev_dependencies:
   drift_dev: 2.30.0
   build_runner: ^2.4.15
 
+  # 앱 아이콘 생성
+  flutter_launcher_icons: ^0.14.3
+
+  # 스플래시 화면 생성
+  flutter_native_splash: ^2.4.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon.png"
+  adaptive_icon_background: "#FFD54F"
+  adaptive_icon_foreground: "assets/icon.png"
+
+flutter_native_splash:
+  color: "#FFD54F"
+  image: "assets/icon.png"
+  android_12:
+    color: "#FFD54F"
+    image: "assets/icon.png"
+
 flutter:
   uses-material-design: true
 

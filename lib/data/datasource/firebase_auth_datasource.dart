@@ -14,6 +14,10 @@ class FirebaseAuthDataSource {
   }
 
   Future<String> signInAnonymously() async {
+    if (_auth.currentUser != null) {
+      return _auth.currentUser!.uid;
+    }
+
     final credential = await _auth.signInAnonymously();
     return credential.user!.uid;
   }
