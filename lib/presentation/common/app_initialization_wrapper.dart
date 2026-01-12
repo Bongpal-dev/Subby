@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
+import 'package:subby/presentation/common/providers/deep_link_provider.dart';
+import 'package:subby/presentation/common/widgets/widgets.dart';
 
-class AppInitializationWrapper extends ConsumerWidget {
+class AppInitializationWrapper extends ConsumerStatefulWidget {
   final Widget child;
 
   const AppInitializationWrapper({
@@ -11,7 +15,16 @@ class AppInitializationWrapper extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppInitializationWrapper> createState() =>
+      _AppInitializationWrapperState();
+}
+
+class _AppInitializationWrapperState
+    extends ConsumerState<AppInitializationWrapper> {
+  bool _initialLinkHandled = false;
+
+  @override
+  Widget build(BuildContext context) {
     final appInit = ref.watch(appInitializedProvider);
 
     return appInit.when(
@@ -19,10 +32,54 @@ class AppInitializationWrapper extends ConsumerWidget {
         // 실시간 동기화 시작
         ref.watch(realtimeSyncProvider);
 
-        return child;
+        // 초기 딥링크 처리 (한 번만)
+        if (!_initialLinkHandled) {
+          _initialLinkHandled = true;
+          ref.listen(initialDeepLinkProvider, (prev, next) {
+            next.whenData((uri) {
+              if (uri != null) _handleDeepLink(uri);
+            });
+          });
+        }
+
+        // 실시간 딥링크 처리
+        ref.listen(deepLinkStreamProvider, (prev, next) {
+          next.whenData((uri) => _handleDeepLink(uri));
+        });
+
+        return widget.child;
       },
       loading: () => const _LoadingScreen(),
       error: (error, stack) => _ErrorScreen(error: error),
+    );
+  }
+
+  Future<void> _handleDeepLink(Uri uri) async {
+    final groupCode = InviteLinkGenerator.parseGroupCode(uri);
+
+    if (groupCode == null) return;
+
+    // 원격에서 그룹 정보 조회
+    final groupRepository = ref.read(groupRepositoryProvider);
+    final group = await groupRepository.fetchRemoteByCode(groupCode);
+
+    if (group == null) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('존재하지 않는 그룹입니다')),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+
+    // 참여 확인 다이얼로그 표시
+    showJoinGroupDialog(
+      context: context,
+      groupCode: groupCode,
+      groupName: group.name,
+      memberCount: group.members.length,
     );
   }
 }
