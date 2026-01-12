@@ -57,29 +57,12 @@ class _AppInitializationWrapperState
   Future<void> _handleDeepLink(Uri uri) async {
     final groupCode = InviteLinkGenerator.parseGroupCode(uri);
 
-    if (groupCode == null) return;
-
-    // 원격에서 그룹 정보 조회
-    final groupRepository = ref.read(groupRepositoryProvider);
-    final group = await groupRepository.fetchRemoteByCode(groupCode);
-
-    if (group == null) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('존재하지 않는 그룹입니다')),
-      );
-      return;
-    }
-
-    if (!mounted) return;
+    if (groupCode == null || !mounted) return;
 
     // 참여 확인 다이얼로그 표시
     showJoinGroupDialog(
       context: context,
       groupCode: groupCode,
-      groupName: group.name,
-      memberCount: group.members.length,
     );
   }
 }

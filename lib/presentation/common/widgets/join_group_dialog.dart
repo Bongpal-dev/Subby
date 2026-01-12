@@ -6,14 +6,10 @@ import 'package:subby/presentation/home/home_view_model.dart';
 
 class JoinGroupDialog extends ConsumerStatefulWidget {
   final String groupCode;
-  final String groupName;
-  final int memberCount;
 
   const JoinGroupDialog({
     super.key,
     required this.groupCode,
-    required this.groupName,
-    required this.memberCount,
   });
 
   @override
@@ -31,12 +27,13 @@ class _JoinGroupDialogState extends ConsumerState<JoinGroupDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('"${widget.groupName}" 그룹에 참여하시겠습니까?'),
+          const Text('이 그룹에 참여하시겠습니까?'),
           const SizedBox(height: 8),
           Text(
-            '멤버: ${widget.memberCount}명',
+            '코드: ${widget.groupCode}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
+                  fontFamily: 'monospace',
                 ),
           ),
         ],
@@ -69,41 +66,38 @@ class _JoinGroupDialogState extends ConsumerState<JoinGroupDialog> {
     final joinGroup = ref.read(joinGroupUseCaseProvider);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    try {
-      final result = await joinGroup(widget.groupCode);
+    final (result, group) = await joinGroup(widget.groupCode);
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      switch (result) {
-        case JoinGroupResult.success:
-          scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text('"${widget.groupName}" 그룹에 참여했습니다')),
-          );
-          ref.read(homeViewModelProvider.notifier).selectGroup(widget.groupCode);
-          Navigator.pop(context, true);
-          break;
+    switch (result) {
+      case JoinGroupResult.success:
+        final groupName = group?.effectiveName ?? '그룹';
 
-        case JoinGroupResult.alreadyJoined:
-          scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('이미 참여 중인 그룹입니다')),
-          );
-          Navigator.pop(context, false);
-          break;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('"$groupName" 그룹에 참여했습니다')),
+        );
+        ref.read(homeViewModelProvider.notifier).selectGroup(widget.groupCode);
+        Navigator.pop(context, true);
 
-        case JoinGroupResult.notFound:
-          scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('존재하지 않는 그룹입니다')),
-          );
-          Navigator.pop(context, false);
-          break;
-      }
-    } on Exception catch (e) {
-      if (!mounted) return;
+      case JoinGroupResult.alreadyJoined:
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('이미 참여 중인 그룹입니다')),
+        );
+        ref.read(homeViewModelProvider.notifier).selectGroup(widget.groupCode);
+        Navigator.pop(context, false);
 
-      setState(() => _isLoading = false);
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
-      );
+      case JoinGroupResult.notFound:
+        setState(() => _isLoading = false);
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('존재하지 않는 그룹입니다')),
+        );
+
+      case JoinGroupResult.error:
+        setState(() => _isLoading = false);
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('그룹 참여 중 오류가 발생했습니다')),
+        );
     }
   }
 }
@@ -111,15 +105,9 @@ class _JoinGroupDialogState extends ConsumerState<JoinGroupDialog> {
 Future<bool?> showJoinGroupDialog({
   required BuildContext context,
   required String groupCode,
-  required String groupName,
-  required int memberCount,
 }) {
   return showDialog<bool>(
     context: context,
-    builder: (context) => JoinGroupDialog(
-      groupCode: groupCode,
-      groupName: groupName,
-      memberCount: memberCount,
-    ),
+    builder: (context) => JoinGroupDialog(groupCode: groupCode),
   );
 }
