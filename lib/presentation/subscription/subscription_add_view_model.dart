@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 
 class SubscriptionAddState {
@@ -251,6 +252,7 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
       );
 
       await addUseCase(subscription);
+      ref.read(pendingSyncTriggerProvider.notifier).state++;
       state = state.copyWith(isSaving: false);
       return true;
     } catch (e) {

@@ -11,17 +11,9 @@ class AddSubscriptionUseCase {
 
   Future<void> call(UserSubscription subscription) async {
     await _repository.create(subscription);
-    _trySync(subscription);
-  }
-
-  void _trySync(UserSubscription subscription) async {
-    try {
-      await _repository.syncCreate(subscription);
-    } catch (e) {
-      await _pendingChangeRepository.saveSubscriptionChange(
-        subscription,
-        ChangeAction.create,
-      );
-    }
+    await _pendingChangeRepository.saveSubscriptionChange(
+      subscription,
+      ChangeAction.create,
+    );
   }
 }
