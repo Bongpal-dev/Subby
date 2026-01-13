@@ -1,5 +1,5 @@
-import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/domain/model/pending_change.dart';
+import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
 
@@ -13,9 +13,14 @@ class DeleteSubscriptionUseCase {
     final subscription = await _repository.getById(id);
     if (subscription == null) return;
 
+    await _repository.delete(id);
+    _trySync(subscription);
+  }
+
+  void _trySync(UserSubscription subscription) async {
     try {
-      await _repository.delete(id);
-    } on FirebaseSyncException {
+      await _repository.syncDelete(subscription.groupCode, subscription.id);
+    } catch (e) {
       await _pendingChangeRepository.saveSubscriptionChange(
         subscription,
         ChangeAction.delete,
