@@ -13,6 +13,7 @@ class SubscriptionDto {
   final String? memo;
   final double? feeRatePercent;
   final DateTime createdAt;
+  final DateTime? updatedAt;
 
   SubscriptionDto({
     required this.id,
@@ -26,6 +27,7 @@ class SubscriptionDto {
     this.memo,
     this.feeRatePercent,
     required this.createdAt,
+    this.updatedAt,
   });
 
   factory SubscriptionDto.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,9 @@ class SubscriptionDto {
       memo: json['memo'] as String?,
       feeRatePercent: (json['feeRatePercent'] as num?)?.toDouble(),
       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int)
+          : null,
     );
   }
 
@@ -57,11 +62,12 @@ class SubscriptionDto {
       'memo': memo,
       'feeRatePercent': feeRatePercent,
       'createdAt': createdAt.millisecondsSinceEpoch,
+      'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
   }
 }
 
-extension UserSubscriptionToDto on UserSubscription {
+extension UserSubscriptionRowToDto on UserSubscription {
   SubscriptionDto toDto() {
     return SubscriptionDto(
       id: id,
