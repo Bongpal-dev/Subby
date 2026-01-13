@@ -1,4 +1,3 @@
-import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/core/util/group_code_generator.dart';
 import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/model/subscription_group.dart';
@@ -42,15 +41,20 @@ class CreateGroupUseCase {
       createdAt: DateTime.now(),
     );
 
+    await _groupRepository.create(newGroup);
+    _trySync(newGroup);
+
+    return newGroup.code;
+  }
+
+  void _trySync(SubscriptionGroup group) async {
     try {
-      await _groupRepository.create(newGroup);
-    } on FirebaseSyncException {
+      await _groupRepository.syncCreate(group);
+    } catch (e) {
       await _pendingChangeRepository.saveGroupChange(
-        newGroup,
+        group,
         ChangeAction.create,
       );
     }
-
-    return newGroup.code;
   }
 }

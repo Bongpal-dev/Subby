@@ -15,10 +15,12 @@ import 'package:subby/domain/usecase/watch_subscriptions_usecase.dart';
 final initializeAppUseCaseProvider = Provider<InitializeAppUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final groupRepository = ref.watch(groupRepositoryProvider);
+  final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
 
   return InitializeAppUseCase(
     authRepository: authRepository,
     groupRepository: groupRepository,
+    pendingChangeRepository: pendingChangeRepository,
   );
 });
 
