@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/domain/model/user_subscription.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
 class SubscriptionEditState {
   final bool isLoading;
@@ -171,6 +172,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
       );
 
       await updateUseCase(subscription);
+      ref.read(pendingSyncTriggerProvider.notifier).state++;
       state = state.copyWith(isSaving: false);
       return true;
     } catch (e) {
@@ -185,6 +187,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
     try {
       final deleteUseCase = ref.read(deleteSubscriptionUseCaseProvider);
       await deleteUseCase(state.subscriptionId);
+      ref.read(pendingSyncTriggerProvider.notifier).state++;
       state = state.copyWith(isDeleting: false);
       return true;
     } catch (e) {

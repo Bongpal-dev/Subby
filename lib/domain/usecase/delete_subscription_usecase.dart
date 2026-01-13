@@ -14,17 +14,9 @@ class DeleteSubscriptionUseCase {
     if (subscription == null) return;
 
     await _repository.delete(id);
-    _trySync(subscription);
-  }
-
-  void _trySync(UserSubscription subscription) async {
-    try {
-      await _repository.syncDelete(subscription.groupCode, subscription.id);
-    } catch (e) {
-      await _pendingChangeRepository.saveSubscriptionChange(
-        subscription,
-        ChangeAction.delete,
-      );
-    }
+    await _pendingChangeRepository.saveSubscriptionChange(
+      subscription,
+      ChangeAction.delete,
+    );
   }
 }
