@@ -1,4 +1,3 @@
-import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
@@ -11,9 +10,14 @@ class UpdateSubscriptionUseCase {
   UpdateSubscriptionUseCase(this._repository, this._pendingChangeRepository);
 
   Future<void> call(UserSubscription subscription) async {
+    await _repository.update(subscription);
+    _trySync(subscription);
+  }
+
+  void _trySync(UserSubscription subscription) async {
     try {
-      await _repository.update(subscription);
-    } on FirebaseSyncException {
+      await _repository.syncUpdate(subscription);
+    } catch (e) {
       await _pendingChangeRepository.saveSubscriptionChange(
         subscription,
         ChangeAction.update,
