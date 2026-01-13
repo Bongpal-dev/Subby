@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/di/data/service_providers.dart';
+import 'package:subby/domain/model/conflict_resolution.dart';
+import 'package:subby/presentation/common/providers/conflict_state_provider.dart';
 
 final authStateProvider = StreamProvider<String?>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
@@ -50,11 +52,22 @@ final realtimeSyncProvider = Provider<void>((ref) {
 
 final pendingSyncProvider = Provider<void>((ref) {
   final processPendingChanges = ref.read(processPendingChangesUseCaseProvider);
+  final conflictNotifier = ref.read(conflictStateProvider.notifier);
 
-  processPendingChanges();
+  Future<ConflictResolution?> onConflict(conflict) async {
+    final completer = Completer<ConflictResolution>();
+
+    conflictNotifier.setConflict(conflict, (resolution) {
+      completer.complete(resolution);
+    });
+
+    return completer.future;
+  }
+
+  processPendingChanges(onConflict: onConflict);
 
   final timer = Timer.periodic(const Duration(seconds: 30), (_) {
-    processPendingChanges();
+    processPendingChanges(onConflict: onConflict);
   });
 
   ref.onDispose(() {

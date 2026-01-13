@@ -14,6 +14,7 @@ class SubscriptionRemoteDataSource {
       _firestore.collection('groups').doc(groupCode).collection('subscriptions');
 
   Future<void> saveSubscription(SubscriptionDto dto) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
     final response = SubscriptionResponse(
       id: dto.id,
       groupCode: dto.groupCode,
@@ -26,6 +27,7 @@ class SubscriptionRemoteDataSource {
       memo: dto.memo,
       feeRatePercent: dto.feeRatePercent,
       createdAt: dto.createdAt.millisecondsSinceEpoch,
+      updatedAt: now,
     );
 
     await _subscriptionsRef(dto.groupCode).doc(dto.id).set(response.toJson());

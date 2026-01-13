@@ -16,6 +16,7 @@ extension SubscriptionDtoToDomain on SubscriptionDto {
       memo: memo,
       feeRatePercent: feeRatePercent,
       createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }
@@ -34,6 +35,7 @@ extension UserSubscriptionToDto on UserSubscription {
       memo: memo,
       feeRatePercent: feeRatePercent,
       createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }
@@ -52,6 +54,9 @@ extension SubscriptionResponseToDto on SubscriptionResponse {
       memo: memo,
       feeRatePercent: feeRatePercent,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAt),
+      updatedAt: updatedAt != null
+          ? DateTime.fromMillisecondsSinceEpoch(updatedAt!)
+          : null,
     );
   }
 }
