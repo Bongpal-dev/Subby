@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:subby/domain/model/conflict_resolution.dart';
 import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/model/subscription_conflict.dart';
@@ -8,7 +9,6 @@ import 'package:subby/domain/repository/pending_change_repository.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
 import 'package:subby/domain/usecase/detect_subscription_conflict_usecase.dart';
 
-/// 충돌 해결 콜백 타입
 typedef ConflictResolver = Future<ConflictResolution?> Function(
   SubscriptionConflict conflict,
 );
@@ -29,6 +29,11 @@ class ProcessPendingChangesUseCase {
   );
 
   Future<void> call({ConflictResolver? onConflict}) async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    final isOffline = connectivityResult.contains(ConnectivityResult.none);
+
+    if (isOffline) return;
+
     await _processGroupChanges();
     await _processSubscriptionChanges(onConflict);
   }

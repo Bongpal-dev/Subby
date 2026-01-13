@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
@@ -50,6 +51,8 @@ final realtimeSyncProvider = Provider<void>((ref) {
   syncService.startSync(groupCode);
 });
 
+final pendingSyncTriggerProvider = StateProvider<int>((ref) => 0);
+
 final pendingSyncProvider = Provider<void>((ref) {
   final processPendingChanges = ref.read(processPendingChangesUseCaseProvider);
   final conflictNotifier = ref.read(conflictStateProvider.notifier);
@@ -64,13 +67,26 @@ final pendingSyncProvider = Provider<void>((ref) {
     return completer.future;
   }
 
+  // 데이터 변동 시 트리거
+  ref.watch(pendingSyncTriggerProvider);
+
+  // 앱 시작 시 1회 실행
   processPendingChanges(onConflict: onConflict);
 
-  final timer = Timer.periodic(const Duration(seconds: 30), (_) {
-    processPendingChanges(onConflict: onConflict);
+  // 네트워크 상태 변경 감지
+  bool wasOffline = false;
+  final subscription = Connectivity().onConnectivityChanged.listen((result) {
+    final isOffline = result.contains(ConnectivityResult.none);
+
+    if (wasOffline && !isOffline) {
+      print('[Conflict] Network restored, triggering pending sync');
+      processPendingChanges(onConflict: onConflict);
+    }
+
+    wasOffline = isOffline;
   });
 
   ref.onDispose(() {
-    timer.cancel();
+    subscription.cancel();
   });
 });
