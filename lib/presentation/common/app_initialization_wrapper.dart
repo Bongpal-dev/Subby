@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/providers/deep_link_provider.dart';
@@ -30,7 +29,7 @@ class _AppInitializationWrapperState
     return appInit.when(
       data: (_) {
         ref.watch(realtimeSyncProvider);
-        ref.watch(networkSyncProvider);
+        ref.watch(pendingSyncProvider);
 
         if (!_initialLinkHandled) {
           _initialLinkHandled = true;
@@ -57,7 +56,6 @@ class _AppInitializationWrapperState
 
     if (groupCode == null || !mounted) return;
 
-    // 참여 확인 다이얼로그 표시
     showJoinGroupDialog(
       context: context,
       groupCode: groupCode,
