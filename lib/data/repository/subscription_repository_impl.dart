@@ -65,4 +65,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   Future<void> syncDelete(String groupCode, String subscriptionId) async {
     await _remoteDataSource.deleteSubscription(groupCode, subscriptionId);
   }
+
+  @override
+  Future<List<UserSubscription>> fetchRemoteByGroupCode(String groupCode) async {
+    final dtos = await _remoteDataSource.fetchSubscriptions(groupCode);
+
+    return dtos.map((e) => e.toDomain()).toList();
+  }
 }
