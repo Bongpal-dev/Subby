@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
@@ -46,17 +48,16 @@ final realtimeSyncProvider = Provider<void>((ref) {
   syncService.startSync(groupCode);
 });
 
-final networkSyncProvider = Provider<void>((ref) {
-  final connectivityService = ref.watch(connectivityServiceProvider);
+final pendingSyncProvider = Provider<void>((ref) {
   final processPendingChanges = ref.read(processPendingChangesUseCaseProvider);
 
-  connectivityService.startMonitoring();
+  processPendingChanges();
 
-  connectivityService.onOnlineRestored.listen((_) {
+  final timer = Timer.periodic(const Duration(seconds: 30), (_) {
     processPendingChanges();
   });
 
   ref.onDispose(() {
-    connectivityService.dispose();
+    timer.cancel();
   });
 });
