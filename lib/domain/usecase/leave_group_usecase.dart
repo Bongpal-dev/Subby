@@ -1,4 +1,3 @@
-import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
@@ -25,10 +24,14 @@ class LeaveGroupUseCase {
     final userId = _authRepository.currentUserId!;
 
     await _subscriptionRepository.deleteByGroupCode(groupCode);
+    await _groupRepository.leaveGroup(groupCode, userId);
+    _trySync(groupCode, userId);
+  }
 
+  void _trySync(String groupCode, String userId) async {
     try {
-      await _groupRepository.leaveGroup(groupCode, userId);
-    } on FirebaseSyncException {
+      await _groupRepository.syncLeave(groupCode, userId);
+    } catch (e) {
       await _pendingChangeRepository.save(
         PendingChange(
           entityId: groupCode,

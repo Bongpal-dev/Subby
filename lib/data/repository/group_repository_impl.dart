@@ -1,4 +1,3 @@
-import 'package:subby/core/error/firebase_sync_exception.dart';
 import 'package:subby/data/datasource/group_local_datasource.dart';
 import 'package:subby/data/datasource/group_remote_datasource.dart';
 import 'package:subby/data/mapper/group_mapper.dart';
@@ -31,35 +30,18 @@ class GroupRepositoryImpl implements GroupRepository {
   @override
   Future<void> create(SubscriptionGroup group) async {
     final dto = group.toDto();
-
     await _localDataSource.insert(dto);
-    try {
-      await _remoteDataSource.saveGroup(dto);
-    } catch (e) {
-      throw FirebaseSyncException(e);
-    }
   }
 
   @override
   Future<void> update(SubscriptionGroup group) async {
     final dto = group.toDto();
-
     await _localDataSource.update(dto);
-    try {
-      await _remoteDataSource.saveGroup(dto);
-    } catch (e) {
-      throw FirebaseSyncException(e);
-    }
   }
 
   @override
   Future<void> leaveGroup(String code, String userId) async {
     await _localDataSource.delete(code);
-    try {
-      await _remoteDataSource.leaveGroup(code, userId);
-    } catch (e) {
-      throw FirebaseSyncException(e);
-    }
   }
 
   @override
@@ -99,7 +81,6 @@ class GroupRepositoryImpl implements GroupRepository {
   @override
   Future<SubscriptionGroup?> fetchRemoteByCode(String code) async {
     final dto = await _remoteDataSource.fetchGroup(code);
-
     return dto?.toDomain();
   }
 
@@ -117,7 +98,6 @@ class GroupRepositoryImpl implements GroupRepository {
   @override
   Future<void> saveToLocal(SubscriptionGroup group) async {
     final dto = group.toDto();
-
     await _localDataSource.insert(dto);
   }
 }
