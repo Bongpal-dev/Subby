@@ -12,16 +12,22 @@ class GroupRemoteDataSource {
       _firestore.collection('groups');
 
   Future<void> saveGroup(GroupDto dto) async {
-    final response = GroupResponse(
-      code: dto.code,
-      name: dto.name,
-      ownerId: dto.ownerId,
-      members: dto.members,
-      createdAt: dto.createdAt.millisecondsSinceEpoch,
-      updatedAt: dto.updatedAt?.millisecondsSinceEpoch,
-    );
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final membersWithJoinedAt = {
+      for (var uid in dto.members) uid: {'joinedAt': now}
+    };
 
-    await _groupsRef.doc(dto.code).set(response.toJson());
+    final data = {
+      'code': dto.code,
+      'name': dto.name,
+      'ownerId': dto.ownerId,
+      'members': membersWithJoinedAt,
+      'createdAt': dto.createdAt.millisecondsSinceEpoch,
+      if (dto.updatedAt != null)
+        'updatedAt': dto.updatedAt!.millisecondsSinceEpoch,
+    };
+
+    await _groupsRef.doc(dto.code).set(data);
   }
 
   Future<GroupDto?> fetchGroup(String code) async {
@@ -58,30 +64,62 @@ class GroupRemoteDataSource {
     if (!doc.exists || doc.data() == null) return;
 
     final data = doc.data()!;
-    final members = List<String>.from(data['members'] is Map
-        ? (data['members'] as Map).keys
-        : data['members'] ?? []);
+    final membersRaw = data['members'];
 
-    if (members.length <= 1) {
+    if (membersRaw is! Map) return;
+
+    final membersMap = Map<String, dynamic>.from(membersRaw);
+
+    if (membersMap.length <= 1) {
       await deleteGroup(code);
       return;
     }
 
-    members.remove(userId);
+    membersMap.remove(userId);
+
     final updates = <String, dynamic>{
-      'members': {for (var uid in members) uid: true},
+      'members': membersMap,
     };
 
-    if (data['ownerId'] == userId && members.isNotEmpty) {
-      updates['ownerId'] = members.first;
+    if (data['ownerId'] == userId && membersMap.isNotEmpty) {
+      final oldestMember = _findOldestMember(membersMap);
+
+      updates['ownerId'] = oldestMember;
     }
 
     await _groupsRef.doc(code).update(updates);
   }
 
+  String _findOldestMember(Map<String, dynamic> membersMap) {
+    String? oldestUid;
+    int oldestJoinedAt = double.maxFinite.toInt();
+
+    for (final entry in membersMap.entries) {
+      final uid = entry.key;
+      final value = entry.value;
+
+      int joinedAt;
+
+      if (value is Map && value['joinedAt'] != null) {
+        joinedAt = value['joinedAt'] as int;
+      } else {
+        joinedAt = 0;
+      }
+
+      if (joinedAt < oldestJoinedAt) {
+        oldestJoinedAt = joinedAt;
+        oldestUid = uid;
+      }
+    }
+
+    return oldestUid ?? membersMap.keys.first;
+  }
+
   Future<void> addMember(String code, String userId) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+
     await _groupsRef.doc(code).update({
-      'members.$userId': true,
+      'members.$userId': {'joinedAt': now},
     });
   }
 
