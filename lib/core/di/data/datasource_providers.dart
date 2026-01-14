@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/database_provider.dart';
+import 'package:subby/data/datasource/exchange_rate_local_datasource.dart';
+import 'package:subby/data/datasource/exchange_rate_remote_datasource.dart';
 import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/data/datasource/group_local_datasource.dart';
 import 'package:subby/data/datasource/group_remote_datasource.dart';
@@ -47,4 +49,14 @@ final pendingChangeLocalDataSourceProvider = Provider<PendingChangeLocalDataSour
   final db = ref.watch(databaseProvider);
 
   return PendingChangeLocalDataSource(db);
+});
+
+final exchangeRateLocalDataSourceProvider = Provider<ExchangeRateLocalDataSource>((ref) {
+  final db = ref.watch(databaseProvider);
+
+  return ExchangeRateLocalDataSource(db);
+});
+
+final exchangeRateRemoteDataSourceProvider = Provider<ExchangeRateRemoteDataSource>((ref) {
+  return ExchangeRateRemoteDataSource();
 });
