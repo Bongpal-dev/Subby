@@ -30,6 +30,7 @@ class _AppInitializationWrapperState
       data: (_) {
         ref.watch(realtimeSyncProvider);
         ref.watch(pendingSyncProvider);
+        ref.watch(fcmInitializedProvider);
 
         if (!_initialLinkHandled) {
           _initialLinkHandled = true;

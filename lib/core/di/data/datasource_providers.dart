@@ -10,6 +10,7 @@ import 'package:subby/data/datasource/preset_local_datasource.dart';
 import 'package:subby/data/datasource/preset_remote_datasource.dart';
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
 import 'package:subby/data/datasource/subscription_remote_datasource.dart';
+import 'package:subby/data/datasource/fcm_token_remote_datasource.dart';
 
 final firebaseAuthDataSourceProvider = Provider<FirebaseAuthDataSource>((ref) {
   return FirebaseAuthDataSource();
@@ -59,4 +60,8 @@ final exchangeRateLocalDataSourceProvider = Provider<ExchangeRateLocalDataSource
 
 final exchangeRateRemoteDataSourceProvider = Provider<ExchangeRateRemoteDataSource>((ref) {
   return ExchangeRateRemoteDataSource();
+});
+
+final fcmTokenRemoteDataSourceProvider = Provider<FcmTokenRemoteDataSource>((ref) {
+  return FcmTokenRemoteDataSource();
 });
