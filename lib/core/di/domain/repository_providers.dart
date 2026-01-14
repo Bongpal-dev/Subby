@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/data/datasource_providers.dart';
 import 'package:subby/data/repository/auth_repository_impl.dart';
+import 'package:subby/data/repository/exchange_rate_repository_impl.dart';
 import 'package:subby/data/repository/group_repository_impl.dart';
 import 'package:subby/data/repository/pending_change_repository_impl.dart';
 import 'package:subby/data/repository/preset_repository_impl.dart';
 import 'package:subby/data/repository/subscription_repository_impl.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
+import 'package:subby/domain/repository/exchange_rate_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
 import 'package:subby/domain/repository/preset_repository.dart';
@@ -45,4 +47,11 @@ final pendingChangeRepositoryProvider = Provider<PendingChangeRepository>((ref) 
   final localDataSource = ref.watch(pendingChangeLocalDataSourceProvider);
 
   return PendingChangeRepositoryImpl(localDataSource);
+});
+
+final exchangeRateRepositoryProvider = Provider<ExchangeRateRepository>((ref) {
+  final localDataSource = ref.watch(exchangeRateLocalDataSourceProvider);
+  final remoteDataSource = ref.watch(exchangeRateRemoteDataSourceProvider);
+
+  return ExchangeRateRepositoryImpl(localDataSource, remoteDataSource);
 });

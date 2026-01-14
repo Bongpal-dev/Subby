@@ -28,7 +28,10 @@ class UserSubscriptions extends Table {
 // ──────────────────────────────────────────────
 class FxRatesDaily extends Table {
   TextColumn get dateKey => text()(); // YYYY-MM-DD
-  RealColumn get usdToKrw => real()();
+  RealColumn get usd => real()(); // 1.0 (base)
+  RealColumn get krw => real()();
+  RealColumn get eur => real()();
+  RealColumn get jpy => real()();
   DateTimeColumn get fetchedAt => dateTime()();
   TextColumn get source => text()();
 
@@ -109,7 +112,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -119,6 +122,11 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await migrator.createTable(pendingChanges);
+      }
+      if (from < 4) {
+        // FxRatesDaily 테이블 재생성 (캐시 데이터이므로 삭제 후 재생성)
+        await migrator.deleteTable('fx_rates_daily');
+        await migrator.createTable(fxRatesDaily);
       }
     },
   );
