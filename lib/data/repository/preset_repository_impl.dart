@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:subby/data/datasource/preset_local_datasource.dart';
 import 'package:subby/data/datasource/preset_remote_datasource.dart';
 import 'package:subby/data/database/database.dart';
+import 'package:subby/data/preset/subscription_presets.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
 import 'package:subby/domain/repository/preset_repository.dart';
 
@@ -29,9 +30,13 @@ class PresetRepositoryImpl implements PresetRepository {
       final data = await _remoteDataSource.fetchPresets();
       final remoteVersion = await _remoteDataSource.fetchVersion();
       print('[PresetRepo] Firebase data: ${data?.length ?? 'null'}, version: $remoteVersion');
-      if (data == null) {
-        print('[PresetRepo] Firebase returned null, using cache');
-        return getPresetsFromCache();
+      if (data == null || data.isEmpty) {
+        print('[PresetRepo] Firebase returned null/empty, using cache or static');
+        final cached = await getPresetsFromCache();
+        if (cached.isNotEmpty) {
+          return cached;
+        }
+        return subscriptionPresets;
       }
 
       final companions = data.entries
@@ -51,7 +56,13 @@ class PresetRepositoryImpl implements PresetRepository {
           .toList();
     } catch (e) {
       print('[PresetRepo] Error fetching: $e');
-      return getPresetsFromCache();
+      final cached = await getPresetsFromCache();
+      if (cached.isNotEmpty) {
+        return cached;
+      }
+      // Firebase 실패 + 캐시 없음 → 정적 프리셋 사용
+      print('[PresetRepo] Using static presets as fallback');
+      return subscriptionPresets;
     }
   }
 
