@@ -18,11 +18,15 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _memoController = TextEditingController();
+  final _amountController = TextEditingController(text: '0');
+  final _amountFocusNode = FocusNode();
 
   @override
   void dispose() {
     _nameController.dispose();
     _memoController.dispose();
+    _amountController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 
@@ -52,6 +56,16 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
     }
     if (_memoController.text != state.memo) {
       _memoController.text = state.memo;
+    }
+
+    // Sync amount controller (only when not focused)
+    if (!_amountFocusNode.hasFocus) {
+      final amountText = state.currency == 'KRW'
+          ? state.amount.toInt().toString()
+          : state.amount.toString();
+      if (_amountController.text != amountText) {
+        _amountController.text = amountText;
+      }
     }
 
     return Form(
@@ -248,11 +262,6 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
     ColorScheme colorScheme,
   ) {
     final prefix = state.currency == 'KRW' ? '\u20a9 ' : '\$ ';
-    final displayValue = state.amount > 0
-        ? (state.currency == 'KRW'
-            ? state.amount.toInt().toString()
-            : state.amount.toString())
-        : '';
 
     return Container(
       decoration: BoxDecoration(
@@ -260,7 +269,8 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(
-        controller: TextEditingController(text: displayValue),
+        controller: _amountController,
+        focusNode: _amountFocusNode,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         textAlign: TextAlign.center,
         style: AppTypography.displaySmall.copyWith(
@@ -271,14 +281,37 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
           prefixStyle: AppTypography.displaySmall.copyWith(
             color: colorScheme.primary,
           ),
-          hintText: '0',
-          hintStyle: AppTypography.displaySmall.copyWith(
-            color: colorScheme.onSurface.withValues(alpha: 0.3),
-          ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.all(AppSpacing.lg),
         ),
         onChanged: (value) {
+          if (value.isEmpty) {
+            _amountController.text = '0';
+            _amountController.selection = TextSelection.fromPosition(
+              const TextPosition(offset: 1),
+            );
+            vm.setAmount(0);
+            return;
+          }
+
+          // '0'으로 시작하고 두 번째가 숫자면 앞의 '0' 제거
+          if (value.length >= 2 &&
+              value.startsWith('0') &&
+              value[1] != '.') {
+            final newValue = value.substring(1);
+            _amountController.text = newValue;
+            _amountController.selection = TextSelection.fromPosition(
+              TextPosition(offset: newValue.length),
+            );
+            final parsed = double.tryParse(newValue) ?? 0;
+            if (state.currency == 'KRW') {
+              vm.setAmount(parsed.roundToDouble());
+            } else {
+              vm.setAmount((parsed * 100).round() / 100);
+            }
+            return;
+          }
+
           final parsed = double.tryParse(value) ?? 0;
           if (state.currency == 'KRW') {
             vm.setAmount(parsed.roundToDouble());
