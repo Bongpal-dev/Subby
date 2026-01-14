@@ -1,9 +1,59 @@
 import * as functions from "firebase-functions";
+import {onSchedule} from "firebase-functions/v2/scheduler";
+import {defineSecret} from "firebase-functions/params";
 import * as admin from "firebase-admin";
 
 admin.initializeApp();
 
 const db = admin.firestore();
+const RTDB_URL = "https://subby-91b88-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+const openExchangeRatesAppId = defineSecret("OPENEXCHANGERATES_APP_ID");
+
+interface ExchangeRatesResponse {
+  base: string;
+  rates: {
+    [key: string]: number;
+  };
+}
+
+export const syncExchangeRates = onSchedule(
+  {
+    schedule: "0 9 * * *",
+    timeZone: "Asia/Seoul",
+    secrets: [openExchangeRatesAppId],
+  },
+  async () => {
+    const appId = openExchangeRatesAppId.value();
+
+    const response = await fetch(
+      `https://openexchangerates.org/api/latest.json?app_id=${appId}`
+    );
+
+    if (!response.ok) {
+      console.error("Exchange rate API error:", response.statusText);
+      return;
+    }
+
+    const data: ExchangeRatesResponse = await response.json();
+
+    const database = admin.database();
+    await database.refFromURL(RTDB_URL + "/exchange_rates").set({
+      USD: data.rates.USD,
+      KRW: data.rates.KRW,
+      EUR: data.rates.EUR,
+      JPY: data.rates.JPY,
+      updatedAt: Date.now(),
+    });
+
+    console.log("Exchange rates synced:", {
+      USD: data.rates.USD,
+      KRW: data.rates.KRW,
+      EUR: data.rates.EUR,
+      JPY: data.rates.JPY,
+    });
+  }
+);
 
 interface JoinGroupRequest {
   groupCode: string;
