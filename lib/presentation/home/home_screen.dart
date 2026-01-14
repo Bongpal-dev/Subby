@@ -24,6 +24,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         title: Text(state.currentGroupName),
         leading: Builder(
           builder: (context) => IconButton(

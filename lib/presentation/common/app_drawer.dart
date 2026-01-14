@@ -80,26 +80,34 @@ class AppDrawer extends ConsumerWidget {
             ),
 
             // 하단 버튼들
-            const Divider(height: 1),
-            Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
+            Container(
+              color: colorScheme.surface,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showCreateGroupDialog(context, ref),
-                      icon: const Icon(Icons.add),
-                      label: const Text('새 그룹 만들기'),
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.sm),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showJoinGroupDialog(context, ref),
-                      icon: const Icon(Icons.login),
-                      label: const Text('그룹 참여하기'),
+                  const Divider(height: 1),
+                  Padding(
+                    padding: EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showCreateGroupDialog(context, ref),
+                            icon: const Icon(Icons.add),
+                            label: const Text('새 그룹 만들기'),
+                          ),
+                        ),
+                        SizedBox(height: AppSpacing.sm),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showJoinGroupDialog(context, ref),
+                            icon: const Icon(Icons.login),
+                            label: const Text('그룹 참여하기'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
