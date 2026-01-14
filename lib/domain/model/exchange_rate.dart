@@ -18,14 +18,22 @@ class ExchangeRate {
       case 'USD':
         return usd;
       case 'KRW':
-        return krw;
+        return _roundRate(krw);
       case 'EUR':
-        return eur;
+        return _roundRate(eur);
       case 'JPY':
-        return jpy;
+        return _roundRate(jpy);
       default:
         return 1.0;
     }
+  }
+
+  // 환율 반올림: 1 미만은 소수점 2자리, 그 외는 10 단위로 반올림
+  double _roundRate(double rate) {
+    if (rate < 1) {
+      return (rate * 100).round() / 100;
+    }
+    return (rate / 10).round() * 10;
   }
 
   double convert(double amount, String from, String to) {
