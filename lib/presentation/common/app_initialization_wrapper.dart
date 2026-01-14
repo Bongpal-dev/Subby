@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subby/core/di/data/service_providers.dart';
 import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/providers/deep_link_provider.dart';
@@ -19,8 +20,38 @@ class AppInitializationWrapper extends ConsumerStatefulWidget {
 }
 
 class _AppInitializationWrapperState
-    extends ConsumerState<AppInitializationWrapper> {
+    extends ConsumerState<AppInitializationWrapper>
+    with WidgetsBindingObserver {
   bool _initialLinkHandled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _restartSync();
+    }
+  }
+
+  void _restartSync() {
+    final groupCode = ref.read(currentGroupCodeProvider);
+
+    if (groupCode == null) return;
+
+    final syncService = ref.read(realtimeSyncServiceProvider);
+    syncService.stopSync();
+    syncService.startSync(groupCode);
+  }
 
   @override
   Widget build(BuildContext context) {
