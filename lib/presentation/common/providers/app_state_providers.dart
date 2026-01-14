@@ -106,3 +106,14 @@ final currencyConverterProvider = Provider<CurrencyConverter?>((ref) {
 
   return CurrencyConverter(exchangeRate);
 });
+
+/// FCM 초기화 Provider
+final fcmInitializedProvider = FutureProvider<void>((ref) async {
+  final userId = ref.watch(currentUserIdProvider);
+
+  if (userId == null) return;
+
+  final fcmService = ref.read(fcmServiceProvider);
+
+  await fcmService.initialize(userId);
+});

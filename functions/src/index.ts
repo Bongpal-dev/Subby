@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import {onSchedule} from "firebase-functions/v2/scheduler";
+import {onDocumentWritten} from "firebase-functions/v2/firestore";
 import {defineSecret} from "firebase-functions/params";
 import * as admin from "firebase-admin";
 
@@ -160,6 +161,130 @@ export const joinGroup = functions.https.onCall(
         success: false,
         error: "그룹 참여 중 오류가 발생했습니다",
       };
+    }
+  }
+);
+
+interface FcmToken {
+  platform: string;
+  updatedAt: admin.firestore.Timestamp;
+}
+
+interface UserDocument {
+  fcmTokens?: { [token: string]: FcmToken };
+  groups?: string[];
+}
+
+/**
+ * subscriptions 컬렉션 변경 감지 → 그룹 멤버들에게 푸시 알림 전송
+ */
+export const onSubscriptionChange = onDocumentWritten(
+  "groups/{groupCode}/subscriptions/{subscriptionId}",
+  async (event) => {
+    const groupCode = event.params.groupCode;
+
+    const before = event.data?.before?.data();
+    const after = event.data?.after?.data();
+
+    // 변경 유형 판단
+    let changeType: "created" | "updated" | "deleted";
+    let subscriptionName: string;
+
+    if (!before && after) {
+      changeType = "created";
+      subscriptionName = after.name || "새 구독";
+    } else if (before && !after) {
+      changeType = "deleted";
+      subscriptionName = before.name || "구독";
+    } else if (before && after) {
+      changeType = "updated";
+      subscriptionName = after.name || "구독";
+    } else {
+      return;
+    }
+
+    // 그룹 멤버 조회
+    const groupDoc = await db.collection("groups").doc(groupCode).get();
+
+    if (!groupDoc.exists) return;
+
+    const groupData = groupDoc.data()!;
+    const members = groupData.members || {};
+    const memberIds = Object.keys(members);
+
+    if (memberIds.length === 0) return;
+
+    // 각 멤버의 FCM 토큰 수집
+    const tokens: string[] = [];
+
+    for (const memberId of memberIds) {
+      const userDoc = await db.collection("users").doc(memberId).get();
+
+      if (!userDoc.exists) continue;
+
+      const userData = userDoc.data() as UserDocument;
+      const fcmTokens = userData.fcmTokens || {};
+
+      tokens.push(...Object.keys(fcmTokens));
+    }
+
+    if (tokens.length === 0) return;
+
+    // 알림 메시지 구성
+    const messages: { [type: string]: { title: string; body: string } } = {
+      created: {
+        title: "새 구독 추가",
+        body: `"${subscriptionName}"이(가) 추가되었습니다`,
+      },
+      updated: {
+        title: "구독 수정",
+        body: `"${subscriptionName}"이(가) 수정되었습니다`,
+      },
+      deleted: {
+        title: "구독 삭제",
+        body: `"${subscriptionName}"이(가) 삭제되었습니다`,
+      },
+    };
+
+    const {title, body} = messages[changeType];
+
+    // FCM 멀티캐스트 전송
+    const message: admin.messaging.MulticastMessage = {
+      tokens,
+      notification: {
+        title,
+        body,
+      },
+      data: {
+        type: "subscription_change",
+        changeType,
+        groupCode,
+      },
+      android: {
+        notification: {
+          channelId: "subby_sync_channel",
+          priority: "high",
+        },
+      },
+    };
+
+    try {
+      const response = await admin.messaging().sendEachForMulticast(message);
+
+      console.log(
+        `[FCM] Sent to ${response.successCount}/${tokens.length} devices`
+      );
+
+      // 실패한 토큰 로그
+      if (response.failureCount > 0) {
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            console.error(`[FCM] Failed for token ${tokens[idx]}:`, resp.error);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("[FCM] Error sending messages:", error);
     }
   }
 );
