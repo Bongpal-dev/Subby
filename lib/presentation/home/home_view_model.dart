@@ -100,14 +100,20 @@ class HomeViewModel extends Notifier<HomeState> {
   }
 
   double _calculateTotal(List<UserSubscription> subscriptions) {
+    final exchangeRate = ref.read(exchangeRateProvider).valueOrNull;
+
     double total = 0;
     for (final sub in subscriptions) {
       if (sub.currency == 'KRW') {
         total += sub.amount;
+      } else if (exchangeRate != null) {
+        total += exchangeRate.convert(sub.amount, sub.currency, 'KRW');
       } else {
-        total += sub.amount * 1450;
+        // 환율 없으면 기본값 사용
+        total += sub.amount * 1400;
       }
     }
+
     return total;
   }
 }

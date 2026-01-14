@@ -4,8 +4,10 @@ import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/domain/model/exchange_rate.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
@@ -17,6 +19,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
+    final exchangeRate = ref.watch(exchangeRateProvider).valueOrNull;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -53,6 +56,7 @@ class HomeScreen extends ConsumerWidget {
                     ? const _EmptyState()
                     : _SubscriptionList(
                         subscriptions: state.subscriptions,
+                        exchangeRate: exchangeRate,
                         onTap: (sub) => _navigateToEdit(context, ref, sub.id),
                       ),
           ),
@@ -187,10 +191,12 @@ class _EmptyState extends StatelessWidget {
 
 class _SubscriptionList extends StatelessWidget {
   final List<UserSubscription> subscriptions;
+  final ExchangeRate? exchangeRate;
   final void Function(UserSubscription) onTap;
 
   const _SubscriptionList({
     required this.subscriptions,
+    required this.exchangeRate,
     required this.onTap,
   });
 
@@ -201,7 +207,12 @@ class _SubscriptionList extends StatelessWidget {
       itemCount: subscriptions.length,
       itemBuilder: (context, index) {
         final sub = subscriptions[index];
-        return _SubscriptionTile(subscription: sub, onTap: () => onTap(sub));
+
+        return _SubscriptionTile(
+          subscription: sub,
+          exchangeRate: exchangeRate,
+          onTap: () => onTap(sub),
+        );
       },
     );
   }
@@ -209,10 +220,12 @@ class _SubscriptionList extends StatelessWidget {
 
 class _SubscriptionTile extends StatelessWidget {
   final UserSubscription subscription;
+  final ExchangeRate? exchangeRate;
   final VoidCallback onTap;
 
   const _SubscriptionTile({
     required this.subscription,
+    required this.exchangeRate,
     required this.onTap,
   });
 
@@ -221,14 +234,14 @@ class _SubscriptionTile extends StatelessWidget {
     final colors = Theme.of(context).brightness == Brightness.dark
         ? AppColors.dark
         : AppColors.light;
-    final isUsd = subscription.currency == 'USD';
+    final isKrw = subscription.currency == 'KRW';
 
-    final currencySymbol = isUsd ? '\$' : '\u20a9';
-    final formattedAmount = isUsd
-        ? subscription.amount.toStringAsFixed(2)
-        : CurrencyFormatter.formatKrw(subscription.amount.toInt());
+    final currencySymbol = _getCurrencySymbol(subscription.currency);
+    final formattedAmount = isKrw
+        ? CurrencyFormatter.formatKrw(subscription.amount.toInt())
+        : subscription.amount.toStringAsFixed(2);
 
-    final krwConverted = isUsd ? (subscription.amount * 1450).toInt() : null;
+    final krwConverted = _getKrwConverted();
 
     return Card(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
@@ -284,5 +297,31 @@ class _SubscriptionTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getCurrencySymbol(String currency) {
+    switch (currency) {
+      case 'USD':
+        return '\$';
+      case 'EUR':
+        return '€';
+      case 'JPY':
+        return '¥';
+      default:
+        return '₩';
+    }
+  }
+
+  int? _getKrwConverted() {
+    if (subscription.currency == 'KRW') return null;
+
+    if (exchangeRate != null) {
+      return exchangeRate!
+          .convert(subscription.amount, subscription.currency, 'KRW')
+          .toInt();
+    }
+
+    // 환율 없으면 기본값 사용
+    return (subscription.amount * 1400).toInt();
   }
 }

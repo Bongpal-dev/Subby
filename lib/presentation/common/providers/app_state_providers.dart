@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/di/data/service_providers.dart';
+import 'package:subby/core/utils/currency_converter.dart';
 import 'package:subby/domain/model/conflict_resolution.dart';
+import 'package:subby/domain/model/exchange_rate.dart';
 import 'package:subby/presentation/common/providers/conflict_state_provider.dart';
 
 final authStateProvider = StreamProvider<String?>((ref) {
@@ -89,4 +91,18 @@ final pendingSyncProvider = Provider<void>((ref) {
   ref.onDispose(() {
     subscription.cancel();
   });
+});
+
+final exchangeRateProvider = FutureProvider<ExchangeRate?>((ref) async {
+  final repository = ref.watch(exchangeRateRepositoryProvider);
+
+  return repository.getExchangeRate();
+});
+
+final currencyConverterProvider = Provider<CurrencyConverter?>((ref) {
+  final exchangeRate = ref.watch(exchangeRateProvider).valueOrNull;
+
+  if (exchangeRate == null) return null;
+
+  return CurrencyConverter(exchangeRate);
 });
