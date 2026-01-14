@@ -679,12 +679,37 @@ class $FxRatesDailyTable extends FxRatesDaily
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _usdToKrwMeta = const VerificationMeta(
-    'usdToKrw',
-  );
+  static const VerificationMeta _usdMeta = const VerificationMeta('usd');
   @override
-  late final GeneratedColumn<double> usdToKrw = GeneratedColumn<double>(
-    'usd_to_krw',
+  late final GeneratedColumn<double> usd = GeneratedColumn<double>(
+    'usd',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _krwMeta = const VerificationMeta('krw');
+  @override
+  late final GeneratedColumn<double> krw = GeneratedColumn<double>(
+    'krw',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _eurMeta = const VerificationMeta('eur');
+  @override
+  late final GeneratedColumn<double> eur = GeneratedColumn<double>(
+    'eur',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _jpyMeta = const VerificationMeta('jpy');
+  @override
+  late final GeneratedColumn<double> jpy = GeneratedColumn<double>(
+    'jpy',
     aliasedName,
     false,
     type: DriftSqlType.double,
@@ -711,7 +736,15 @@ class $FxRatesDailyTable extends FxRatesDaily
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [dateKey, usdToKrw, fetchedAt, source];
+  List<GeneratedColumn> get $columns => [
+    dateKey,
+    usd,
+    krw,
+    eur,
+    jpy,
+    fetchedAt,
+    source,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -732,13 +765,37 @@ class $FxRatesDailyTable extends FxRatesDaily
     } else if (isInserting) {
       context.missing(_dateKeyMeta);
     }
-    if (data.containsKey('usd_to_krw')) {
+    if (data.containsKey('usd')) {
       context.handle(
-        _usdToKrwMeta,
-        usdToKrw.isAcceptableOrUnknown(data['usd_to_krw']!, _usdToKrwMeta),
+        _usdMeta,
+        usd.isAcceptableOrUnknown(data['usd']!, _usdMeta),
       );
     } else if (isInserting) {
-      context.missing(_usdToKrwMeta);
+      context.missing(_usdMeta);
+    }
+    if (data.containsKey('krw')) {
+      context.handle(
+        _krwMeta,
+        krw.isAcceptableOrUnknown(data['krw']!, _krwMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_krwMeta);
+    }
+    if (data.containsKey('eur')) {
+      context.handle(
+        _eurMeta,
+        eur.isAcceptableOrUnknown(data['eur']!, _eurMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_eurMeta);
+    }
+    if (data.containsKey('jpy')) {
+      context.handle(
+        _jpyMeta,
+        jpy.isAcceptableOrUnknown(data['jpy']!, _jpyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_jpyMeta);
     }
     if (data.containsKey('fetched_at')) {
       context.handle(
@@ -769,9 +826,21 @@ class $FxRatesDailyTable extends FxRatesDaily
         DriftSqlType.string,
         data['${effectivePrefix}date_key'],
       )!,
-      usdToKrw: attachedDatabase.typeMapping.read(
+      usd: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}usd_to_krw'],
+        data['${effectivePrefix}usd'],
+      )!,
+      krw: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}krw'],
+      )!,
+      eur: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}eur'],
+      )!,
+      jpy: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}jpy'],
       )!,
       fetchedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -793,12 +862,18 @@ class $FxRatesDailyTable extends FxRatesDaily
 class FxRatesDailyData extends DataClass
     implements Insertable<FxRatesDailyData> {
   final String dateKey;
-  final double usdToKrw;
+  final double usd;
+  final double krw;
+  final double eur;
+  final double jpy;
   final DateTime fetchedAt;
   final String source;
   const FxRatesDailyData({
     required this.dateKey,
-    required this.usdToKrw,
+    required this.usd,
+    required this.krw,
+    required this.eur,
+    required this.jpy,
     required this.fetchedAt,
     required this.source,
   });
@@ -806,7 +881,10 @@ class FxRatesDailyData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['date_key'] = Variable<String>(dateKey);
-    map['usd_to_krw'] = Variable<double>(usdToKrw);
+    map['usd'] = Variable<double>(usd);
+    map['krw'] = Variable<double>(krw);
+    map['eur'] = Variable<double>(eur);
+    map['jpy'] = Variable<double>(jpy);
     map['fetched_at'] = Variable<DateTime>(fetchedAt);
     map['source'] = Variable<String>(source);
     return map;
@@ -815,7 +893,10 @@ class FxRatesDailyData extends DataClass
   FxRatesDailyCompanion toCompanion(bool nullToAbsent) {
     return FxRatesDailyCompanion(
       dateKey: Value(dateKey),
-      usdToKrw: Value(usdToKrw),
+      usd: Value(usd),
+      krw: Value(krw),
+      eur: Value(eur),
+      jpy: Value(jpy),
       fetchedAt: Value(fetchedAt),
       source: Value(source),
     );
@@ -828,7 +909,10 @@ class FxRatesDailyData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return FxRatesDailyData(
       dateKey: serializer.fromJson<String>(json['dateKey']),
-      usdToKrw: serializer.fromJson<double>(json['usdToKrw']),
+      usd: serializer.fromJson<double>(json['usd']),
+      krw: serializer.fromJson<double>(json['krw']),
+      eur: serializer.fromJson<double>(json['eur']),
+      jpy: serializer.fromJson<double>(json['jpy']),
       fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
       source: serializer.fromJson<String>(json['source']),
     );
@@ -838,7 +922,10 @@ class FxRatesDailyData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'dateKey': serializer.toJson<String>(dateKey),
-      'usdToKrw': serializer.toJson<double>(usdToKrw),
+      'usd': serializer.toJson<double>(usd),
+      'krw': serializer.toJson<double>(krw),
+      'eur': serializer.toJson<double>(eur),
+      'jpy': serializer.toJson<double>(jpy),
       'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
       'source': serializer.toJson<String>(source),
     };
@@ -846,19 +933,28 @@ class FxRatesDailyData extends DataClass
 
   FxRatesDailyData copyWith({
     String? dateKey,
-    double? usdToKrw,
+    double? usd,
+    double? krw,
+    double? eur,
+    double? jpy,
     DateTime? fetchedAt,
     String? source,
   }) => FxRatesDailyData(
     dateKey: dateKey ?? this.dateKey,
-    usdToKrw: usdToKrw ?? this.usdToKrw,
+    usd: usd ?? this.usd,
+    krw: krw ?? this.krw,
+    eur: eur ?? this.eur,
+    jpy: jpy ?? this.jpy,
     fetchedAt: fetchedAt ?? this.fetchedAt,
     source: source ?? this.source,
   );
   FxRatesDailyData copyWithCompanion(FxRatesDailyCompanion data) {
     return FxRatesDailyData(
       dateKey: data.dateKey.present ? data.dateKey.value : this.dateKey,
-      usdToKrw: data.usdToKrw.present ? data.usdToKrw.value : this.usdToKrw,
+      usd: data.usd.present ? data.usd.value : this.usd,
+      krw: data.krw.present ? data.krw.value : this.krw,
+      eur: data.eur.present ? data.eur.value : this.eur,
+      jpy: data.jpy.present ? data.jpy.value : this.jpy,
       fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
       source: data.source.present ? data.source.value : this.source,
     );
@@ -868,7 +964,10 @@ class FxRatesDailyData extends DataClass
   String toString() {
     return (StringBuffer('FxRatesDailyData(')
           ..write('dateKey: $dateKey, ')
-          ..write('usdToKrw: $usdToKrw, ')
+          ..write('usd: $usd, ')
+          ..write('krw: $krw, ')
+          ..write('eur: $eur, ')
+          ..write('jpy: $jpy, ')
           ..write('fetchedAt: $fetchedAt, ')
           ..write('source: $source')
           ..write(')'))
@@ -876,50 +975,72 @@ class FxRatesDailyData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(dateKey, usdToKrw, fetchedAt, source);
+  int get hashCode =>
+      Object.hash(dateKey, usd, krw, eur, jpy, fetchedAt, source);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is FxRatesDailyData &&
           other.dateKey == this.dateKey &&
-          other.usdToKrw == this.usdToKrw &&
+          other.usd == this.usd &&
+          other.krw == this.krw &&
+          other.eur == this.eur &&
+          other.jpy == this.jpy &&
           other.fetchedAt == this.fetchedAt &&
           other.source == this.source);
 }
 
 class FxRatesDailyCompanion extends UpdateCompanion<FxRatesDailyData> {
   final Value<String> dateKey;
-  final Value<double> usdToKrw;
+  final Value<double> usd;
+  final Value<double> krw;
+  final Value<double> eur;
+  final Value<double> jpy;
   final Value<DateTime> fetchedAt;
   final Value<String> source;
   final Value<int> rowid;
   const FxRatesDailyCompanion({
     this.dateKey = const Value.absent(),
-    this.usdToKrw = const Value.absent(),
+    this.usd = const Value.absent(),
+    this.krw = const Value.absent(),
+    this.eur = const Value.absent(),
+    this.jpy = const Value.absent(),
     this.fetchedAt = const Value.absent(),
     this.source = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   FxRatesDailyCompanion.insert({
     required String dateKey,
-    required double usdToKrw,
+    required double usd,
+    required double krw,
+    required double eur,
+    required double jpy,
     required DateTime fetchedAt,
     required String source,
     this.rowid = const Value.absent(),
   }) : dateKey = Value(dateKey),
-       usdToKrw = Value(usdToKrw),
+       usd = Value(usd),
+       krw = Value(krw),
+       eur = Value(eur),
+       jpy = Value(jpy),
        fetchedAt = Value(fetchedAt),
        source = Value(source);
   static Insertable<FxRatesDailyData> custom({
     Expression<String>? dateKey,
-    Expression<double>? usdToKrw,
+    Expression<double>? usd,
+    Expression<double>? krw,
+    Expression<double>? eur,
+    Expression<double>? jpy,
     Expression<DateTime>? fetchedAt,
     Expression<String>? source,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (dateKey != null) 'date_key': dateKey,
-      if (usdToKrw != null) 'usd_to_krw': usdToKrw,
+      if (usd != null) 'usd': usd,
+      if (krw != null) 'krw': krw,
+      if (eur != null) 'eur': eur,
+      if (jpy != null) 'jpy': jpy,
       if (fetchedAt != null) 'fetched_at': fetchedAt,
       if (source != null) 'source': source,
       if (rowid != null) 'rowid': rowid,
@@ -928,14 +1049,20 @@ class FxRatesDailyCompanion extends UpdateCompanion<FxRatesDailyData> {
 
   FxRatesDailyCompanion copyWith({
     Value<String>? dateKey,
-    Value<double>? usdToKrw,
+    Value<double>? usd,
+    Value<double>? krw,
+    Value<double>? eur,
+    Value<double>? jpy,
     Value<DateTime>? fetchedAt,
     Value<String>? source,
     Value<int>? rowid,
   }) {
     return FxRatesDailyCompanion(
       dateKey: dateKey ?? this.dateKey,
-      usdToKrw: usdToKrw ?? this.usdToKrw,
+      usd: usd ?? this.usd,
+      krw: krw ?? this.krw,
+      eur: eur ?? this.eur,
+      jpy: jpy ?? this.jpy,
       fetchedAt: fetchedAt ?? this.fetchedAt,
       source: source ?? this.source,
       rowid: rowid ?? this.rowid,
@@ -948,8 +1075,17 @@ class FxRatesDailyCompanion extends UpdateCompanion<FxRatesDailyData> {
     if (dateKey.present) {
       map['date_key'] = Variable<String>(dateKey.value);
     }
-    if (usdToKrw.present) {
-      map['usd_to_krw'] = Variable<double>(usdToKrw.value);
+    if (usd.present) {
+      map['usd'] = Variable<double>(usd.value);
+    }
+    if (krw.present) {
+      map['krw'] = Variable<double>(krw.value);
+    }
+    if (eur.present) {
+      map['eur'] = Variable<double>(eur.value);
+    }
+    if (jpy.present) {
+      map['jpy'] = Variable<double>(jpy.value);
     }
     if (fetchedAt.present) {
       map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
@@ -967,7 +1103,10 @@ class FxRatesDailyCompanion extends UpdateCompanion<FxRatesDailyData> {
   String toString() {
     return (StringBuffer('FxRatesDailyCompanion(')
           ..write('dateKey: $dateKey, ')
-          ..write('usdToKrw: $usdToKrw, ')
+          ..write('usd: $usd, ')
+          ..write('krw: $krw, ')
+          ..write('eur: $eur, ')
+          ..write('jpy: $jpy, ')
           ..write('fetchedAt: $fetchedAt, ')
           ..write('source: $source, ')
           ..write('rowid: $rowid')
@@ -3279,7 +3418,10 @@ typedef $$UserSubscriptionsTableProcessedTableManager =
 typedef $$FxRatesDailyTableCreateCompanionBuilder =
     FxRatesDailyCompanion Function({
       required String dateKey,
-      required double usdToKrw,
+      required double usd,
+      required double krw,
+      required double eur,
+      required double jpy,
       required DateTime fetchedAt,
       required String source,
       Value<int> rowid,
@@ -3287,7 +3429,10 @@ typedef $$FxRatesDailyTableCreateCompanionBuilder =
 typedef $$FxRatesDailyTableUpdateCompanionBuilder =
     FxRatesDailyCompanion Function({
       Value<String> dateKey,
-      Value<double> usdToKrw,
+      Value<double> usd,
+      Value<double> krw,
+      Value<double> eur,
+      Value<double> jpy,
       Value<DateTime> fetchedAt,
       Value<String> source,
       Value<int> rowid,
@@ -3307,8 +3452,23 @@ class $$FxRatesDailyTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get usdToKrw => $composableBuilder(
-    column: $table.usdToKrw,
+  ColumnFilters<double> get usd => $composableBuilder(
+    column: $table.usd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get krw => $composableBuilder(
+    column: $table.krw,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get eur => $composableBuilder(
+    column: $table.eur,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get jpy => $composableBuilder(
+    column: $table.jpy,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3337,8 +3497,23 @@ class $$FxRatesDailyTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get usdToKrw => $composableBuilder(
-    column: $table.usdToKrw,
+  ColumnOrderings<double> get usd => $composableBuilder(
+    column: $table.usd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get krw => $composableBuilder(
+    column: $table.krw,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get eur => $composableBuilder(
+    column: $table.eur,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get jpy => $composableBuilder(
+    column: $table.jpy,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3365,8 +3540,17 @@ class $$FxRatesDailyTableAnnotationComposer
   GeneratedColumn<String> get dateKey =>
       $composableBuilder(column: $table.dateKey, builder: (column) => column);
 
-  GeneratedColumn<double> get usdToKrw =>
-      $composableBuilder(column: $table.usdToKrw, builder: (column) => column);
+  GeneratedColumn<double> get usd =>
+      $composableBuilder(column: $table.usd, builder: (column) => column);
+
+  GeneratedColumn<double> get krw =>
+      $composableBuilder(column: $table.krw, builder: (column) => column);
+
+  GeneratedColumn<double> get eur =>
+      $composableBuilder(column: $table.eur, builder: (column) => column);
+
+  GeneratedColumn<double> get jpy =>
+      $composableBuilder(column: $table.jpy, builder: (column) => column);
 
   GeneratedColumn<DateTime> get fetchedAt =>
       $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
@@ -3407,13 +3591,19 @@ class $$FxRatesDailyTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> dateKey = const Value.absent(),
-                Value<double> usdToKrw = const Value.absent(),
+                Value<double> usd = const Value.absent(),
+                Value<double> krw = const Value.absent(),
+                Value<double> eur = const Value.absent(),
+                Value<double> jpy = const Value.absent(),
                 Value<DateTime> fetchedAt = const Value.absent(),
                 Value<String> source = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => FxRatesDailyCompanion(
                 dateKey: dateKey,
-                usdToKrw: usdToKrw,
+                usd: usd,
+                krw: krw,
+                eur: eur,
+                jpy: jpy,
                 fetchedAt: fetchedAt,
                 source: source,
                 rowid: rowid,
@@ -3421,13 +3611,19 @@ class $$FxRatesDailyTableTableManager
           createCompanionCallback:
               ({
                 required String dateKey,
-                required double usdToKrw,
+                required double usd,
+                required double krw,
+                required double eur,
+                required double jpy,
                 required DateTime fetchedAt,
                 required String source,
                 Value<int> rowid = const Value.absent(),
               }) => FxRatesDailyCompanion.insert(
                 dateKey: dateKey,
-                usdToKrw: usdToKrw,
+                usd: usd,
+                krw: krw,
+                eur: eur,
+                jpy: jpy,
                 fetchedAt: fetchedAt,
                 source: source,
                 rowid: rowid,
