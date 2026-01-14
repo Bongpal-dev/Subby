@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/domain/model/subscription_group.dart';
@@ -44,6 +46,8 @@ class HomeState {
 }
 
 class HomeViewModel extends Notifier<HomeState> {
+  bool _hasSyncedGroups = false;
+
   @override
   HomeState build() {
     _watchGroups();
@@ -53,7 +57,14 @@ class HomeViewModel extends Notifier<HomeState> {
 
   void _watchGroups() {
     final groupRepository = ref.read(groupRepositoryProvider);
-    groupRepository.watchAll().listen((groups) {
+    groupRepository.watchAll().listen((groups) async {
+      // 첫 로드 시에만 Firestore에서 동기화
+      if (!_hasSyncedGroups && groups.isNotEmpty) {
+        _hasSyncedGroups = true;
+        await _syncGroupsFromRemote(groups);
+        return; // 동기화 후 watchAll이 다시 트리거됨
+      }
+
       final newGroupCode = state.selectedGroupCode ?? groups.firstOrNull?.code;
 
       state = state.copyWith(
@@ -66,6 +77,25 @@ class HomeViewModel extends Notifier<HomeState> {
         ref.read(currentGroupCodeProvider.notifier).state = newGroupCode;
       }
     });
+  }
+
+  Future<void> _syncGroupsFromRemote(List<SubscriptionGroup> localGroups) async {
+    final groupRepository = ref.read(groupRepositoryProvider);
+
+    for (final localGroup in localGroups) {
+      try {
+        final remoteGroup = await groupRepository.fetchRemoteByCode(localGroup.code);
+        if (remoteGroup != null) {
+          // displayName은 로컬 값 유지
+          final updatedGroup = remoteGroup.copyWith(
+            displayName: localGroup.displayName,
+          );
+          await groupRepository.update(updatedGroup);
+        }
+      } catch (_) {
+        // 네트워크 오류 등 무시
+      }
+    }
   }
 
   void _watchSubscriptions() {

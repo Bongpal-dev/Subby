@@ -65,6 +65,7 @@ class SubscriptionGroups extends Table {
   TextColumn get name => text()();
   TextColumn get displayName => text().nullable()();
   TextColumn get ownerId => text()();
+  TextColumn get members => text().withDefault(const Constant('[]'))(); // JSON array
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
 
@@ -112,7 +113,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -127,6 +128,9 @@ class AppDatabase extends _$AppDatabase {
         // FxRatesDaily 테이블 재생성 (캐시 데이터이므로 삭제 후 재생성)
         await migrator.deleteTable('fx_rates_daily');
         await migrator.createTable(fxRatesDaily);
+      }
+      if (from < 5) {
+        await migrator.addColumn(subscriptionGroups, subscriptionGroups.members);
       }
     },
   );

@@ -1749,6 +1749,18 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _membersMeta = const VerificationMeta(
+    'members',
+  );
+  @override
+  late final GeneratedColumn<String> members = GeneratedColumn<String>(
+    'members',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1777,6 +1789,7 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
     name,
     displayName,
     ownerId,
+    members,
     createdAt,
     updatedAt,
   ];
@@ -1825,6 +1838,12 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
     } else if (isInserting) {
       context.missing(_ownerIdMeta);
     }
+    if (data.containsKey('members')) {
+      context.handle(
+        _membersMeta,
+        members.isAcceptableOrUnknown(data['members']!, _membersMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1864,6 +1883,10 @@ class $SubscriptionGroupsTable extends SubscriptionGroups
         DriftSqlType.string,
         data['${effectivePrefix}owner_id'],
       )!,
+      members: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}members'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1887,6 +1910,7 @@ class SubscriptionGroup extends DataClass
   final String name;
   final String? displayName;
   final String ownerId;
+  final String members;
   final DateTime createdAt;
   final DateTime? updatedAt;
   const SubscriptionGroup({
@@ -1894,6 +1918,7 @@ class SubscriptionGroup extends DataClass
     required this.name,
     this.displayName,
     required this.ownerId,
+    required this.members,
     required this.createdAt,
     this.updatedAt,
   });
@@ -1906,6 +1931,7 @@ class SubscriptionGroup extends DataClass
       map['display_name'] = Variable<String>(displayName);
     }
     map['owner_id'] = Variable<String>(ownerId);
+    map['members'] = Variable<String>(members);
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1921,6 +1947,7 @@ class SubscriptionGroup extends DataClass
           ? const Value.absent()
           : Value(displayName),
       ownerId: Value(ownerId),
+      members: Value(members),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -1938,6 +1965,7 @@ class SubscriptionGroup extends DataClass
       name: serializer.fromJson<String>(json['name']),
       displayName: serializer.fromJson<String?>(json['displayName']),
       ownerId: serializer.fromJson<String>(json['ownerId']),
+      members: serializer.fromJson<String>(json['members']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
@@ -1950,6 +1978,7 @@ class SubscriptionGroup extends DataClass
       'name': serializer.toJson<String>(name),
       'displayName': serializer.toJson<String?>(displayName),
       'ownerId': serializer.toJson<String>(ownerId),
+      'members': serializer.toJson<String>(members),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
@@ -1960,6 +1989,7 @@ class SubscriptionGroup extends DataClass
     String? name,
     Value<String?> displayName = const Value.absent(),
     String? ownerId,
+    String? members,
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
   }) => SubscriptionGroup(
@@ -1967,6 +1997,7 @@ class SubscriptionGroup extends DataClass
     name: name ?? this.name,
     displayName: displayName.present ? displayName.value : this.displayName,
     ownerId: ownerId ?? this.ownerId,
+    members: members ?? this.members,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
@@ -1978,6 +2009,7 @@ class SubscriptionGroup extends DataClass
           ? data.displayName.value
           : this.displayName,
       ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      members: data.members.present ? data.members.value : this.members,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1990,6 +2022,7 @@ class SubscriptionGroup extends DataClass
           ..write('name: $name, ')
           ..write('displayName: $displayName, ')
           ..write('ownerId: $ownerId, ')
+          ..write('members: $members, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1997,8 +2030,15 @@ class SubscriptionGroup extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(code, name, displayName, ownerId, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+    code,
+    name,
+    displayName,
+    ownerId,
+    members,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2007,6 +2047,7 @@ class SubscriptionGroup extends DataClass
           other.name == this.name &&
           other.displayName == this.displayName &&
           other.ownerId == this.ownerId &&
+          other.members == this.members &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2016,6 +2057,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
   final Value<String> name;
   final Value<String?> displayName;
   final Value<String> ownerId;
+  final Value<String> members;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<int> rowid;
@@ -2024,6 +2066,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     this.name = const Value.absent(),
     this.displayName = const Value.absent(),
     this.ownerId = const Value.absent(),
+    this.members = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2033,6 +2076,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     required String name,
     this.displayName = const Value.absent(),
     required String ownerId,
+    this.members = const Value.absent(),
     required DateTime createdAt,
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2045,6 +2089,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     Expression<String>? name,
     Expression<String>? displayName,
     Expression<String>? ownerId,
+    Expression<String>? members,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -2054,6 +2099,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
       if (name != null) 'name': name,
       if (displayName != null) 'display_name': displayName,
       if (ownerId != null) 'owner_id': ownerId,
+      if (members != null) 'members': members,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -2065,6 +2111,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     Value<String>? name,
     Value<String?>? displayName,
     Value<String>? ownerId,
+    Value<String>? members,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
     Value<int>? rowid,
@@ -2074,6 +2121,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
       name: name ?? this.name,
       displayName: displayName ?? this.displayName,
       ownerId: ownerId ?? this.ownerId,
+      members: members ?? this.members,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -2095,6 +2143,9 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
     if (ownerId.present) {
       map['owner_id'] = Variable<String>(ownerId.value);
     }
+    if (members.present) {
+      map['members'] = Variable<String>(members.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2114,6 +2165,7 @@ class SubscriptionGroupsCompanion extends UpdateCompanion<SubscriptionGroup> {
           ..write('name: $name, ')
           ..write('displayName: $displayName, ')
           ..write('ownerId: $ownerId, ')
+          ..write('members: $members, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -3943,6 +3995,7 @@ typedef $$SubscriptionGroupsTableCreateCompanionBuilder =
       required String name,
       Value<String?> displayName,
       required String ownerId,
+      Value<String> members,
       required DateTime createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -3953,6 +4006,7 @@ typedef $$SubscriptionGroupsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> displayName,
       Value<String> ownerId,
+      Value<String> members,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -3984,6 +4038,11 @@ class $$SubscriptionGroupsTableFilterComposer
 
   ColumnFilters<String> get ownerId => $composableBuilder(
     column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get members => $composableBuilder(
+    column: $table.members,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4027,6 +4086,11 @@ class $$SubscriptionGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get members => $composableBuilder(
+    column: $table.members,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -4060,6 +4124,9 @@ class $$SubscriptionGroupsTableAnnotationComposer
 
   GeneratedColumn<String> get ownerId =>
       $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<String> get members =>
+      $composableBuilder(column: $table.members, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -4112,6 +4179,7 @@ class $$SubscriptionGroupsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> displayName = const Value.absent(),
                 Value<String> ownerId = const Value.absent(),
+                Value<String> members = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4120,6 +4188,7 @@ class $$SubscriptionGroupsTableTableManager
                 name: name,
                 displayName: displayName,
                 ownerId: ownerId,
+                members: members,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -4130,6 +4199,7 @@ class $$SubscriptionGroupsTableTableManager
                 required String name,
                 Value<String?> displayName = const Value.absent(),
                 required String ownerId,
+                Value<String> members = const Value.absent(),
                 required DateTime createdAt,
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4138,6 +4208,7 @@ class $$SubscriptionGroupsTableTableManager
                 name: name,
                 displayName: displayName,
                 ownerId: ownerId,
+                members: members,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

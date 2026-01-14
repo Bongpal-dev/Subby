@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:subby/data/database/database.dart';
 
@@ -49,12 +51,19 @@ class GroupDto {
 
 extension SubscriptionGroupRowToDto on SubscriptionGroup {
   GroupDto toDto() {
+    List<String> memberList;
+    try {
+      memberList = List<String>.from(jsonDecode(members));
+    } catch (_) {
+      memberList = [ownerId];
+    }
+
     return GroupDto(
       code: code,
       name: name,
       displayName: displayName,
       ownerId: ownerId,
-      members: [ownerId],
+      members: memberList,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -68,6 +77,7 @@ extension GroupDtoToCompanion on GroupDto {
       name: name,
       displayName: Value(displayName),
       ownerId: ownerId,
+      members: Value(jsonEncode(members)),
       createdAt: createdAt,
       updatedAt: Value.absentIfNull(updatedAt),
     );
