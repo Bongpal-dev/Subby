@@ -1,5 +1,9 @@
 {
   "rules": {
+    "exchange_rates": {
+      ".read": "auth != null",
+      ".write": false
+    },
     "groups": {
       "$groupCode": {
         ".read": "auth != null && data.child('members').child(auth.uid).exists()",
