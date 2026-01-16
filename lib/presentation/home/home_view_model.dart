@@ -146,6 +146,17 @@ class HomeViewModel extends Notifier<HomeState> {
 
     return total;
   }
+
+  Future<bool> deleteSubscription(String subscriptionId) async {
+    try {
+      final deleteUseCase = ref.read(deleteSubscriptionUseCaseProvider);
+      await deleteUseCase(subscriptionId);
+      ref.read(pendingSyncTriggerProvider.notifier).state++;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 final homeViewModelProvider = NotifierProvider<HomeViewModel, HomeState>(() {
