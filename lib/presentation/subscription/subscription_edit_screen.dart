@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/subby_app_bar.dart';
@@ -60,16 +61,13 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
     }
 
     final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
 
     return Scaffold(
-      appBar: SubbyAppBar(
+      appBar: const SubbyAppBar(
         title: '구독 수정',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: () => _onDelete(vm),
-          ),
-        ],
       ),
       body: Form(
         key: _formKey,
@@ -85,9 +83,15 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       children: [
                         Icon(Icons.subscriptions_outlined, color: colorScheme.primary),
                         SizedBox(width: AppSpacing.md),
-                        Text(
-                          state.name,
-                          style: AppTypography.headlineSmall,
+                        Expanded(
+                          child: Text(
+                            state.name,
+                            style: AppTypography.headlineSmall,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete_outline, color: colors.error),
+                          onPressed: () => _onDelete(vm),
                         ),
                       ],
                     ),
