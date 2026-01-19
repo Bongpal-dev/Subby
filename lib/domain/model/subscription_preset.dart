@@ -11,6 +11,11 @@ enum PresetCategory {
   EDUCATION,
   DESIGN,
   FINANCE,
+  MEMBERSHIP,   // 쇼핑 멤버십
+  DELIVERY,     // 배달
+  EBOOK,        // 전자책
+  MOBILITY,     // 모빌리티
+  LIFESTYLE,    // 라이프스타일
 }
 
 /// 요금제 옵션 (서비스 하위의 요금제)
