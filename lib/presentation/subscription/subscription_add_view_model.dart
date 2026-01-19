@@ -318,6 +318,16 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
         return '디자인';
       case PresetCategory.FINANCE:
         return '금융';
+      case PresetCategory.MEMBERSHIP:
+        return '멤버십';
+      case PresetCategory.DELIVERY:
+        return '배달';
+      case PresetCategory.EBOOK:
+        return '전자책';
+      case PresetCategory.MOBILITY:
+        return '모빌리티';
+      case PresetCategory.LIFESTYLE:
+        return '라이프스타일';
     }
   }
 }
