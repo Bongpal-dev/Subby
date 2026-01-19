@@ -67,8 +67,19 @@ class AppDrawer extends ConsumerWidget {
                         ),
                       )),
 
-                  // 그룹이 없는 경우 (초기화 중)
-                  if (state.groups.isEmpty)
+                  // 그룹이 없는 경우
+                  if (state.groups.isEmpty && !state.isLoading)
+                    Padding(
+                      padding: EdgeInsets.all(AppSpacing.lg),
+                      child: Text(
+                        '참여 중인 그룹이 없습니다',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                    ),
+                  // 초기 로딩 중
+                  if (state.groups.isEmpty && state.isLoading)
                     const Padding(
                       padding: EdgeInsets.all(AppSpacing.lg),
                       child: Center(
@@ -365,11 +376,10 @@ class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
       if (!mounted) return;
       Navigator.pop(context);
 
-      // 다른 그룹이 있으면 전환, 없으면 null
+      // 다른 그룹이 있으면 전환, 없으면 null로 초기화
       final remainingGroups = groups.where((g) => g.code != widget.groupCode);
-      if (remainingGroups.isNotEmpty) {
-        ref.read(homeViewModelProvider.notifier).selectGroup(remainingGroups.first.code);
-      }
+      final nextGroupCode = remainingGroups.isNotEmpty ? remainingGroups.first.code : null;
+      ref.read(homeViewModelProvider.notifier).selectGroup(nextGroupCode);
     } on Exception catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);

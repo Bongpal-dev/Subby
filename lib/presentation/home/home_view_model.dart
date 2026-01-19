@@ -65,11 +65,15 @@ class HomeViewModel extends Notifier<HomeState> {
         return; // 동기화 후 watchAll이 다시 트리거됨
       }
 
-      final newGroupCode = state.selectedGroupCode ?? groups.firstOrNull?.code;
+      // 선택된 그룹이 삭제되었으면 다른 그룹으로 전환
+      final selectedExists = groups.any((g) => g.code == state.selectedGroupCode);
+      final newGroupCode = selectedExists ? state.selectedGroupCode : groups.firstOrNull?.code;
 
       state = state.copyWith(
         groups: groups,
         selectedGroupCode: newGroupCode,
+        clearSelectedGroup: newGroupCode == null,
+        isLoading: false,
       );
 
       // currentGroupCodeProvider 동기화
