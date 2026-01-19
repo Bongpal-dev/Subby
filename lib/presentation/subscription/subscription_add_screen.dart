@@ -118,36 +118,71 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                   SizedBox(height: AppSpacing.md),
                 ],
 
-                // 통화 + 금액 그룹
-                AppCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 통화 선택
-                      Text('통화', style: Theme.of(context).textTheme.labelSmall),
-                      SizedBox(height: AppSpacing.sm),
-                      SegmentedSelector(
-                        options: const ['KRW', 'USD'],
-                        labels: const ['\u20a9 원화', '\$ 달러'],
-                        selected: state.currency,
-                        onChanged: vm.setCurrency,
-                      ),
-                      SizedBox(height: AppSpacing.lg),
-
-                      // 금액
-                      Text('금액', style: Theme.of(context).textTheme.labelSmall),
-                      SizedBox(height: AppSpacing.md),
-                      _buildAmountTextField(state, vm, colorScheme),
-                      SizedBox(height: AppSpacing.md),
-
-                      // 금액 추가 버튼
-                      AmountAdder(
-                        currency: state.currency,
-                        onAdd: (step) => vm.setAmount(state.amount + step),
-                      ),
-                    ],
+                // 요금제가 있는 프리셋인 경우: 요금제 + 결제금액 통합 카드
+                if (state.selectedPreset != null && state.selectedPreset!.hasPlans) ...[
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 요금제 선택 (가로 스크롤, 금액 없이 항목명만)
+                        Text('요금제', style: Theme.of(context).textTheme.labelSmall),
+                        SizedBox(height: AppSpacing.sm),
+                        SizedBox(
+                          height: 36,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: state.selectedPreset!.plans.map((plan) => Padding(
+                              padding: EdgeInsets.only(right: AppSpacing.sm),
+                              child: ChoiceChip(
+                                label: Text(plan.displayName(locale)),
+                                selected: state.selectedPlan == plan,
+                                onSelected: (_) => vm.selectPlan(plan),
+                                selectedColor: colorScheme.primary.withValues(alpha: 0.2),
+                                labelStyle: TextStyle(
+                                  fontSize: 12,
+                                  color: state.selectedPlan == plan
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurface,
+                                ),
+                              ),
+                            )).toList(),
+                          ),
+                        ),
+                        SizedBox(height: AppSpacing.lg),
+                        // 결제 금액
+                        Text('결제 금액', style: Theme.of(context).textTheme.labelSmall),
+                        SizedBox(height: AppSpacing.sm),
+                        _buildAmountTextField(state, vm, colorScheme),
+                      ],
+                    ),
                   ),
-                ),
+                ] else ...[
+                  // 요금제가 없는 경우: 기존 통화 + 금액 카드
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('통화', style: Theme.of(context).textTheme.labelSmall),
+                        SizedBox(height: AppSpacing.sm),
+                        SegmentedSelector(
+                          options: const ['KRW', 'USD'],
+                          labels: const ['\u20a9 원화', '\$ 달러'],
+                          selected: state.currency,
+                          onChanged: vm.setCurrency,
+                        ),
+                        SizedBox(height: AppSpacing.lg),
+                        Text('금액', style: Theme.of(context).textTheme.labelSmall),
+                        SizedBox(height: AppSpacing.md),
+                        _buildAmountTextField(state, vm, colorScheme),
+                        SizedBox(height: AppSpacing.md),
+                        AmountAdder(
+                          currency: state.currency,
+                          onAdd: (step) => vm.setAmount(state.amount + step),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 SizedBox(height: AppSpacing.md),
 
                 // 결제일 + 결제 주기 그룹
@@ -345,6 +380,14 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
         return '디자인';
       case PresetCategory.FINANCE:
         return '금융';
+    }
+  }
+
+  String _formatDisplayAmount(double amount, String currency) {
+    if (currency == 'KRW') {
+      return '₩${amount.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
+    } else {
+      return '\$${amount.toStringAsFixed(amount == amount.toInt() ? 0 : 2)}';
     }
   }
 
@@ -563,5 +606,44 @@ class _CategoryChip extends StatelessWidget {
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
+  }
+}
+
+class _PlanChip extends StatelessWidget {
+  final PlanOption plan;
+  final Locale locale;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _PlanChip({
+    required this.plan,
+    required this.locale,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final priceText = _formatPrice(plan.price, plan.currency);
+
+    return ChoiceChip(
+      label: Text('${plan.displayName(locale)} $priceText'),
+      selected: selected,
+      onSelected: (_) => onTap(),
+      selectedColor: colorScheme.primary.withValues(alpha: 0.2),
+      labelStyle: TextStyle(
+        fontSize: 12,
+        color: selected ? colorScheme.primary : colorScheme.onSurface,
+      ),
+    );
+  }
+
+  String _formatPrice(double price, String currency) {
+    if (currency == 'KRW') {
+      return '₩${price.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
+    } else {
+      return '\$${price.toStringAsFixed(price == price.toInt() ? 0 : 2)}';
+    }
   }
 }

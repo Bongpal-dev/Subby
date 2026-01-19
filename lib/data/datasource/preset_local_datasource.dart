@@ -43,6 +43,12 @@ class PresetLocalDataSource {
       aliases = List<String>.from(json['aliases']);
     }
 
+    // plans 배열 처리
+    String? plansJson;
+    if (json['plans'] != null && json['plans'] is List) {
+      plansJson = jsonEncode(json['plans']);
+    }
+
     return PresetCacheCompanion.insert(
       brandKey: json['brandKey'] ?? '',
       displayNameKo: json['displayNameKo'] ?? '',
@@ -52,6 +58,7 @@ class PresetLocalDataSource {
       defaultPeriod: json['defaultPeriod'] ?? 'MONTHLY',
       aliases: Value(aliases != null ? jsonEncode(aliases) : null),
       notes: Value(json['notes']),
+      plans: Value(plansJson),
       cachedAt: DateTime.now(),
     );
   }

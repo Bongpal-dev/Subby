@@ -1207,6 +1207,15 @@ class $PresetCacheTable extends PresetCache
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _plansMeta = const VerificationMeta('plans');
+  @override
+  late final GeneratedColumn<String> plans = GeneratedColumn<String>(
+    'plans',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _cachedAtMeta = const VerificationMeta(
     'cachedAt',
   );
@@ -1228,6 +1237,7 @@ class $PresetCacheTable extends PresetCache
     defaultPeriod,
     aliases,
     notes,
+    plans,
     cachedAt,
   ];
   @override
@@ -1312,6 +1322,12 @@ class $PresetCacheTable extends PresetCache
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('plans')) {
+      context.handle(
+        _plansMeta,
+        plans.isAcceptableOrUnknown(data['plans']!, _plansMeta),
+      );
+    }
     if (data.containsKey('cached_at')) {
       context.handle(
         _cachedAtMeta,
@@ -1361,6 +1377,10 @@ class $PresetCacheTable extends PresetCache
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      plans: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}plans'],
+      ),
       cachedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}cached_at'],
@@ -1383,6 +1403,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
   final String defaultPeriod;
   final String? aliases;
   final String? notes;
+  final String? plans;
   final DateTime cachedAt;
   const PresetCacheData({
     required this.brandKey,
@@ -1393,6 +1414,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
     required this.defaultPeriod,
     this.aliases,
     this.notes,
+    this.plans,
     required this.cachedAt,
   });
   @override
@@ -1411,6 +1433,9 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
     }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || plans != null) {
+      map['plans'] = Variable<String>(plans);
     }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
@@ -1432,6 +1457,9 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      plans: plans == null && nullToAbsent
+          ? const Value.absent()
+          : Value(plans),
       cachedAt: Value(cachedAt),
     );
   }
@@ -1450,6 +1478,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
       defaultPeriod: serializer.fromJson<String>(json['defaultPeriod']),
       aliases: serializer.fromJson<String?>(json['aliases']),
       notes: serializer.fromJson<String?>(json['notes']),
+      plans: serializer.fromJson<String?>(json['plans']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -1465,6 +1494,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
       'defaultPeriod': serializer.toJson<String>(defaultPeriod),
       'aliases': serializer.toJson<String?>(aliases),
       'notes': serializer.toJson<String?>(notes),
+      'plans': serializer.toJson<String?>(plans),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -1478,6 +1508,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
     String? defaultPeriod,
     Value<String?> aliases = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> plans = const Value.absent(),
     DateTime? cachedAt,
   }) => PresetCacheData(
     brandKey: brandKey ?? this.brandKey,
@@ -1490,6 +1521,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
     defaultPeriod: defaultPeriod ?? this.defaultPeriod,
     aliases: aliases.present ? aliases.value : this.aliases,
     notes: notes.present ? notes.value : this.notes,
+    plans: plans.present ? plans.value : this.plans,
     cachedAt: cachedAt ?? this.cachedAt,
   );
   PresetCacheData copyWithCompanion(PresetCacheCompanion data) {
@@ -1510,6 +1542,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
           : this.defaultPeriod,
       aliases: data.aliases.present ? data.aliases.value : this.aliases,
       notes: data.notes.present ? data.notes.value : this.notes,
+      plans: data.plans.present ? data.plans.value : this.plans,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -1525,6 +1558,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
           ..write('defaultPeriod: $defaultPeriod, ')
           ..write('aliases: $aliases, ')
           ..write('notes: $notes, ')
+          ..write('plans: $plans, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
@@ -1540,6 +1574,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
     defaultPeriod,
     aliases,
     notes,
+    plans,
     cachedAt,
   );
   @override
@@ -1554,6 +1589,7 @@ class PresetCacheData extends DataClass implements Insertable<PresetCacheData> {
           other.defaultPeriod == this.defaultPeriod &&
           other.aliases == this.aliases &&
           other.notes == this.notes &&
+          other.plans == this.plans &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -1566,6 +1602,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
   final Value<String> defaultPeriod;
   final Value<String?> aliases;
   final Value<String?> notes;
+  final Value<String?> plans;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const PresetCacheCompanion({
@@ -1577,6 +1614,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
     this.defaultPeriod = const Value.absent(),
     this.aliases = const Value.absent(),
     this.notes = const Value.absent(),
+    this.plans = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1589,6 +1627,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
     required String defaultPeriod,
     this.aliases = const Value.absent(),
     this.notes = const Value.absent(),
+    this.plans = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   }) : brandKey = Value(brandKey),
@@ -1606,6 +1645,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
     Expression<String>? defaultPeriod,
     Expression<String>? aliases,
     Expression<String>? notes,
+    Expression<String>? plans,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -1618,6 +1658,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
       if (defaultPeriod != null) 'default_period': defaultPeriod,
       if (aliases != null) 'aliases': aliases,
       if (notes != null) 'notes': notes,
+      if (plans != null) 'plans': plans,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1632,6 +1673,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
     Value<String>? defaultPeriod,
     Value<String?>? aliases,
     Value<String?>? notes,
+    Value<String?>? plans,
     Value<DateTime>? cachedAt,
     Value<int>? rowid,
   }) {
@@ -1644,6 +1686,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
       defaultPeriod: defaultPeriod ?? this.defaultPeriod,
       aliases: aliases ?? this.aliases,
       notes: notes ?? this.notes,
+      plans: plans ?? this.plans,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1676,6 +1719,9 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (plans.present) {
+      map['plans'] = Variable<String>(plans.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -1696,6 +1742,7 @@ class PresetCacheCompanion extends UpdateCompanion<PresetCacheData> {
           ..write('defaultPeriod: $defaultPeriod, ')
           ..write('aliases: $aliases, ')
           ..write('notes: $notes, ')
+          ..write('plans: $plans, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -3715,6 +3762,7 @@ typedef $$PresetCacheTableCreateCompanionBuilder =
       required String defaultPeriod,
       Value<String?> aliases,
       Value<String?> notes,
+      Value<String?> plans,
       required DateTime cachedAt,
       Value<int> rowid,
     });
@@ -3728,6 +3776,7 @@ typedef $$PresetCacheTableUpdateCompanionBuilder =
       Value<String> defaultPeriod,
       Value<String?> aliases,
       Value<String?> notes,
+      Value<String?> plans,
       Value<DateTime> cachedAt,
       Value<int> rowid,
     });
@@ -3778,6 +3827,11 @@ class $$PresetCacheTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get plans => $composableBuilder(
+    column: $table.plans,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3836,6 +3890,11 @@ class $$PresetCacheTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get plans => $composableBuilder(
+    column: $table.plans,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
     column: $table.cachedAt,
     builder: (column) => ColumnOrderings(column),
@@ -3883,6 +3942,9 @@ class $$PresetCacheTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<String> get plans =>
+      $composableBuilder(column: $table.plans, builder: (column) => column);
+
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
 }
@@ -3926,6 +3988,7 @@ class $$PresetCacheTableTableManager
                 Value<String> defaultPeriod = const Value.absent(),
                 Value<String?> aliases = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> plans = const Value.absent(),
                 Value<DateTime> cachedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PresetCacheCompanion(
@@ -3937,6 +4000,7 @@ class $$PresetCacheTableTableManager
                 defaultPeriod: defaultPeriod,
                 aliases: aliases,
                 notes: notes,
+                plans: plans,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),
@@ -3950,6 +4014,7 @@ class $$PresetCacheTableTableManager
                 required String defaultPeriod,
                 Value<String?> aliases = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> plans = const Value.absent(),
                 required DateTime cachedAt,
                 Value<int> rowid = const Value.absent(),
               }) => PresetCacheCompanion.insert(
@@ -3961,6 +4026,7 @@ class $$PresetCacheTableTableManager
                 defaultPeriod: defaultPeriod,
                 aliases: aliases,
                 notes: notes,
+                plans: plans,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),

@@ -13,6 +13,8 @@ class SubscriptionAddState {
   final bool isLoadingPresets;
   final bool isServiceSelected;
   final SubscriptionPreset? selectedPreset;
+  final PlanOption? selectedPlan;  // 선택된 요금제
+  final bool isManualPriceInput;   // 직접입력 모드 여부
   final String name;
   final String currency;
   final double amount;
@@ -32,6 +34,8 @@ class SubscriptionAddState {
     this.isLoadingPresets = true,
     this.isServiceSelected = false,
     this.selectedPreset,
+    this.selectedPlan,
+    this.isManualPriceInput = false,
     this.name = '',
     this.currency = 'KRW',
     this.amount = 0,
@@ -53,6 +57,9 @@ class SubscriptionAddState {
     bool? isServiceSelected,
     SubscriptionPreset? selectedPreset,
     bool clearSelectedPreset = false,
+    PlanOption? selectedPlan,
+    bool clearSelectedPlan = false,
+    bool? isManualPriceInput,
     String? name,
     String? currency,
     double? amount,
@@ -74,6 +81,8 @@ class SubscriptionAddState {
       isLoadingPresets: isLoadingPresets ?? this.isLoadingPresets,
       isServiceSelected: isServiceSelected ?? this.isServiceSelected,
       selectedPreset: clearSelectedPreset ? null : (selectedPreset ?? this.selectedPreset),
+      selectedPlan: clearSelectedPlan ? null : (selectedPlan ?? this.selectedPlan),
+      isManualPriceInput: isManualPriceInput ?? this.isManualPriceInput,
       name: name ?? this.name,
       currency: currency ?? this.currency,
       amount: amount ?? this.amount,
@@ -145,21 +154,48 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
   }
 
   void selectPreset(SubscriptionPreset preset, Locale locale) {
+    // 기본 요금제가 있으면 자동 선택
+    final defaultPlan = preset.defaultPlan;
+
     state = state.copyWith(
       selectedPreset: preset,
       isServiceSelected: true,
       name: preset.displayName(locale),
-      currency: preset.defaultCurrency,
-      amount: 0,
-      period: preset.defaultPeriod,
+      currency: defaultPlan?.currency ?? preset.defaultCurrency,
+      amount: defaultPlan?.price ?? 0,
+      period: defaultPlan?.period ?? preset.defaultPeriod,
       category: _mapPresetCategory(preset.category),
+      selectedPlan: defaultPlan,
+      isManualPriceInput: !preset.hasPlans, // 요금제 없으면 직접입력 모드
+    );
+  }
+
+  /// 요금제 선택
+  void selectPlan(PlanOption plan) {
+    state = state.copyWith(
+      selectedPlan: plan,
+      currency: plan.currency,
+      amount: plan.price,
+      period: plan.period,
+      isManualPriceInput: false,
+    );
+  }
+
+  /// 직접입력 모드로 전환 (요금제 선택 해제)
+  void selectManualPriceInput() {
+    state = state.copyWith(
+      clearSelectedPlan: true,
+      isManualPriceInput: true,
+      amount: 0,
     );
   }
 
   void selectManualInput() {
     state = state.copyWith(
       clearSelectedPreset: true,
+      clearSelectedPlan: true,
       isServiceSelected: true,
+      isManualPriceInput: true,
       name: '',
       currency: 'KRW',
       amount: 0,
@@ -171,7 +207,9 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
   void resetSelection() {
     state = state.copyWith(
       clearSelectedPreset: true,
+      clearSelectedPlan: true,
       isServiceSelected: false,
+      isManualPriceInput: false,
       name: '',
       currency: 'KRW',
       amount: 0,

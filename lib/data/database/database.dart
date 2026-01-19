@@ -51,6 +51,7 @@ class PresetCache extends Table {
   TextColumn get defaultPeriod => text()();
   TextColumn get aliases => text().nullable()(); // JSON array string
   TextColumn get notes => text().nullable()();
+  TextColumn get plans => text().nullable()(); // JSON array of PlanOption
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -113,7 +114,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -131,6 +132,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) {
         await migrator.addColumn(subscriptionGroups, subscriptionGroups.members);
+      }
+      if (from < 6) {
+        // PresetCache에 plans 컬럼 추가
+        await migrator.addColumn(presetCache, presetCache.plans);
       }
     },
   );
