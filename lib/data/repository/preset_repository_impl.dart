@@ -20,6 +20,10 @@ class PresetRepositoryImpl implements PresetRepository {
   Future<List<SubscriptionPreset>> getPresetsFromCache() async {
     final rows = await _localDataSource.getAll();
     print('[PresetRepo] Cache count: ${rows.length}');
+    if (rows.isEmpty) {
+      print('[PresetRepo] Cache empty, using static presets');
+      return subscriptionPresets;
+    }
     return rows.map(_rowToPreset).toList();
   }
 
@@ -30,19 +34,24 @@ class PresetRepositoryImpl implements PresetRepository {
       final data = await _remoteDataSource.fetchPresets();
       final remoteVersion = await _remoteDataSource.fetchVersion();
       print('[PresetRepo] Firebase data: ${data?.length ?? 'null'}, version: $remoteVersion');
-      if (data == null || data.isEmpty) {
-        print('[PresetRepo] Firebase returned null/empty, using cache or static');
-        final cached = await getPresetsFromCache();
-        if (cached.isNotEmpty) {
-          return cached;
-        }
-        return subscriptionPresets;
+      if (data == null) {
+        print('[PresetRepo] Firebase returned null, using cache');
+        return getPresetsFromCache();
       }
 
-      final companions = data.entries
-          .map((e) => PresetLocalDataSource.mapToCompanion(
-              Map<String, dynamic>.from(e.value as Map)))
-          .toList();
+      final companions = <PresetCacheCompanion>[];
+      for (final e in data.entries) {
+        try {
+          if (e.value is! Map) {
+            print('[PresetRepo] Skipping ${e.key}: value is ${e.value.runtimeType}');
+            continue;
+          }
+          companions.add(PresetLocalDataSource.mapToCompanion(
+              Map<String, dynamic>.from(e.value as Map)));
+        } catch (err) {
+          print('[PresetRepo] Error parsing ${e.key}: $err');
+        }
+      }
 
       await _localDataSource.cachePresets(companions);
       if (remoteVersion != null) {
@@ -56,13 +65,7 @@ class PresetRepositoryImpl implements PresetRepository {
           .toList();
     } catch (e) {
       print('[PresetRepo] Error fetching: $e');
-      final cached = await getPresetsFromCache();
-      if (cached.isNotEmpty) {
-        return cached;
-      }
-      // Firebase 실패 + 캐시 없음 → 정적 프리셋 사용
-      print('[PresetRepo] Using static presets as fallback');
-      return subscriptionPresets;
+      return getPresetsFromCache();
     }
   }
 
@@ -108,6 +111,16 @@ class PresetRepositoryImpl implements PresetRepository {
       } catch (_) {}
     }
 
+    List<PlanOption> plans = [];
+    if (row.plans != null && row.plans!.isNotEmpty) {
+      try {
+        final plansList = jsonDecode(row.plans!) as List;
+        plans = plansList
+            .map((p) => PlanOption.fromJson(Map<String, dynamic>.from(p)))
+            .toList();
+      } catch (_) {}
+    }
+
     return SubscriptionPreset(
       brandKey: row.brandKey,
       displayNameKo: row.displayNameKo,
@@ -120,6 +133,7 @@ class PresetRepositoryImpl implements PresetRepository {
       defaultPeriod: row.defaultPeriod,
       aliases: aliases,
       notes: row.notes,
+      plans: plans,
     );
   }
 
@@ -127,6 +141,13 @@ class PresetRepositoryImpl implements PresetRepository {
     List<String> aliases = [];
     if (json['aliases'] != null) {
       aliases = List<String>.from(json['aliases']);
+    }
+
+    List<PlanOption> plans = [];
+    if (json['plans'] != null && json['plans'] is List) {
+      plans = (json['plans'] as List)
+          .map((p) => PlanOption.fromJson(Map<String, dynamic>.from(p)))
+          .toList();
     }
 
     return SubscriptionPreset(
@@ -141,6 +162,7 @@ class PresetRepositoryImpl implements PresetRepository {
       defaultPeriod: json['defaultPeriod'] ?? 'MONTHLY',
       aliases: aliases,
       notes: json['notes'],
+      plans: plans,
     );
   }
 }

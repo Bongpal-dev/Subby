@@ -378,8 +378,10 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                 ),
               ),
             // 카드 내용 (오른쪽에서 왼쪽으로 페이드)
-            if (progress < 1.0)
-              ShaderMask(
+            // Stack 크기 유지를 위해 항상 렌더링 (Opacity로 숨김)
+            Opacity(
+              opacity: progress < 1.0 ? 1.0 : 0.0,
+              child: ShaderMask(
                 shaderCallback: (bounds) {
                   // progress가 0이면 전체 불투명, 1이면 완전히 투명
                   final fadeEnd = 1.0 - progress;
@@ -445,6 +447,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
