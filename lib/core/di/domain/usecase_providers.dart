@@ -5,25 +5,12 @@ import 'package:subby/domain/usecase/create_group_usecase.dart';
 import 'package:subby/domain/usecase/delete_subscription_usecase.dart';
 import 'package:subby/domain/usecase/get_presets_usecase.dart';
 import 'package:subby/domain/usecase/get_subscription_by_id_usecase.dart';
-import 'package:subby/domain/usecase/initialize_app_usecase.dart';
 import 'package:subby/domain/usecase/join_group_usecase.dart';
 import 'package:subby/domain/usecase/leave_group_usecase.dart';
 import 'package:subby/domain/usecase/detect_subscription_conflict_usecase.dart';
 import 'package:subby/domain/usecase/process_pending_changes_usecase.dart';
 import 'package:subby/domain/usecase/update_subscription_usecase.dart';
 import 'package:subby/domain/usecase/watch_subscriptions_usecase.dart';
-
-final initializeAppUseCaseProvider = Provider<InitializeAppUseCase>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
-  final groupRepository = ref.watch(groupRepositoryProvider);
-  final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
-
-  return InitializeAppUseCase(
-    authRepository: authRepository,
-    groupRepository: groupRepository,
-    pendingChangeRepository: pendingChangeRepository,
-  );
-});
 
 final createGroupUseCaseProvider = Provider<CreateGroupUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);

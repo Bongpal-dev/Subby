@@ -22,10 +22,12 @@ class HomeScreen extends ConsumerWidget {
     final exchangeRate = ref.watch(exchangeRateProvider).valueOrNull;
     final colorScheme = Theme.of(context).colorScheme;
 
+    final hasGroup = state.groups.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        title: Text(state.currentGroupName),
+        title: hasGroup ? Text(state.currentGroupName) : null,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
@@ -33,61 +35,65 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => _onInvite(
-              context,
-              state.currentGroupName,
-              state.selectedGroupCode,
+          if (hasGroup)
+            TextButton(
+              onPressed: () => _onInvite(
+                context,
+                state.currentGroupName,
+                state.selectedGroupCode,
+              ),
+              child: const Text('초대하기'),
             ),
-            child: const Text('초대하기'),
-          ),
         ],
       ),
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          // 상단 헤더
-          _HeaderCard(total: state.totalKrw),
+          // 상단 헤더 (그룹이 있을 때만)
+          if (hasGroup) _HeaderCard(total: state.totalKrw),
 
           // 구독 목록
           Expanded(
             child: state.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : state.subscriptions.isEmpty
-                    ? const _EmptyState()
-                    : _SubscriptionList(
-                        subscriptions: state.subscriptions,
-                        exchangeRate: exchangeRate,
-                        onTap: (sub) => _navigateToEdit(context, ref, sub.id),
-                        onDelete: (sub) => _onDelete(context, ref, sub),
-                      ),
+                : state.groups.isEmpty
+                    ? const _NoGroupState()
+                    : state.subscriptions.isEmpty
+                        ? const _EmptyState()
+                        : _SubscriptionList(
+                            subscriptions: state.subscriptions,
+                            exchangeRate: exchangeRate,
+                            onTap: (sub) => _navigateToEdit(context, ref, sub.id),
+                            onDelete: (sub) => _onDelete(context, ref, sub),
+                          ),
           ),
 
-          // 하단 추가 버튼
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => _navigateToAdd(context, ref),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colorScheme.secondary,
-                    foregroundColor: colorScheme.onSecondary,
-                    padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+          // 하단 추가 버튼 (그룹이 있을 때만 표시)
+          if (state.groups.isNotEmpty)
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.all(AppSpacing.lg),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => _navigateToAdd(context, ref),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.secondary,
+                      foregroundColor: colorScheme.onSecondary,
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    '+ 구독 추가하기',
-                    style: AppTypography.titleLarge,
+                    child: Text(
+                      '+ 구독 추가하기',
+                      style: AppTypography.titleLarge,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -207,6 +213,41 @@ class _EmptyState extends StatelessWidget {
           SizedBox(height: AppSpacing.sm),
           Text(
             '아래 버튼을 눌러 첫 구독을 추가해보세요!',
+            style: AppTypography.bodySmall.copyWith(color: colors.textTertiary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NoGroupState extends StatelessWidget {
+  const _NoGroupState();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
+
+    return Align(
+      alignment: const Alignment(0, -0.2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.group_outlined,
+            size: 64,
+            color: colors.primary.withValues(alpha: 0.5),
+          ),
+          SizedBox(height: AppSpacing.lg),
+          Text(
+            '참여 중인 그룹이 없습니다',
+            style: AppTypography.titleLarge.copyWith(color: colors.textPrimary),
+          ),
+          SizedBox(height: AppSpacing.sm),
+          Text(
+            '새 그룹을 만들거나 초대 코드로 참여하세요',
             style: AppTypography.bodySmall.copyWith(color: colors.textTertiary),
           ),
         ],

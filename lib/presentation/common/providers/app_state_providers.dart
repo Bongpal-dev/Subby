@@ -22,17 +22,12 @@ final currentUserIdProvider = Provider<String?>((ref) {
   return authState.valueOrNull;
 });
 
-final appInitializedProvider = FutureProvider<String>((ref) async {
-  final initializeApp = ref.watch(initializeAppUseCaseProvider);
-
-  return initializeApp();
+final appInitializedProvider = FutureProvider<void>((ref) async {
+  final authRepository = ref.watch(authRepositoryProvider);
+  await authRepository.signInAnonymously();
 });
 
-final currentGroupCodeProvider = StateProvider<String?>((ref) {
-  final appInit = ref.watch(appInitializedProvider);
-
-  return appInit.valueOrNull;
-});
+final currentGroupCodeProvider = StateProvider<String?>((ref) => null);
 
 final currentGroupProvider = StreamProvider((ref) {
   final groupCode = ref.watch(currentGroupCodeProvider);
