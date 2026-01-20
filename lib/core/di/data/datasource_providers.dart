@@ -16,6 +16,12 @@ final firebaseAuthDataSourceProvider = Provider<FirebaseAuthDataSource>((ref) {
   return FirebaseAuthDataSource();
 });
 
+/// 현재 사용자가 익명인지 여부를 실시간으로 감지
+final isAnonymousProvider = StreamProvider<bool>((ref) {
+  final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
+  return authDataSource.userChanges.map((user) => user?.isAnonymous ?? true);
+});
+
 final groupLocalDataSourceProvider = Provider<GroupLocalDataSource>((ref) {
   final db = ref.watch(databaseProvider);
 

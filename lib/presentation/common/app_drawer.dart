@@ -4,6 +4,7 @@ import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/presentation/auth/login_screen.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 
@@ -121,6 +122,8 @@ class AppDrawer extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  // 계정 섹션
+                  _buildAccountSection(context, ref),
                 ],
               ),
             ),
@@ -239,6 +242,126 @@ class AppDrawer extends ConsumerWidget {
       builder: (context) => _LeaveGroupDialog(
         groupCode: groupCode,
         groupName: groupName,
+      ),
+    );
+  }
+
+  Widget _buildAccountSection(BuildContext context, WidgetRef ref) {
+    final isAnonymous = ref.watch(isAnonymousProvider).valueOrNull ?? true;
+    final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
+    final email = authDataSource.currentEmail;
+    final colors = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.dark
+        : AppColors.light;
+
+    if (isAnonymous) {
+      // 익명 상태 - 백업 유도 배너
+      return Container(
+        margin: EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: colors.warning.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colors.warning.withValues(alpha: 0.3)),
+        ),
+        child: InkWell(
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            );
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, color: colors.warning, size: 24),
+                SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '백업되지 않음',
+                        style: AppTypography.titleSmall.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        '로그인하여 데이터 보호하기',
+                        style: AppTypography.captionLarge.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: colors.textTertiary),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      // 로그인 상태 - 계정 정보 표시
+      return Container(
+        margin: EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+        padding: EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: colors.success.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.check_circle, color: colors.success, size: 24),
+            SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text(
+                email ?? '로그인됨',
+                style: AppTypography.bodySmall.copyWith(
+                  color: colors.textPrimary,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            TextButton(
+              onPressed: () => _showSignOutDialog(context, ref),
+              child: Text(
+                '로그아웃',
+                style: AppTypography.captionLarge.copyWith(
+                  color: colors.textTertiary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _showSignOutDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('로그아웃'),
+        content: const Text('로그아웃하면 다른 기기에서 그룹에 접근할 수 없습니다.\n계속하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // 다이얼로그 닫기
+              Navigator.pop(context); // Drawer 닫기
+              final authDataSource = ref.read(firebaseAuthDataSourceProvider);
+              await authDataSource.signOut();
+              await authDataSource.signInAnonymously();
+            },
+            child: const Text('로그아웃', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

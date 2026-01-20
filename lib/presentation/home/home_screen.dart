@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/exchange_rate.dart';
 import 'package:subby/domain/model/user_subscription.dart';
+import 'package:subby/presentation/auth/login_screen.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
+import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
@@ -221,37 +224,121 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _NoGroupState extends StatelessWidget {
+class _NoGroupState extends ConsumerWidget {
   const _NoGroupState();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).brightness == Brightness.dark
         ? AppColors.dark
         : AppColors.light;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isAnonymous = ref.watch(isAnonymousProvider).valueOrNull ?? true;
 
-    return Align(
-      alignment: const Alignment(0, -0.2),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
+          const Spacer(flex: 3),
+
+          // 아이콘
           Icon(
-            Icons.group_outlined,
-            size: 64,
-            color: colors.primary.withValues(alpha: 0.5),
+            Icons.subscriptions_outlined,
+            size: 80,
+            color: colors.primary.withValues(alpha: 0.6),
           ),
-          SizedBox(height: AppSpacing.lg),
+          SizedBox(height: AppSpacing.xl),
+
+          // 메인 텍스트
           Text(
-            '참여 중인 그룹이 없습니다',
-            style: AppTypography.titleLarge.copyWith(color: colors.textPrimary),
+            '구독을 한눈에 관리하세요',
+            style: AppTypography.headlineLarge.copyWith(
+              color: colors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
           ),
           SizedBox(height: AppSpacing.sm),
           Text(
-            '새 그룹을 만들거나 초대 코드로 참여하세요',
-            style: AppTypography.bodySmall.copyWith(color: colors.textTertiary),
+            '새 그룹을 만들거나 초대 코드로 참여해보세요',
+            style: AppTypography.bodyLarge.copyWith(
+              color: colors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
           ),
+
+          SizedBox(height: AppSpacing.xxxl),
+
+          // 새 그룹 만들기 버튼
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => showCreateGroupFlow(context, ref),
+              icon: const Icon(Icons.add),
+              label: const Text('새 그룹 만들기'),
+              style: FilledButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              ),
+            ),
+          ),
+          SizedBox(height: AppSpacing.md),
+
+          // 초대 코드로 참여 버튼
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => showJoinGroupFlow(context, ref),
+              icon: const Icon(Icons.link),
+              label: const Text('초대 코드로 참여'),
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              ),
+            ),
+          ),
+
+          const Spacer(flex: 4),
+
+          // 익명 상태일 때만 로그인 유도 표시
+          if (isAnonymous) ...[
+            // 구분선
+            Row(
+              children: [
+                Expanded(child: Divider(color: colors.textTertiary.withValues(alpha: 0.3))),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  child: Text(
+                    '이미 사용 중이셨나요?',
+                    style: AppTypography.captionLarge.copyWith(
+                      color: colors.textTertiary,
+                    ),
+                  ),
+                ),
+                Expanded(child: Divider(color: colors.textTertiary.withValues(alpha: 0.3))),
+              ],
+            ),
+            SizedBox(height: AppSpacing.md),
+
+            // 로그인 링크
+            TextButton(
+              onPressed: () => _navigateToLogin(context),
+              child: Text(
+                '로그인하여 내 그룹 찾기',
+                style: AppTypography.bodyLarge.copyWith(
+                  color: colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+
+          SizedBox(height: AppSpacing.xl + MediaQuery.of(context).padding.bottom),
         ],
       ),
+    );
+  }
+
+  void _navigateToLogin(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 }
