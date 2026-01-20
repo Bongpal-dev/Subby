@@ -149,4 +149,12 @@ class AppDatabase extends _$AppDatabase {
       ),
     );
   }
+
+  /// 로그아웃 시 사용자 데이터 삭제 (캐시 제외)
+  Future<void> clearUserData() async {
+    await delete(userSubscriptions).go();
+    await delete(subscriptionGroups).go();
+    await delete(pendingChanges).go();
+    await delete(paymentLogs).go();
+  }
 }

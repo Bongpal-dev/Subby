@@ -345,7 +345,7 @@ class AppDrawer extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('로그아웃'),
-        content: const Text('로그아웃하면 다른 기기에서 그룹에 접근할 수 없습니다.\n계속하시겠습니까?'),
+        content: const Text('로그아웃하면 이 기기의 데이터가 삭제됩니다.\n계속하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -355,9 +355,18 @@ class AppDrawer extends ConsumerWidget {
             onPressed: () async {
               Navigator.pop(context); // 다이얼로그 닫기
               Navigator.pop(context); // Drawer 닫기
+
+              // 로컬 데이터 삭제
+              final db = ref.read(databaseProvider);
+              await db.clearUserData();
+
+              // 로그아웃 및 익명 로그인
               final authDataSource = ref.read(firebaseAuthDataSourceProvider);
               await authDataSource.signOut();
               await authDataSource.signInAnonymously();
+
+              // 홈 화면 새로고침
+              ref.invalidate(homeViewModelProvider);
             },
             child: const Text('로그아웃', style: TextStyle(color: Colors.red)),
           ),
