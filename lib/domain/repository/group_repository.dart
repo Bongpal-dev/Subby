@@ -25,7 +25,4 @@ abstract class GroupRepository {
 
   /// 로컬에만 저장 (Cloud Function 응답 저장용)
   Future<void> saveToLocal(SubscriptionGroup group);
-
-  /// 원격에서 특정 사용자가 속한 그룹 목록 조회
-  Future<List<SubscriptionGroup>> fetchRemoteGroupsByUserId(String userId);
 }
