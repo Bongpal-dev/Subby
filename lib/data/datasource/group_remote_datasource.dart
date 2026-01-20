@@ -22,6 +22,7 @@ class GroupRemoteDataSource {
       'name': dto.name,
       'ownerId': dto.ownerId,
       'members': membersWithJoinedAt,
+      'memberUids': dto.members,
       'createdAt': dto.createdAt.millisecondsSinceEpoch,
       if (dto.updatedAt != null)
         'updatedAt': dto.updatedAt!.millisecondsSinceEpoch,
@@ -79,6 +80,7 @@ class GroupRemoteDataSource {
 
     final updates = <String, dynamic>{
       'members': membersMap,
+      'memberUids': FieldValue.arrayRemove([userId]),
     };
 
     if (data['ownerId'] == userId && membersMap.isNotEmpty) {
@@ -120,7 +122,19 @@ class GroupRemoteDataSource {
 
     await _groupsRef.doc(code).update({
       'members.$userId': {'joinedAt': now},
+      'memberUids': FieldValue.arrayUnion([userId]),
     });
+  }
+
+  Future<List<GroupDto>> fetchGroupsByUserId(String userId) async {
+    final snapshot = await _groupsRef
+        .where('memberUids', arrayContains: userId)
+        .get();
+
+    return snapshot.docs
+        .where((doc) => doc.data().isNotEmpty)
+        .map((doc) => _toResponse(doc.data()).toDto())
+        .toList();
   }
 
   GroupResponse _toResponse(Map<String, dynamic> data) {

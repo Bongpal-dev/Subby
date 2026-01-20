@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
@@ -131,12 +132,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       switch (result) {
         case GoogleSignInSuccess(:final isNewUser):
-          if (isNewUser) {
-            _showNoGroupsDialog();
-          } else {
-            // 기존 사용자 - 홈으로 돌아가면 그룹 자동 로드
-            Navigator.pop(context);
-          }
+          await _loadUserGroups(isNewUser);
         case GoogleSignInCancelled():
           // 사용자가 취소함
           break;
@@ -147,6 +143,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _loadUserGroups(bool isNewUser) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final groupRepository = ref.read(groupRepositoryProvider);
+    final groups = await groupRepository.fetchRemoteGroupsByUserId(user.uid);
+
+    if (!mounted) return;
+
+    if (groups.isEmpty) {
+      _showNoGroupsDialog();
+    } else {
+      // 그룹을 로컬에 저장
+      for (final group in groups) {
+        await groupRepository.saveToLocal(group);
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${groups.length}개의 그룹을 복구했습니다')),
+      );
+      Navigator.pop(context);
     }
   }
 

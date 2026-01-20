@@ -100,4 +100,10 @@ class GroupRepositoryImpl implements GroupRepository {
     final dto = group.toDto();
     await _localDataSource.insert(dto);
   }
+
+  @override
+  Future<List<SubscriptionGroup>> fetchRemoteGroupsByUserId(String userId) async {
+    final dtos = await _remoteDataSource.fetchGroupsByUserId(userId);
+    return dtos.map((dto) => dto.toDomain()).toList();
+  }
 }
