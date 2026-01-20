@@ -15,6 +15,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isLoading = false;
+  String? _loadingMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +77,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.g_mobiledata, size: 24),
-                  label: Text(_isLoading ? '로그인 중...' : 'Google로 계속하기'),
+                  label: Text(_isLoading ? (_loadingMessage ?? '로그인 중...') : 'Google로 계속하기'),
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                   ),
@@ -121,7 +122,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadingMessage = '로그인 중...';
+    });
 
     try {
       final authDataSource = ref.read(firebaseAuthDataSourceProvider);
@@ -130,22 +134,68 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
 
       switch (result) {
-        case GoogleSignInSuccess(:final isNewUser):
+        case GoogleSignInSuccess(:final userId, :final isNewUser):
           if (isNewUser) {
             _showNoGroupsDialog();
           } else {
-            // 기존 사용자 - 홈으로 돌아가면 그룹 자동 로드
-            Navigator.pop(context);
+            await _loadUserGroups(userId);
           }
         case GoogleSignInCancelled():
-          // 사용자가 취소함
           break;
         case GoogleSignInError(:final message):
           _showErrorSnackBar(message);
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _loadingMessage = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadUserGroups(String userId) async {
+    setState(() {
+      _loadingMessage = '그룹 불러오는 중...';
+    });
+
+    try {
+      final groupRepository = ref.read(groupRepositoryProvider);
+
+      final remoteGroups =
+          await groupRepository.fetchRemoteGroupsByUserId(userId);
+
+      if (remoteGroups.isEmpty) {
+        if (mounted) {
+          _showNoGroupsDialog();
+        }
+        return;
+      }
+
+      final localGroups = await groupRepository.getAll();
+      final localGroupCodes = localGroups.map((g) => g.code).toSet();
+
+      int loadedCount = 0;
+      for (final group in remoteGroups) {
+        if (!localGroupCodes.contains(group.code)) {
+          await groupRepository.saveToLocal(group);
+          loadedCount++;
+        }
+      }
+
+      if (mounted) {
+        if (loadedCount > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$loadedCount개의 그룹을 불러왔습니다')),
+          );
+        }
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('그룹 복구 실패: $e');
+        Navigator.pop(context);
       }
     }
   }

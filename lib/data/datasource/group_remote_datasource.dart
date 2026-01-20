@@ -123,6 +123,18 @@ class GroupRemoteDataSource {
     });
   }
 
+  /// 특정 사용자가 속한 그룹 목록 조회
+  Future<List<GroupDto>> fetchGroupsByUserId(String userId) async {
+    final snapshot = await _groupsRef
+        .where('members.$userId', isNotEqualTo: null)
+        .get();
+
+    return snapshot.docs
+        .where((doc) => doc.data().isNotEmpty)
+        .map((doc) => _toResponse(doc.data()).toDto())
+        .toList();
+  }
+
   GroupResponse _toResponse(Map<String, dynamic> data) {
     List<String> memberList = [];
 
