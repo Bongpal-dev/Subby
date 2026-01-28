@@ -1,14 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
-/// 커스텀 다이얼로그
+/// Figma 디자인 시스템 Dialog
 class AppDialog extends StatelessWidget {
-  final String title;
-  final Widget? content;
-  final List<AppDialogAction> actions;
-
   const AppDialog({
     super.key,
     required this.title,
@@ -16,44 +14,43 @@ class AppDialog extends StatelessWidget {
     required this.actions,
   });
 
+  final String title;
+  final Widget? content;
+  final List<AppDialogAction> actions;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark
-        ? const Color(0xFF2C2C2E).withValues(alpha: 0.95)
-        : Colors.white.withValues(alpha: 0.95);
-    final dividerColor = isDark
-        ? const Color(0xFF545458).withValues(alpha: 0.6)
-        : const Color(0xFF3C3C43).withValues(alpha: 0.2);
+    final colors = isDark ? AppColors.dark : AppColors.light;
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
       child: Dialog(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 44),
+        insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
         child: Container(
           decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
+            color: colors.bgSecondary.withValues(alpha: 0.95),
+            borderRadius: AppRadius.lgAll,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Title + Content
               Padding(
-                padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.lg),
+                padding: const EdgeInsets.all(AppSpacing.s6),
                 child: Column(
                   children: [
                     Text(
                       title,
-                      style: AppTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.w600,
+                      style: AppTypography.title.copyWith(
+                        color: colors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     if (content != null) ...[
-                      SizedBox(height: AppSpacing.md),
+                      const SizedBox(height: AppSpacing.s4),
                       content!,
                     ],
                   ],
@@ -61,7 +58,7 @@ class AppDialog extends StatelessWidget {
               ),
 
               // Divider
-              Container(height: 0.5, color: dividerColor),
+              AppDivider(color: colors.borderSecondary),
 
               // Actions
               IntrinsicHeight(
@@ -69,7 +66,7 @@ class AppDialog extends StatelessWidget {
                   children: actions.asMap().entries.map((entry) {
                     final index = entry.key;
                     final action = entry.value;
-                    
+
                     return Expanded(
                       child: Row(
                         children: [
@@ -77,7 +74,10 @@ class AppDialog extends StatelessWidget {
                             child: _ActionButton(action: action),
                           ),
                           if (index < actions.length - 1)
-                            Container(width: 0.5, color: dividerColor),
+                            SizedBox(
+                              width: 1,
+                              child: Container(color: colors.borderSecondary),
+                            ),
                         ],
                       ),
                     );
@@ -93,25 +93,26 @@ class AppDialog extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  final AppDialogAction action;
-
   const _ActionButton({required this.action});
+
+  final AppDialogAction action;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
     Color textColor;
     FontWeight fontWeight;
-    
+
     if (action.isDestructive) {
-      textColor = Colors.red;
+      textColor = colors.statusError;
       fontWeight = FontWeight.w400;
     } else if (action.isDefault) {
-      textColor = colorScheme.primary;
+      textColor = colors.textAccent;
       fontWeight = FontWeight.w600;
     } else {
-      textColor = colorScheme.primary;
+      textColor = colors.textPrimary;
       fontWeight = FontWeight.w400;
     }
 
@@ -119,13 +120,13 @@ class _ActionButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: action.onPressed,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.lgAll,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
           alignment: Alignment.center,
           child: Text(
             action.label,
-            style: AppTypography.titleLarge.copyWith(
+            style: AppTypography.bodyLarge.copyWith(
               color: textColor,
               fontWeight: fontWeight,
             ),
@@ -137,17 +138,17 @@ class _ActionButton extends StatelessWidget {
 }
 
 class AppDialogAction {
-  final String label;
-  final VoidCallback? onPressed;
-  final bool isDestructive;
-  final bool isDefault;
-
   const AppDialogAction({
     required this.label,
     this.onPressed,
     this.isDestructive = false,
     this.isDefault = false,
   });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final bool isDestructive;
+  final bool isDefault;
 }
 
 /// 커스텀 다이얼로그 표시 헬퍼
@@ -158,11 +159,14 @@ Future<T?> showAppDialog<T>({
   required List<AppDialogAction> actions,
   bool barrierDismissible = true,
 }) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final colors = isDark ? AppColors.dark : AppColors.light;
+
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: '',
-    barrierColor: Colors.black.withValues(alpha: 0.3),
+    barrierColor: colors.bgPrimary.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return AppDialog(
@@ -185,4 +189,32 @@ Future<T?> showAppDialog<T>({
       );
     },
   );
+}
+
+/// Figma 디자인 시스템 Divider
+class AppDivider extends StatelessWidget {
+  const AppDivider({
+    super.key,
+    this.color,
+    this.thickness = 1,
+    this.indent = 0,
+    this.endIndent = 0,
+  });
+
+  final Color? color;
+  final double thickness;
+  final double indent;
+  final double endIndent;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
+    return Container(
+      height: thickness,
+      margin: EdgeInsets.only(left: indent, right: endIndent),
+      color: color ?? colors.borderSecondary,
+    );
+  }
 }
