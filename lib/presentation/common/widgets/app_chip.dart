@@ -22,8 +22,9 @@ class AppChip extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
 
-    final backgroundColor = isSelected ? colors.tabSelectedBg : colors.tabUnselectedBg;
-    final textColor = isSelected ? colors.tabSelectedText : colors.tabUnselectedText;
+    final backgroundColor = isSelected ? colors.bgAccent : colors.bgSecondary;
+    final textColor = isSelected ? colors.textOnAccent : colors.textSecondary;
+    final borderColor = isSelected ? null : colors.borderSecondary;
 
     return Material(
       color: backgroundColor,
@@ -32,10 +33,15 @@ class AppChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppRadius.fullAll,
         child: Container(
+          height: 36,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.s4,
-            vertical: AppSpacing.s2,
           ),
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.fullAll,
+            border: borderColor != null ? Border.all(color: borderColor) : null,
+          ),
+          alignment: Alignment.center,
           child: Text(
             label,
             style: AppTypography.label.copyWith(color: textColor),

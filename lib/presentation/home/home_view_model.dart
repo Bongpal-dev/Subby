@@ -8,15 +8,19 @@ import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
 class HomeState {
   final List<UserSubscription> subscriptions;
+  final List<UserSubscription> filteredSubscriptions;
   final List<SubscriptionGroup> groups;
   final String? selectedGroupCode;
+  final String? selectedCategory; // null이면 '전체'
   final bool isLoading;
   final double totalKrw;
 
   const HomeState({
     this.subscriptions = const [],
+    this.filteredSubscriptions = const [],
     this.groups = const [],
     this.selectedGroupCode,
+    this.selectedCategory,
     this.isLoading = true,
     this.totalKrw = 0,
   });
@@ -27,18 +31,35 @@ class HomeState {
     return group?.effectiveName ?? '내 구독';
   }
 
+  /// 구독 목록에서 고유한 카테고리 목록 추출
+  List<String> get categories {
+    final cats = subscriptions
+        .map((s) => s.category)
+        .where((c) => c != null && c.isNotEmpty)
+        .cast<String>()
+        .toSet()
+        .toList();
+    cats.sort();
+    return cats;
+  }
+
   HomeState copyWith({
     List<UserSubscription>? subscriptions,
+    List<UserSubscription>? filteredSubscriptions,
     List<SubscriptionGroup>? groups,
     String? selectedGroupCode,
     bool clearSelectedGroup = false,
+    String? selectedCategory,
+    bool clearSelectedCategory = false,
     bool? isLoading,
     double? totalKrw,
   }) {
     return HomeState(
       subscriptions: subscriptions ?? this.subscriptions,
+      filteredSubscriptions: filteredSubscriptions ?? this.filteredSubscriptions,
       groups: groups ?? this.groups,
       selectedGroupCode: clearSelectedGroup ? null : (selectedGroupCode ?? this.selectedGroupCode),
+      selectedCategory: clearSelectedCategory ? null : (selectedCategory ?? this.selectedCategory),
       isLoading: isLoading ?? this.isLoading,
       totalKrw: totalKrw ?? this.totalKrw,
     );
@@ -105,10 +126,12 @@ class HomeViewModel extends Notifier<HomeState> {
   void _watchSubscriptions() {
     final watchUseCase = ref.read(watchSubscriptionsUseCaseProvider);
     watchUseCase().listen((subscriptions) {
-      final filtered = _filterByGroup(subscriptions);
-      final total = _calculateTotal(filtered);
+      final groupFiltered = _filterByGroup(subscriptions);
+      final categoryFiltered = _filterByCategory(groupFiltered);
+      final total = _calculateTotal(categoryFiltered);
       state = state.copyWith(
-        subscriptions: filtered,
+        subscriptions: groupFiltered,
+        filteredSubscriptions: categoryFiltered,
         isLoading: false,
         totalKrw: total,
       );
@@ -121,16 +144,40 @@ class HomeViewModel extends Notifier<HomeState> {
     return subscriptions.where((s) => s.groupCode == groupCode).toList();
   }
 
+  List<UserSubscription> _filterByCategory(List<UserSubscription> subscriptions) {
+    final category = state.selectedCategory;
+    if (category == null) return subscriptions;
+    return subscriptions.where((s) => s.category == category).toList();
+  }
+
   void selectGroup(String? groupCode) {
     state = state.copyWith(
       selectedGroupCode: groupCode,
       clearSelectedGroup: groupCode == null,
+      clearSelectedCategory: true, // 그룹 변경 시 카테고리 필터 초기화
     );
 
     // currentGroupCodeProvider 동기화
     ref.read(currentGroupCodeProvider.notifier).state = groupCode;
 
     _watchSubscriptions();
+  }
+
+  void selectCategory(String? category) {
+    state = state.copyWith(
+      selectedCategory: category,
+      clearSelectedCategory: category == null,
+    );
+    _applyFilters();
+  }
+
+  void _applyFilters() {
+    final categoryFiltered = _filterByCategory(state.subscriptions);
+    final total = _calculateTotal(categoryFiltered);
+    state = state.copyWith(
+      filteredSubscriptions: categoryFiltered,
+      totalKrw: total,
+    );
   }
 
   double _calculateTotal(List<UserSubscription> subscriptions) {

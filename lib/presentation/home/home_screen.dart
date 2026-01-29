@@ -56,6 +56,16 @@ class HomeScreen extends ConsumerWidget {
           // 상단 헤더 (그룹이 있을 때만)
           if (hasGroup) _HeaderCard(total: state.totalKrw),
 
+          // 카테고리 필터 (그룹이 있고, 구독이 있을 때만)
+          if (hasGroup && state.subscriptions.isNotEmpty && state.categories.isNotEmpty)
+            _FilterSection(
+              categories: state.categories,
+              selectedCategory: state.selectedCategory,
+              onCategorySelected: (category) {
+                ref.read(homeViewModelProvider.notifier).selectCategory(category);
+              },
+            ),
+
           // 구독 목록
           Expanded(
             child: state.isLoading
@@ -65,7 +75,7 @@ class HomeScreen extends ConsumerWidget {
                     : state.subscriptions.isEmpty
                         ? const _EmptyState()
                         : _SubscriptionList(
-                            subscriptions: state.subscriptions,
+                            subscriptions: state.filteredSubscriptions,
                             exchangeRate: exchangeRate,
                             onTap: (sub) => _navigateToEdit(context, ref, sub.id),
                             onDelete: (sub) => _onDelete(context, ref, sub),
@@ -189,6 +199,48 @@ class _HeaderCard extends StatelessWidget {
             style: AppTypography.display.copyWith(color: colors.textOnAccent),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FilterSection extends StatelessWidget {
+  final List<String> categories;
+  final String? selectedCategory;
+  final ValueChanged<String?> onCategorySelected;
+
+  const _FilterSection({
+    required this.categories,
+    required this.selectedCategory,
+    required this.onCategorySelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 52,
+      margin: const EdgeInsets.only(top: AppSpacing.s4),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+        itemCount: categories.length + 1, // +1 for "전체"
+        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.s2),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            // "전체" 칩
+            return AppChip(
+              label: '전체',
+              isSelected: selectedCategory == null,
+              onTap: () => onCategorySelected(null),
+            );
+          }
+          final category = categories[index - 1];
+          return AppChip(
+            label: category,
+            isSelected: selectedCategory == category,
+            onTap: () => onCategorySelected(category),
+          );
+        },
       ),
     );
   }
