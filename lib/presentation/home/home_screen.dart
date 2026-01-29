@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/exchange_rate.dart';
 import 'package:subby/domain/model/user_subscription.dart';
-import 'package:subby/presentation/auth/login_screen.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
@@ -23,9 +21,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
     final exchangeRate = ref.watch(exchangeRateProvider).valueOrNull;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
-
     final hasGroup = state.groups.isNotEmpty;
 
     return Scaffold(
@@ -51,6 +46,11 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       drawer: const AppDrawer(),
+      floatingActionButton: hasGroup
+          ? AppFab(
+              onPressed: () => _navigateToAdd(context, ref),
+            )
+          : null,
       body: Column(
         children: [
           // 상단 헤더 (그룹이 있을 때만)
@@ -81,33 +81,6 @@ class HomeScreen extends ConsumerWidget {
                             onDelete: (sub) => _onDelete(context, ref, sub),
                           ),
           ),
-
-          // 하단 추가 버튼 (그룹이 있을 때만 표시)
-          if (state.groups.isNotEmpty)
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.s4),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => _navigateToAdd(context, ref),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: colors.buttonPrimaryBg,
-                      foregroundColor: colors.buttonPrimaryText,
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSpacing.s3),
-                      ),
-                    ),
-                    child: Text(
-                      '+ 구독 추가하기',
-                      style: AppTypography.title,
-                    ),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -286,112 +259,60 @@ class _NoGroupState extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
-    final isAnonymous = ref.watch(isAnonymousProvider).valueOrNull ?? true;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       child: Column(
         children: [
-          const Spacer(flex: 3),
+          const Spacer(flex: 1),
 
           // 아이콘
           Icon(
-            Icons.subscriptions_outlined,
-            size: 80,
-            color: colors.bgAccent.withValues(alpha: 0.6),
+            Icons.cancel_outlined,
+            size: 24,
+            color: colors.textSecondary,
           ),
           const SizedBox(height: AppSpacing.s6),
 
           // 메인 텍스트
           Text(
-            '구독을 한눈에 관리하세요',
-            style: AppTypography.headline.copyWith(
-              color: colors.textPrimary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSpacing.s2),
-          Text(
-            '새 그룹을 만들거나 초대 코드로 참여해보세요',
-            style: AppTypography.bodyLarge.copyWith(
+            '참여중인 그룹이 없어요',
+            style: AppTypography.title.copyWith(
               color: colors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: AppSpacing.s1),
+          Text(
+            '새 그룹을 만들거나 초대 코드로 참여하세요',
+            style: AppTypography.body.copyWith(
+              color: colors.textTertiary,
+            ),
+            textAlign: TextAlign.center,
+          ),
 
-          const SizedBox(height: AppSpacing.s10),
+          const SizedBox(height: AppSpacing.s6),
 
           // 새 그룹 만들기 버튼
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => showCreateGroupFlow(context, ref),
-              icon: const Icon(Icons.add),
-              label: const Text('새 그룹 만들기'),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-              ),
-            ),
+          AppButton(
+            label: '+ 새 그룹 만들기',
+            onPressed: () => showCreateGroupFlow(context, ref),
+            type: AppButtonType.primary,
+            isExpanded: true,
           ),
           const SizedBox(height: AppSpacing.s3),
 
           // 초대 코드로 참여 버튼
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => showJoinGroupFlow(context, ref),
-              icon: const Icon(Icons.link),
-              label: const Text('초대 코드로 참여'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-              ),
-            ),
+          AppButton(
+            label: '초대 코드로 참여',
+            onPressed: () => showJoinGroupFlow(context, ref),
+            type: AppButtonType.outline,
+            isExpanded: true,
           ),
 
-          const Spacer(flex: 4),
-
-          // 익명 상태일 때만 로그인 유도 표시
-          if (isAnonymous) ...[
-            // 구분선
-            Row(
-              children: [
-                Expanded(child: Divider(color: colors.textTertiary.withValues(alpha: 0.3))),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
-                  child: Text(
-                    '이미 사용 중이셨나요?',
-                    style: AppTypography.caption.copyWith(
-                      color: colors.textTertiary,
-                    ),
-                  ),
-                ),
-                Expanded(child: Divider(color: colors.textTertiary.withValues(alpha: 0.3))),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.s3),
-
-            // 로그인 링크
-            TextButton(
-              onPressed: () => _navigateToLogin(context),
-              child: Text(
-                '로그인하여 내 그룹 찾기',
-                style: AppTypography.bodyLarge.copyWith(
-                  color: colors.textAccent,
-                ),
-              ),
-            ),
-          ],
-
-          SizedBox(height: AppSpacing.s6 + MediaQuery.of(context).padding.bottom),
+          const Spacer(flex: 1),
         ],
       ),
-    );
-  }
-
-  void _navigateToLogin(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 }
