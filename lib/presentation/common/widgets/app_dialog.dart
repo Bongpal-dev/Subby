@@ -6,15 +6,22 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 디자인 시스템 Dialog
+/// - 배경: bgSecondary, 라운드: 16dp
+/// - 패딩: 24dp, gap: 20dp
+/// - 버튼: 높이 44dp, 라운드 12dp, gap 12dp
 class AppDialog extends StatelessWidget {
   const AppDialog({
     super.key,
+    this.icon,
     required this.title,
+    this.description,
     this.content,
     required this.actions,
   });
 
+  final Widget? icon;
   final String title;
+  final String? description;
   final Widget? content;
   final List<AppDialogAction> actions;
 
@@ -31,58 +38,70 @@ class AppDialog extends StatelessWidget {
         insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
         child: Container(
           decoration: BoxDecoration(
-            color: colors.bgSecondary.withValues(alpha: 0.95),
+            color: colors.bgSecondary,
             borderRadius: AppRadius.lgAll,
           ),
+          padding: const EdgeInsets.all(AppSpacing.s6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Title + Content
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.s6),
-                child: Column(
-                  children: [
+              // Icon (optional)
+              if (icon != null) ...[
+                icon!,
+                const SizedBox(height: AppSpacing.s5),
+              ],
+
+              // TextGroup: Title + Description
+              Column(
+                children: [
+                  Text(
+                    title,
+                    style: AppTypography.title.copyWith(
+                      color: colors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (description != null) ...[
+                    const SizedBox(height: AppSpacing.s2),
                     Text(
-                      title,
-                      style: AppTypography.title.copyWith(
-                        color: colors.textPrimary,
+                      description!,
+                      style: AppTypography.body.copyWith(
+                        color: colors.textSecondary,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    if (content != null) ...[
-                      const SizedBox(height: AppSpacing.s4),
-                      content!,
-                    ],
                   ],
-                ),
+                ],
               ),
 
-              // Divider
-              AppDivider(color: colors.borderSecondary),
+              // Custom content (optional)
+              if (content != null) ...[
+                const SizedBox(height: AppSpacing.s5),
+                content!,
+              ],
 
-              // Actions
-              IntrinsicHeight(
-                child: Row(
-                  children: actions.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final action = entry.value;
+              // ButtonRow
+              const SizedBox(height: AppSpacing.s5),
+              Row(
+                children: actions.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final action = entry.value;
 
-                    return Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _ActionButton(action: action),
+                  return Expanded(
+                    child: Row(
+                      children: [
+                        if (index > 0)
+                          const SizedBox(width: AppSpacing.s3),
+                        Expanded(
+                          child: _DialogButton(
+                            action: action,
+                            isPrimary: action.isPrimary,
                           ),
-                          if (index < actions.length - 1)
-                            SizedBox(
-                              width: 1,
-                              child: Container(color: colors.borderSecondary),
-                            ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
               ),
             ],
           ),
@@ -92,43 +111,45 @@ class AppDialog extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.action});
+class _DialogButton extends StatelessWidget {
+  const _DialogButton({
+    required this.action,
+    required this.isPrimary,
+  });
 
   final AppDialogAction action;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
 
-    Color textColor;
-    FontWeight fontWeight;
-
-    if (action.isDestructive) {
-      textColor = colors.statusError;
-      fontWeight = FontWeight.w400;
-    } else if (action.isDefault) {
-      textColor = colors.textAccent;
-      fontWeight = FontWeight.w600;
-    } else {
-      textColor = colors.textPrimary;
-      fontWeight = FontWeight.w400;
-    }
+    final bgColor = isPrimary ? colors.buttonPrimaryBg : Colors.transparent;
+    final textColor = action.isDestructive
+        ? colors.statusError
+        : isPrimary
+            ? colors.buttonPrimaryText
+            : colors.buttonSecondaryText;
+    final borderColor = isPrimary ? Colors.transparent : colors.borderPrimary;
 
     return Material(
-      color: Colors.transparent,
+      color: bgColor,
+      borderRadius: AppRadius.mdAll,
       child: InkWell(
         onTap: action.onPressed,
-        borderRadius: AppRadius.lgAll,
+        borderRadius: AppRadius.mdAll,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+          height: 44,
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.mdAll,
+            border: Border.all(color: borderColor),
+          ),
           alignment: Alignment.center,
           child: Text(
             action.label,
-            style: AppTypography.bodyLarge.copyWith(
+            style: AppTypography.labelBold.copyWith(
               color: textColor,
-              fontWeight: fontWeight,
             ),
           ),
         ),
@@ -142,19 +163,21 @@ class AppDialogAction {
     required this.label,
     this.onPressed,
     this.isDestructive = false,
-    this.isDefault = false,
+    this.isPrimary = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool isDestructive;
-  final bool isDefault;
+  final bool isPrimary;
 }
 
 /// 커스텀 다이얼로그 표시 헬퍼
 Future<T?> showAppDialog<T>({
   required BuildContext context,
+  Widget? icon,
   required String title,
+  String? description,
   Widget? content,
   required List<AppDialogAction> actions,
   bool barrierDismissible = true,
@@ -170,7 +193,9 @@ Future<T?> showAppDialog<T>({
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return AppDialog(
+        icon: icon,
         title: title,
+        description: description,
         content: content,
         actions: actions,
       );
