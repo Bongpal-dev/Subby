@@ -106,4 +106,11 @@ class GroupRepositoryImpl implements GroupRepository {
     final dtos = await _remoteDataSource.fetchGroupsByUserId(userId);
     return dtos.map((dto) => dto.toDomain()).toList();
   }
+
+  @override
+  Stream<List<SubscriptionGroup>> watchRemoteGroupsByUserId(String userId) {
+    return _remoteDataSource.watchGroupsByUserId(userId).map(
+          (dtos) => dtos.map((dto) => dto.toDomain()).toList(),
+        );
+  }
 }

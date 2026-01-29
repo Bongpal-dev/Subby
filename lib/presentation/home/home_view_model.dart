@@ -67,25 +67,19 @@ class HomeState {
 }
 
 class HomeViewModel extends Notifier<HomeState> {
-  bool _hasSyncedGroups = false;
+  StreamSubscription<List<SubscriptionGroup>>? _remoteGroupsSubscription;
 
   @override
   HomeState build() {
     _watchGroups();
     _watchSubscriptions();
+    _watchRemoteGroups();
     return const HomeState();
   }
 
   void _watchGroups() {
     final groupRepository = ref.read(groupRepositoryProvider);
-    groupRepository.watchAll().listen((groups) async {
-      // 첫 로드 시에만 Firestore에서 동기화
-      if (!_hasSyncedGroups && groups.isNotEmpty) {
-        _hasSyncedGroups = true;
-        await _syncGroupsFromRemote(groups);
-        return; // 동기화 후 watchAll이 다시 트리거됨
-      }
-
+    groupRepository.watchAll().listen((groups) {
       // 선택된 그룹이 삭제되었으면 다른 그룹으로 전환
       final selectedExists = groups.any((g) => g.code == state.selectedGroupCode);
       final newGroupCode = selectedExists ? state.selectedGroupCode : groups.firstOrNull?.code;
@@ -104,23 +98,33 @@ class HomeViewModel extends Notifier<HomeState> {
     });
   }
 
-  Future<void> _syncGroupsFromRemote(List<SubscriptionGroup> localGroups) async {
+  /// Firestore 실시간 감시 - 그룹 멤버 변경 등 반영
+  void _watchRemoteGroups() {
+    final authDataSource = ref.read(firebaseAuthDataSourceProvider);
+    final userId = authDataSource.currentUserId;
+    if (userId == null) return;
+
     final groupRepository = ref.read(groupRepositoryProvider);
 
-    for (final localGroup in localGroups) {
-      try {
-        final remoteGroup = await groupRepository.fetchRemoteByCode(localGroup.code);
-        if (remoteGroup != null) {
-          // displayName은 로컬 값 유지
+    _remoteGroupsSubscription?.cancel();
+    _remoteGroupsSubscription = groupRepository
+        .watchRemoteGroupsByUserId(userId)
+        .listen((remoteGroups) async {
+      // 원격 그룹 변경 시 로컬 DB 업데이트
+      final localGroups = await groupRepository.getAll();
+
+      for (final remoteGroup in remoteGroups) {
+        final localGroup = localGroups.where((g) => g.code == remoteGroup.code).firstOrNull;
+
+        if (localGroup != null) {
+          // displayName은 로컬 값 유지, 나머지는 원격 값으로 업데이트
           final updatedGroup = remoteGroup.copyWith(
             displayName: localGroup.displayName,
           );
           await groupRepository.update(updatedGroup);
         }
-      } catch (_) {
-        // 네트워크 오류 등 무시
       }
-    }
+    });
   }
 
   void _watchSubscriptions() {

@@ -144,6 +144,17 @@ class GroupRemoteDataSource {
         .toList();
   }
 
+  /// 사용자의 모든 그룹 실시간 감시
+  Stream<List<GroupDto>> watchGroupsByUserId(String userId) {
+    return _groupsRef
+        .where('memberUids', arrayContains: userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .where((doc) => doc.data().isNotEmpty)
+            .map((doc) => _toResponse(doc.data()).toDto())
+            .toList());
+  }
+
   GroupResponse _toResponse(Map<String, dynamic> data) {
     List<String> memberList = [];
 

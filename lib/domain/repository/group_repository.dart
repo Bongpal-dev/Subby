@@ -28,4 +28,7 @@ abstract class GroupRepository {
 
   /// 사용자가 속한 모든 그룹 조회 (원격)
   Future<List<SubscriptionGroup>> fetchRemoteGroupsByUserId(String userId);
+
+  /// 사용자가 속한 모든 그룹 실시간 감시 (원격)
+  Stream<List<SubscriptionGroup>> watchRemoteGroupsByUserId(String userId);
 }
