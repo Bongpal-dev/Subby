@@ -325,24 +325,34 @@ class _EmptyState extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
 
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.subscriptions_outlined,
-            size: 64,
-            color: colors.bgAccent.withValues(alpha: 0.5),
+          // 아이콘
+          SvgPicture.asset(
+            'assets/icons/ic_dot_mark.svg',
+            width: 56,
+            height: 56,
+            colorFilter: ColorFilter.mode(
+              colors.textSecondary,
+              BlendMode.srcIn,
+            ),
           ),
-          const SizedBox(height: AppSpacing.s4),
+          const SizedBox(height: AppSpacing.s6),
+
+          // 텍스트 그룹
           Text(
-            '아직 등록된 구독이 없습니다',
-            style: AppTypography.title.copyWith(color: colors.textPrimary),
+            '아직 추가된 서비스가 없어요',
+            style: AppTypography.title.copyWith(color: colors.textSecondary),
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppSpacing.s2),
+          const SizedBox(height: AppSpacing.s1),
           Text(
-            '아래 버튼을 눌러 첫 구독을 추가해보세요!',
-            style: AppTypography.caption.copyWith(color: colors.textTertiary),
+            '아래 버튼을 눌러 구독중인 서비스를 추가해보세요',
+            style: AppTypography.body.copyWith(color: colors.textTertiary),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -362,13 +372,17 @@ class _NoGroupState extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       child: Column(
         children: [
-          const Spacer(flex: 1),
+          const Spacer(flex: 2),
 
           // 아이콘
-          Icon(
-            Icons.cancel_outlined,
-            size: 24,
-            color: colors.textSecondary,
+          SvgPicture.asset(
+            'assets/icons/ic_xmark.svg',
+            width: 56,
+            height: 56,
+            colorFilter: ColorFilter.mode(
+              colors.textSecondary,
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(height: AppSpacing.s6),
 
@@ -408,7 +422,7 @@ class _NoGroupState extends ConsumerWidget {
             isExpanded: true,
           ),
 
-          const Spacer(flex: 1),
+          const Spacer(flex: 3),
         ],
       ),
     );
