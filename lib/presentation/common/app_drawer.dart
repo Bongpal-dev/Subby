@@ -28,14 +28,25 @@ class AppDrawer extends ConsumerWidget {
     final colors = isDark ? AppColors.dark : AppColors.light;
     final isAnonymous = ref.watch(isAnonymousProvider).valueOrNull ?? true;
 
+    // 키보드가 올라와도 Drawer 레이아웃이 변하지 않도록 높이 고정
+    // viewPadding은 키보드 상태와 관계없이 시스템 UI 영역 반환
+    final mediaQuery = MediaQuery.of(context);
+    final drawerHeight = mediaQuery.size.height - mediaQuery.viewPadding.top;
+    final bottomPadding = mediaQuery.viewPadding.bottom;
+
     return Drawer(
       width: 300,
       backgroundColor: colors.bgSecondary,
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.s4,
-            vertical: AppSpacing.s6,
+        bottom: false,
+        child: SizedBox(
+          height: drawerHeight,
+          child: Padding(
+          padding: EdgeInsets.only(
+            left: AppSpacing.s4,
+            right: AppSpacing.s4,
+            top: AppSpacing.s4,
+            bottom: AppSpacing.s4 + bottomPadding,
           ),
           child: Column(
             children: [
@@ -44,9 +55,9 @@ class AppDrawer extends ConsumerWidget {
                 onEditNicknameTap: () => _showEditNicknameDialog(context, ref),
               ),
 
-              const SizedBox(height: AppSpacing.s6),
+              const SizedBox(height: AppSpacing.s4),
               const AppDivider(),
-              const SizedBox(height: AppSpacing.s6),
+              const SizedBox(height: AppSpacing.s4),
 
               // GroupSection (scrollable)
               Expanded(
@@ -67,9 +78,9 @@ class AppDrawer extends ConsumerWidget {
               ),
 
               const AppDivider(),
-              const SizedBox(height: AppSpacing.s6),
+              const SizedBox(height: AppSpacing.s4),
 
-              // GroupAddItems
+              // GroupAddItems Section
               _SvgMenuItem(
                 iconPath: 'assets/icons/ic_plus_small.svg',
                 label: '새 그룹 만들기',
@@ -87,11 +98,11 @@ class AppDrawer extends ConsumerWidget {
                 onTap: () => showJoinGroupFlow(context, ref),
               ),
 
-              const SizedBox(height: AppSpacing.s6),
+              const SizedBox(height: AppSpacing.s4),
               const AppDivider(),
-              const SizedBox(height: AppSpacing.s6),
+              const SizedBox(height: AppSpacing.s4),
 
-              // MenuItems
+              // MenuItems Section
               if (!isAnonymous)
                 _MenuItem(
                   icon: Icons.logout,
@@ -112,6 +123,7 @@ class AppDrawer extends ConsumerWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -298,8 +310,8 @@ class _ProfileSection extends ConsumerWidget {
           onTap: onEditNicknameTap,
           child: SvgPicture.asset(
             'assets/icons/ic_edit.svg',
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
             colorFilter: ColorFilter.mode(
               colors.iconPrimary,
               BlendMode.srcIn,
@@ -463,7 +475,7 @@ class _GroupItem extends StatelessWidget {
               // 더보기 메뉴
               PopupMenuButton<String>(
                 icon: SvgPicture.asset(
-                  'assets/icons/ic_more.svg',
+                  'assets/icons/ic_more_small.svg',
                   width: 24,
                   height: 24,
                   colorFilter: ColorFilter.mode(
