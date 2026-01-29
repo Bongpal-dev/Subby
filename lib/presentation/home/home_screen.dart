@@ -541,8 +541,12 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             alignment: Alignment.center,
                             child: SvgPicture.asset(
                               'assets/icons/subby_place_holder.svg',
-                              width: 20,
-                              height: 20,
+                              width: 28,
+                              height: 28,
+                              colorFilter: ColorFilter.mode(
+                                colors.buttonDisableText,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 10),
