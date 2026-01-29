@@ -11,6 +11,7 @@ import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/settings/settings_screen.dart';
 import 'package:subby/core/utils/nickname_generator.dart';
+import 'package:subby/presentation/common/group_actions.dart';
 
 /// Figma Drawer 디자인
 /// - 너비: 300dp
@@ -68,12 +69,22 @@ class AppDrawer extends ConsumerWidget {
               const AppDivider(),
               const SizedBox(height: AppSpacing.s6),
 
-              // GroupAddItem
-              _MenuItem(
-                icon: Icons.add,
-                label: '그룹 추가',
+              // GroupAddItems
+              _SvgMenuItem(
+                iconPath: 'assets/icons/ic_plus_small.svg',
+                label: '새 그룹 만들기',
+                iconColor: colors.iconSecondary,
                 labelColor: colors.textSecondary,
-                onTap: () => _showCreateGroupDialog(context, ref),
+                onTap: () => showCreateGroupFlow(context, ref),
+              ),
+              const SizedBox(height: AppSpacing.s2),
+              _SvgMenuItem(
+                iconPath: 'assets/icons/ic_mail.svg',
+                iconSize: 20,
+                label: '그룹 참여하기',
+                iconColor: colors.iconSecondary,
+                labelColor: colors.textSecondary,
+                onTap: () => showJoinGroupFlow(context, ref),
               ),
 
               const SizedBox(height: AppSpacing.s6),
@@ -164,39 +175,6 @@ class AppDrawer extends ConsumerWidget {
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
-  }
-
-  Future<void> _showCreateGroupDialog(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final createGroup = ref.read(createGroupUseCaseProvider);
-    final homeViewModel = ref.read(homeViewModelProvider.notifier);
-
-    Navigator.pop(context);
-
-    final groupName = await showAppTextInputDialog(
-      context: context,
-      title: '새 그룹 만들기',
-      hint: '예: 가족 구독, 친구들',
-      maxLength: 10,
-      confirmLabel: '만들기',
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return '그룹 이름을 입력해주세요';
-        }
-        return null;
-      },
-    );
-
-    if (groupName != null) {
-      try {
-        final groupCode = await createGroup(groupName);
-        homeViewModel.selectGroup(groupCode);
-      } on Exception catch (e) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
-        );
-      }
-    }
   }
 
   Future<void> _showRenameGroupDialog(
@@ -531,6 +509,72 @@ class _GroupItem extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// SvgMenuItem: SVG 아이콘을 사용하는 메뉴 아이템
+class _SvgMenuItem extends StatelessWidget {
+  const _SvgMenuItem({
+    required this.iconPath,
+    required this.label,
+    this.iconSize = 24,
+    this.iconColor,
+    this.labelColor,
+    required this.onTap,
+  });
+
+  final String iconPath;
+  final String label;
+  final double iconSize;
+  final Color? iconColor;
+  final Color? labelColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+    final textColor = labelColor ?? colors.textPrimary;
+    final svgColor = iconColor ?? colors.iconPrimary;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: AppRadius.smAll,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.smAll,
+        child: Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: Center(
+                  child: SvgPicture.asset(
+                    iconPath,
+                    width: iconSize,
+                    height: iconSize,
+                    colorFilter: ColorFilter.mode(
+                      svgColor,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s3),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTypography.body.copyWith(color: textColor),
+                ),
               ),
             ],
           ),
