@@ -822,6 +822,9 @@ class _LoginDialogState extends State<_LoginDialog> {
     setState(() => _isLoading = true);
 
     try {
+      // 로그인 전 익명 사용자 ID 저장 (그룹 멤버 교체용)
+      final previousUserId = FirebaseAuth.instance.currentUser?.uid;
+
       final authDataSource = widget.ref.read(firebaseAuthDataSourceProvider);
       final result = await authDataSource.signInWithGoogle();
 
@@ -829,7 +832,7 @@ class _LoginDialogState extends State<_LoginDialog> {
 
       switch (result) {
         case GoogleSignInSuccess(:final isNewUser):
-          await _loadUserGroups(isNewUser);
+          await _loadUserGroups(isNewUser, previousUserId);
         case GoogleSignInCancelled():
           setState(() => _isLoading = false);
         case GoogleSignInError(:final message):
@@ -844,27 +847,65 @@ class _LoginDialogState extends State<_LoginDialog> {
     }
   }
 
-  Future<void> _loadUserGroups(bool isNewUser) async {
+  Future<void> _loadUserGroups(bool isNewUser, String? previousUserId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     final groupRepository = widget.ref.read(groupRepositoryProvider);
-    final groups = await groupRepository.fetchRemoteGroupsByUserId(user.uid);
+
+    // 1. 로컬에 있던 그룹들의 익명 ID를 새 ID로 교체
+    final localGroups = await groupRepository.getAll();
+    int linkedCount = 0;
+
+    for (final group in localGroups) {
+      // 기존 익명 ID 제거하고 새 ID 추가
+      final updatedMembers = group.members
+          .where((id) => id != previousUserId)
+          .toList();
+
+      if (!updatedMembers.contains(user.uid)) {
+        updatedMembers.add(user.uid);
+      }
+
+      final updatedGroup = group.copyWith(members: updatedMembers);
+      await groupRepository.update(updatedGroup);
+      await groupRepository.syncUpdate(updatedGroup);
+      linkedCount++;
+    }
+
+    // 2. 원격에서 사용자 그룹 가져오기 (다른 기기에서 만든 그룹)
+    final remoteGroups = await groupRepository.fetchRemoteGroupsByUserId(user.uid);
+    int restoredCount = 0;
+
+    for (final remoteGroup in remoteGroups) {
+      // 이미 로컬에 있는지 확인
+      final existsLocally = localGroups.any((g) => g.code == remoteGroup.code);
+      if (!existsLocally) {
+        await groupRepository.saveToLocal(remoteGroup);
+        restoredCount++;
+      }
+    }
 
     if (!mounted) return;
 
     Navigator.pop(context); // 다이얼로그 닫기
 
-    if (groups.isEmpty) {
+    // 결과 메시지 표시
+    if (linkedCount > 0 && restoredCount > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인되었습니다')),
+        SnackBar(content: Text('$linkedCount개 그룹 연결, $restoredCount개 그룹 복구됨')),
+      );
+    } else if (linkedCount > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$linkedCount개 그룹이 계정에 연결되었습니다')),
+      );
+    } else if (restoredCount > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$restoredCount개의 그룹을 복구했습니다')),
       );
     } else {
-      for (final group in groups) {
-        await groupRepository.saveToLocal(group);
-      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${groups.length}개의 그룹을 복구했습니다')),
+        const SnackBar(content: Text('로그인되었습니다')),
       );
     }
 
