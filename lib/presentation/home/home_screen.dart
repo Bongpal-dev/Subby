@@ -21,27 +21,45 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
     final exchangeRate = ref.watch(exchangeRateProvider).valueOrNull;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
     final hasGroup = state.groups.isNotEmpty;
 
     return Scaffold(
+      // Figma: AppBar with bgAccent background
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        title: hasGroup ? Text(state.currentGroupName) : null,
+        backgroundColor: hasGroup ? colors.bgAccent : null,
+        foregroundColor: hasGroup ? colors.textOnAccent : null,
+        toolbarHeight: 56,
+        title: hasGroup
+            ? Text(
+                state.currentGroupName,
+                style: AppTypography.title.copyWith(color: colors.textOnAccent),
+              )
+            : null,
+        centerTitle: true,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: Icon(
+              Icons.menu,
+              color: hasGroup ? colors.iconOnAccent : colors.iconPrimary,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         actions: [
           if (hasGroup)
-            TextButton(
+            IconButton(
+              icon: Icon(
+                Icons.person_add_outlined,
+                color: colors.iconOnAccent,
+              ),
               onPressed: () => _onInvite(
                 context,
                 state.currentGroupName,
                 state.selectedGroupCode,
               ),
-              child: const Text('초대하기'),
             ),
         ],
       ),
@@ -51,38 +69,19 @@ class HomeScreen extends ConsumerWidget {
               onPressed: () => _navigateToAdd(context, ref),
             )
           : null,
-      body: Column(
-        children: [
-          // 상단 헤더 (그룹이 있을 때만)
-          if (hasGroup) _HeaderCard(total: state.totalKrw),
-
-          // 카테고리 필터 (그룹이 있고, 구독이 있을 때만)
-          if (hasGroup && state.subscriptions.isNotEmpty && state.categories.isNotEmpty)
-            _FilterSection(
-              categories: state.categories,
-              selectedCategory: state.selectedCategory,
-              onCategorySelected: (category) {
-                ref.read(homeViewModelProvider.notifier).selectCategory(category);
-              },
-            ),
-
-          // 구독 목록
-          Expanded(
-            child: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : state.groups.isEmpty
-                    ? const _NoGroupState()
-                    : state.subscriptions.isEmpty
-                        ? const _EmptyState()
-                        : _SubscriptionList(
-                            subscriptions: state.filteredSubscriptions,
-                            exchangeRate: exchangeRate,
-                            onTap: (sub) => _navigateToEdit(context, ref, sub.id),
-                            onDelete: (sub) => _onDelete(context, ref, sub),
-                          ),
-          ),
-        ],
-      ),
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : state.groups.isEmpty
+              ? const _NoGroupState()
+              : _HomeContent(
+                  state: state,
+                  exchangeRate: exchangeRate,
+                  onCategorySelected: (category) {
+                    ref.read(homeViewModelProvider.notifier).selectCategory(category);
+                  },
+                  onTap: (sub) => _navigateToEdit(context, ref, sub.id),
+                  onDelete: (sub) => _onDelete(context, ref, sub),
+                ),
     );
   }
 
@@ -139,6 +138,62 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+/// Figma HomeContent - 스크롤 가능한 메인 콘텐츠
+class _HomeContent extends StatelessWidget {
+  final HomeState state;
+  final ExchangeRate? exchangeRate;
+  final ValueChanged<String?> onCategorySelected;
+  final ValueChanged<UserSubscription> onTap;
+  final ValueChanged<UserSubscription> onDelete;
+
+  const _HomeContent({
+    required this.state,
+    required this.exchangeRate,
+    required this.onCategorySelected,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      // Figma: padding-bottom 80px for FAB space
+      padding: const EdgeInsets.only(
+        top: AppSpacing.s4,
+        bottom: 80,
+      ),
+      child: Column(
+        children: [
+          // SummarySection
+          _HeaderCard(total: state.totalKrw),
+
+          // FilterSection (구독이 있을 때만)
+          if (state.subscriptions.isNotEmpty && state.categories.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.s4),
+            _FilterSection(
+              categories: state.categories,
+              selectedCategory: state.selectedCategory,
+              onCategorySelected: onCategorySelected,
+            ),
+          ],
+
+          // SubscriptionSection
+          const SizedBox(height: AppSpacing.s4),
+          if (state.subscriptions.isEmpty)
+            const _EmptyState()
+          else
+            _SubscriptionSection(
+              subscriptions: state.filteredSubscriptions,
+              exchangeRate: exchangeRate,
+              onTap: onTap,
+              onDelete: onDelete,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _HeaderCard extends StatelessWidget {
   final double total;
 
@@ -150,33 +205,37 @@ class _HeaderCard extends StatelessWidget {
     final colors = isDark ? AppColors.dark : AppColors.light;
     final formatted = CurrencyFormatter.formatKrw(total.toInt());
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.s6,
-        horizontal: AppSpacing.s4,
-      ),
-      decoration: BoxDecoration(
-        color: colors.bgAccent,
-        borderRadius: BorderRadius.circular(AppSpacing.s4),
-      ),
-      child: Column(
-        children: [
-          Text(
-            '이번 달 예상 구독료',
-            style: AppTypography.body.copyWith(color: colors.textOnAccent),
-          ),
-          Text(
-            '\u20a9$formatted',
-            style: AppTypography.display.copyWith(color: colors.textOnAccent),
-          ),
-        ],
+    // Figma: SummaryCard
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.s6,
+          horizontal: AppSpacing.s4,
+        ),
+        decoration: BoxDecoration(
+          color: colors.bgAccent,
+          borderRadius: BorderRadius.circular(AppSpacing.s4),
+        ),
+        child: Column(
+          children: [
+            Text(
+              '이번 달 예상 구독료',
+              style: AppTypography.body.copyWith(color: colors.textOnAccent),
+            ),
+            Text(
+              '\u20a9$formatted',
+              style: AppTypography.display.copyWith(color: colors.textOnAccent),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
+/// Figma: FilterSection - 가로 스크롤 칩
 class _FilterSection extends StatelessWidget {
   final List<String> categories;
   final String? selectedCategory;
@@ -190,9 +249,8 @@ class _FilterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 52,
-      margin: const EdgeInsets.only(top: AppSpacing.s4),
+    return SizedBox(
+      height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
@@ -200,7 +258,6 @@ class _FilterSection extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.s2),
         itemBuilder: (context, index) {
           if (index == 0) {
-            // "전체" 칩
             return AppChip(
               label: '전체',
               isSelected: selectedCategory == null,
@@ -214,6 +271,41 @@ class _FilterSection extends StatelessWidget {
             onTap: () => onCategorySelected(category),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Figma: SubscriptionSection - 카드 간격 12px
+class _SubscriptionSection extends StatelessWidget {
+  final List<UserSubscription> subscriptions;
+  final ExchangeRate? exchangeRate;
+  final ValueChanged<UserSubscription> onTap;
+  final ValueChanged<UserSubscription> onDelete;
+
+  const _SubscriptionSection({
+    required this.subscriptions,
+    required this.exchangeRate,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+      child: Column(
+        children: [
+          for (int i = 0; i < subscriptions.length; i++) ...[
+            if (i > 0) const SizedBox(height: AppSpacing.s3), // 12px gap
+            _SubscriptionTile(
+              subscription: subscriptions[i],
+              exchangeRate: exchangeRate,
+              onTap: () => onTap(subscriptions[i]),
+              onDelete: () => onDelete(subscriptions[i]),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -317,39 +409,7 @@ class _NoGroupState extends ConsumerWidget {
   }
 }
 
-class _SubscriptionList extends StatelessWidget {
-  final List<UserSubscription> subscriptions;
-  final ExchangeRate? exchangeRate;
-  final void Function(UserSubscription) onTap;
-  final void Function(UserSubscription) onDelete;
-
-  const _SubscriptionList({
-    required this.subscriptions,
-    required this.exchangeRate,
-    required this.onTap,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
-      itemCount: subscriptions.length,
-      itemBuilder: (context, index) {
-        final sub = subscriptions[index];
-
-        return _SubscriptionTile(
-          key: ValueKey(sub.id),
-          subscription: sub,
-          exchangeRate: exchangeRate,
-          onTap: () => onTap(sub),
-          onDelete: () => onDelete(sub),
-        );
-      },
-    );
-  }
-}
-
+/// Figma: SubscriptionCard
 class _SubscriptionTile extends StatefulWidget {
   final UserSubscription subscription;
   final ExchangeRate? exchangeRate;
@@ -408,7 +468,6 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
       child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.s3),
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: colors.bgSecondary,
