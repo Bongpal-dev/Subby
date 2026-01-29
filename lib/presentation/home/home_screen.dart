@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/util/currency_formatter.dart';
@@ -51,9 +52,14 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           if (hasGroup)
             IconButton(
-              icon: Icon(
-                Icons.person_add_outlined,
-                color: colors.iconOnAccent,
+              icon: SvgPicture.asset(
+                'assets/icons/ic_share.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                  colors.iconOnAccent,
+                  BlendMode.srcIn,
+                ),
               ),
               onPressed: () => _onInvite(
                 context,
@@ -524,7 +530,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                       padding: const EdgeInsets.all(AppSpacing.s4),
                       child: Row(
                         children: [
-                          // 로고 placeholder
+                          // 로고 placeholder (SubLogo)
                           Container(
                             width: 40,
                             height: 40,
@@ -532,10 +538,11 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                               color: colors.buttonDisableBg,
                               borderRadius: BorderRadius.circular(AppSpacing.s3),
                             ),
-                            child: Icon(
-                              Icons.subscriptions_outlined,
-                              color: colors.buttonDisableText,
-                              size: 20,
+                            alignment: Alignment.center,
+                            child: SvgPicture.asset(
+                              'assets/icons/subby_place_holder.svg',
+                              width: 20,
+                              height: 20,
                             ),
                           ),
                           const SizedBox(width: 10),

@@ -19,8 +19,9 @@ class AppFab extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
 
+    // Figma: buttonPrimaryBg 배경, buttonPrimaryText 아이콘
     return Material(
-      color: colors.bgAccent,
+      color: colors.buttonPrimaryBg,
       borderRadius: AppRadius.lgAll,
       elevation: 4,
       shadowColor: Colors.black26,
@@ -34,7 +35,7 @@ class AppFab extends StatelessWidget {
           child: AppIcon(
             icon,
             size: 24,
-            color: colors.iconOnAccent,
+            color: colors.buttonPrimaryText,
           ),
         ),
       ),
