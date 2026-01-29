@@ -29,7 +29,7 @@ class _JoinGroupDialogState extends ConsumerState<JoinGroupDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 const Text('이 그룹에 참여하시겠습니까?'),
-          SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.s2),
           Text(
             '코드: ${widget.groupCode}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
