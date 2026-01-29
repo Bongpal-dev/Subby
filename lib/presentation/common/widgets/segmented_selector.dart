@@ -55,7 +55,7 @@ class SegmentedSelector extends StatelessWidget {
                 child: Center(
                   child: Text(
                     labels[index],
-                    style: (compact ? AppTypography.labelSmall : AppTypography.labelLarge).copyWith(
+                    style: (compact ? AppTypography.label : AppTypography.label).copyWith(
                       color: isSelected
                           ? colorScheme.onSurface
                           : colorScheme.onSurface.withValues(alpha: 0.5),

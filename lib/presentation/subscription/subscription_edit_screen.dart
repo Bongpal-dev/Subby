@@ -75,28 +75,28 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
           children: [
             Expanded(
               child: ListView(
-                padding: EdgeInsets.all(AppSpacing.lg),
+                padding: EdgeInsets.all(AppSpacing.s4),
                 children: [
                   // 서비스명 (읽기 전용)
                   AppCard(
                     child: Row(
                       children: [
                         Icon(Icons.subscriptions_outlined, color: colorScheme.primary),
-                        SizedBox(width: AppSpacing.md),
+                        SizedBox(width: AppSpacing.s3),
                         Expanded(
                           child: Text(
                             state.name,
-                            style: AppTypography.headlineSmall,
+                            style: AppTypography.headline,
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete_outline, color: colors.error),
+                          icon: Icon(Icons.delete_outline, color: colors.statusError),
                           onPressed: () => _onDelete(vm),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: AppSpacing.md),
+                  SizedBox(height: AppSpacing.s3),
 
                   // 통화 + 금액 그룹
                   AppCard(
@@ -104,19 +104,19 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('통화', style: Theme.of(context).textTheme.labelSmall),
-                        SizedBox(height: AppSpacing.sm),
+                        SizedBox(height: AppSpacing.s2),
                         SegmentedSelector(
                           options: const ['KRW', 'USD'],
                           labels: const ['\u20a9 원화', '\$ 달러'],
                           selected: state.currency,
                           onChanged: vm.setCurrency,
                         ),
-                        SizedBox(height: AppSpacing.lg),
+                        SizedBox(height: AppSpacing.s4),
 
                         Text('금액', style: Theme.of(context).textTheme.labelSmall),
-                        SizedBox(height: AppSpacing.md),
+                        SizedBox(height: AppSpacing.s3),
                         _buildAmountTextField(state, vm, colorScheme),
-                        SizedBox(height: AppSpacing.md),
+                        SizedBox(height: AppSpacing.s3),
                         AmountAdder(
                           currency: state.currency,
                           onAdd: (step) => vm.setAmount(state.amount + step),
@@ -124,7 +124,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       ],
                     ),
                   ),
-                  SizedBox(height: AppSpacing.md),
+                  SizedBox(height: AppSpacing.s3),
 
                   // 결제일 + 결제 주기 그룹
                   AppCard(
@@ -135,7 +135,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('결제일', style: Theme.of(context).textTheme.labelSmall),
-                              SizedBox(height: AppSpacing.sm),
+                              SizedBox(height: AppSpacing.s2),
                               GestureDetector(
                                 onTap: () async {
                                 final result = await showDayPickerDialog(
@@ -148,7 +148,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                                 }
                               },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                                  padding: EdgeInsets.symmetric(vertical: AppSpacing.s4),
                                   decoration: BoxDecoration(
                                     color: colorScheme.surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(12),
@@ -156,7 +156,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                                   child: Center(
                                     child: Text(
                                       '매월 ${state.billingDay}일',
-                                      style: AppTypography.titleLarge.copyWith(
+                                      style: AppTypography.title.copyWith(
                                         color: colorScheme.primary,
                                       ),
                                     ),
@@ -166,13 +166,13 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                             ],
                           ),
                         ),
-                        SizedBox(width: AppSpacing.md),
+                        SizedBox(width: AppSpacing.s3),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('결제 주기', style: Theme.of(context).textTheme.labelSmall),
-                              SizedBox(height: AppSpacing.sm),
+                              SizedBox(height: AppSpacing.s2),
                               SegmentedSelector(
                                 options: const ['MONTHLY', 'YEARLY'],
                                 labels: const ['매월', '매년'],
@@ -186,7 +186,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                       ],
                     ),
                   ),
-                  SizedBox(height: AppSpacing.md),
+                  SizedBox(height: AppSpacing.s3),
 
                   // 메모
                   AppCard(
@@ -205,7 +205,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
 
             // 저장 버튼 - 하단 고정
             Container(
-              padding: EdgeInsets.all(AppSpacing.lg),
+              padding: EdgeInsets.all(AppSpacing.s4),
               child: SafeArea(
                 child: FilledButton(
                   onPressed: state.isSaving ? null : () => _onSave(state, vm),
@@ -221,7 +221,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                           height: 24,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : Text('저장', style: AppTypography.titleLarge),
+                      : Text('저장', style: AppTypography.title),
                 ),
               ),
             ),
@@ -248,16 +248,16 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
         focusNode: _amountFocusNode,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         textAlign: TextAlign.center,
-        style: AppTypography.displaySmall.copyWith(
+        style: AppTypography.display.copyWith(
           color: colorScheme.primary,
         ),
         decoration: InputDecoration(
           prefixText: prefix,
-          prefixStyle: AppTypography.displaySmall.copyWith(
+          prefixStyle: AppTypography.display.copyWith(
             color: colorScheme.primary,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.all(AppSpacing.lg),
+          contentPadding: EdgeInsets.all(AppSpacing.s4),
         ),
         onChanged: (value) {
           if (value.isEmpty) {

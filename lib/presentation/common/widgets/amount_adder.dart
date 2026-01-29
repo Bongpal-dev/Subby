@@ -54,7 +54,7 @@ class AmountAdder extends StatelessWidget {
                     child: Center(
                       child: Text(
                         label,
-                        style: AppTypography.labelSmall.copyWith(
+                        style: AppTypography.label.copyWith(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),

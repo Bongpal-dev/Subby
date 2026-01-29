@@ -23,10 +23,10 @@ class AppDrawer extends ConsumerWidget {
           children: [
             // 헤더
             Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
+              padding: EdgeInsets.all(AppSpacing.s4),
               child: Text(
                 '구독 그룹',
-                style: AppTypography.headlineLarge.copyWith(
+                style: AppTypography.headline.copyWith(
                   color: colorScheme.onSurface,
                 ),
               ),
@@ -36,7 +36,7 @@ class AppDrawer extends ConsumerWidget {
             // 그룹 목록
             Expanded(
               child: ListView(
-                padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.s2),
                 children: [
                   // 모든 그룹 표시 (기본 그룹 포함)
                   ...state.groups.map((group) => _GroupTile(
@@ -71,10 +71,10 @@ class AppDrawer extends ConsumerWidget {
                   // 그룹이 없는 경우
                   if (state.groups.isEmpty && !state.isLoading)
                     Padding(
-                      padding: EdgeInsets.all(AppSpacing.lg),
+                      padding: EdgeInsets.all(AppSpacing.s4),
                       child: Text(
                         '참여 중인 그룹이 없습니다',
-                        style: AppTypography.bodySmall.copyWith(
+                        style: AppTypography.body.copyWith(
                           color: Theme.of(context).colorScheme.outline,
                         ),
                       ),
@@ -82,7 +82,7 @@ class AppDrawer extends ConsumerWidget {
                   // 초기 로딩 중
                   if (state.groups.isEmpty && state.isLoading)
                     const Padding(
-                      padding: EdgeInsets.all(AppSpacing.lg),
+                      padding: EdgeInsets.all(AppSpacing.s4),
                       child: Center(
                         child: CircularProgressIndicator(),
                       ),
@@ -99,7 +99,7 @@ class AppDrawer extends ConsumerWidget {
                 children: [
                   const Divider(height: 1),
                   Padding(
-                    padding: EdgeInsets.all(AppSpacing.lg),
+                    padding: EdgeInsets.all(AppSpacing.s4),
                     child: Column(
                       children: [
                         SizedBox(
@@ -110,7 +110,7 @@ class AppDrawer extends ConsumerWidget {
                             label: const Text('새 그룹 만들기'),
                           ),
                         ),
-                        SizedBox(height: AppSpacing.sm),
+                        SizedBox(height: AppSpacing.s2),
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
@@ -257,11 +257,11 @@ class AppDrawer extends ConsumerWidget {
     if (isAnonymous) {
       // 익명 상태 - 백업 유도 배너
       return Container(
-        margin: EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+        margin: EdgeInsets.fromLTRB(AppSpacing.s4, 0, AppSpacing.s4, AppSpacing.s4),
         decoration: BoxDecoration(
-          color: colors.warning.withValues(alpha: 0.1),
+          color: colors.statusWarning.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colors.warning.withValues(alpha: 0.3)),
+          border: Border.all(color: colors.statusWarning.withValues(alpha: 0.3)),
         ),
         child: InkWell(
           onTap: () {
@@ -273,24 +273,24 @@ class AppDrawer extends ConsumerWidget {
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
+            padding: EdgeInsets.all(AppSpacing.s3),
             child: Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: colors.warning, size: 24),
-                SizedBox(width: AppSpacing.md),
+                Icon(Icons.warning_amber_rounded, color: colors.statusWarning, size: 24),
+                SizedBox(width: AppSpacing.s3),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         '백업되지 않음',
-                        style: AppTypography.titleSmall.copyWith(
+                        style: AppTypography.title.copyWith(
                           color: colors.textPrimary,
                         ),
                       ),
                       Text(
                         '로그인하여 데이터 보호하기',
-                        style: AppTypography.captionLarge.copyWith(
+                        style: AppTypography.caption.copyWith(
                           color: colors.textSecondary,
                         ),
                       ),
@@ -306,20 +306,20 @@ class AppDrawer extends ConsumerWidget {
     } else {
       // 로그인 상태 - 계정 정보 표시
       return Container(
-        margin: EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
-        padding: EdgeInsets.all(AppSpacing.md),
+        margin: EdgeInsets.fromLTRB(AppSpacing.s4, 0, AppSpacing.s4, AppSpacing.s4),
+        padding: EdgeInsets.all(AppSpacing.s3),
         decoration: BoxDecoration(
-          color: colors.success.withValues(alpha: 0.1),
+          color: colors.statusSuccess.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(Icons.check_circle, color: colors.success, size: 24),
-            SizedBox(width: AppSpacing.md),
+            Icon(Icons.check_circle, color: colors.statusSuccess, size: 24),
+            SizedBox(width: AppSpacing.s3),
             Expanded(
               child: Text(
                 email ?? '로그인됨',
-                style: AppTypography.bodySmall.copyWith(
+                style: AppTypography.body.copyWith(
                   color: colors.textPrimary,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -329,7 +329,7 @@ class AppDrawer extends ConsumerWidget {
               onPressed: () => _showSignOutDialog(context, ref),
               child: Text(
                 '로그아웃',
-                style: AppTypography.captionLarge.copyWith(
+                style: AppTypography.caption.copyWith(
                   color: colors.textTertiary,
                 ),
               ),
@@ -404,16 +404,16 @@ class _GroupTile extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? colors.primary : colors.textPrimary,
+        color: isSelected ? colors.bgAccent : colors.textPrimary,
       ),
       title: Text(
         title,
-        style: (isSelected ? AppTypography.titleLarge : AppTypography.bodyLarge)
-            .copyWith(color: isSelected ? colors.primary : colors.textPrimary),
+        style: (isSelected ? AppTypography.title : AppTypography.bodyLarge)
+            .copyWith(color: isSelected ? colors.bgAccent : colors.textPrimary),
       ),
       subtitle: Text(
         subtitle,
-        style: AppTypography.captionLarge.copyWith(color: colors.textTertiary),
+        style: AppTypography.caption.copyWith(color: colors.textTertiary),
       ),
       trailing: PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert, size: 20),
@@ -427,7 +427,7 @@ class _GroupTile extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.edit_outlined, size: 20),
-                SizedBox(width: AppSpacing.sm),
+                SizedBox(width: AppSpacing.s2),
                 Text('이름 변경'),
               ],
             ),
@@ -437,7 +437,7 @@ class _GroupTile extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.logout, size: 20, color: Colors.red),
-                SizedBox(width: AppSpacing.sm),
+                SizedBox(width: AppSpacing.s2),
                 Text('나가기', style: TextStyle(color: Colors.red)),
               ],
             ),
@@ -445,7 +445,7 @@ class _GroupTile extends StatelessWidget {
         ],
       ),
       selected: isSelected,
-      selectedTileColor: colors.selectedBg,
+      selectedTileColor: colors.tabSelectedBg,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onTap: onTap,
     );

@@ -32,18 +32,18 @@ class _ConflictResolutionDialogState extends State<_ConflictResolutionDialog> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return AlertDialog(
-      title: Text('어떤 값을 사용할까요?', style: AppTypography.headlineSmall),
+      title: Text('어떤 값을 사용할까요?', style: AppTypography.headline),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '\'${widget.conflict.localSubscription.name}\'',
-            style: AppTypography.bodySmall.copyWith(
+            style: AppTypography.body.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),
-          SizedBox(height: AppSpacing.lg),
+          SizedBox(height: AppSpacing.s4),
           _buildOptionCard(
             context: context,
             title: '이 기기에서 수정',
@@ -52,7 +52,7 @@ class _ConflictResolutionDialogState extends State<_ConflictResolutionDialog> {
                 .map((f) => '${f.fieldName}: ${f.localValue}')
                 .toList(),
           ),
-          SizedBox(height: AppSpacing.sm),
+          SizedBox(height: AppSpacing.s2),
           _buildOptionCard(
             context: context,
             title: '클라우드 값',
@@ -93,7 +93,7 @@ class _ConflictResolutionDialogState extends State<_ConflictResolutionDialog> {
     return GestureDetector(
       onTap: () => setState(() => _selected = resolution),
       child: Container(
-        padding: EdgeInsets.all(AppSpacing.md),
+        padding: EdgeInsets.all(AppSpacing.s3),
         decoration: BoxDecoration(
           color: isSelected
               ? colorScheme.primaryContainer
@@ -114,10 +114,10 @@ class _ConflictResolutionDialogState extends State<_ConflictResolutionDialog> {
                   color: isSelected ? colorScheme.primary : colorScheme.outline,
                   size: 20,
                 ),
-                SizedBox(width: AppSpacing.sm),
+                SizedBox(width: AppSpacing.s2),
                 Text(
                   title,
-                  style: AppTypography.labelLarge.copyWith(
+                  style: AppTypography.label.copyWith(
                     color: isSelected
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurface,
@@ -125,13 +125,13 @@ class _ConflictResolutionDialogState extends State<_ConflictResolutionDialog> {
                 ),
               ],
             ),
-            SizedBox(height: AppSpacing.sm),
+            SizedBox(height: AppSpacing.s2),
             ...values.map(
               (v) => Padding(
                 padding: EdgeInsets.only(left: 28),
                 child: Text(
                   v,
-                  style: AppTypography.bodySmall.copyWith(
+                  style: AppTypography.body.copyWith(
                     color: isSelected
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurfaceVariant,

@@ -63,7 +63,7 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: AppSpacing.lg),
+                    SizedBox(height: AppSpacing.s4),
 
                     // 날짜 그리드
                     GridView.builder(
@@ -118,12 +118,12 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
                         );
                       },
                     ),
-                    SizedBox(height: AppSpacing.lg),
+                    SizedBox(height: AppSpacing.s4),
 
                     // 선택된 날짜 표시
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.s4),
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
@@ -204,7 +204,7 @@ class _ActionButton extends StatelessWidget {
               onTap: onPressed,
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.s3),
                 alignment: Alignment.center,
                 child: Text(
                   label,

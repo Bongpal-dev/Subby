@@ -74,7 +74,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
         children: [
           Expanded(
             child: ListView(
-              padding: EdgeInsets.all(AppSpacing.lg),
+              padding: EdgeInsets.all(AppSpacing.s4),
               children: [
                 // 선택된 서비스 표시
                 AppCard(
@@ -86,7 +86,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                     ),
                     title: Text(
                       state.selectedPreset?.displayName(locale) ?? '직접 입력',
-                      style: AppTypography.titleLarge,
+                      style: AppTypography.title,
                     ),
                     subtitle: state.selectedPreset != null
                         ? Text(_categoryLabel(state.selectedPreset!.category))
@@ -97,7 +97,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: AppSpacing.md),
+                SizedBox(height: AppSpacing.s3),
 
                 // 직접 입력인 경우에만 서비스명 입력 가능
                 if (state.selectedPreset == null) ...[
@@ -107,15 +107,9 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                       hint: '예: Netflix, Spotify',
                       controller: _nameController,
                       onChanged: vm.setName,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '서비스명을 입력해주세요';
-                        }
-                        return null;
-                      },
                     ),
                   ),
-                  SizedBox(height: AppSpacing.md),
+                  SizedBox(height: AppSpacing.s3),
                 ],
 
                 // 요금제가 있는 프리셋인 경우: 요금제 + 결제금액 통합 카드
@@ -126,13 +120,13 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                       children: [
                         // 요금제 선택 (가로 스크롤, 금액 없이 항목명만)
                         Text('요금제', style: Theme.of(context).textTheme.labelSmall),
-                        SizedBox(height: AppSpacing.sm),
+                        SizedBox(height: AppSpacing.s2),
                         SizedBox(
                           height: 36,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: state.selectedPreset!.plans.map((plan) => Padding(
-                              padding: EdgeInsets.only(right: AppSpacing.sm),
+                              padding: EdgeInsets.only(right: AppSpacing.s2),
                               child: ChoiceChip(
                                 label: Text(plan.displayName(locale)),
                                 selected: state.selectedPlan == plan,
@@ -148,10 +142,10 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                             )).toList(),
                           ),
                         ),
-                        SizedBox(height: AppSpacing.lg),
+                        SizedBox(height: AppSpacing.s4),
                         // 결제 금액
                         Text('결제 금액', style: Theme.of(context).textTheme.labelSmall),
-                        SizedBox(height: AppSpacing.sm),
+                        SizedBox(height: AppSpacing.s2),
                         _buildAmountTextField(state, vm, colorScheme),
                       ],
                     ),
@@ -163,18 +157,18 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('통화', style: Theme.of(context).textTheme.labelSmall),
-                        SizedBox(height: AppSpacing.sm),
+                        SizedBox(height: AppSpacing.s2),
                         SegmentedSelector(
                           options: const ['KRW', 'USD'],
                           labels: const ['\u20a9 원화', '\$ 달러'],
                           selected: state.currency,
                           onChanged: vm.setCurrency,
                         ),
-                        SizedBox(height: AppSpacing.lg),
+                        SizedBox(height: AppSpacing.s4),
                         Text('금액', style: Theme.of(context).textTheme.labelSmall),
-                        SizedBox(height: AppSpacing.md),
+                        SizedBox(height: AppSpacing.s3),
                         _buildAmountTextField(state, vm, colorScheme),
-                        SizedBox(height: AppSpacing.md),
+                        SizedBox(height: AppSpacing.s3),
                         AmountAdder(
                           currency: state.currency,
                           onAdd: (step) => vm.setAmount(state.amount + step),
@@ -183,7 +177,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                     ),
                   ),
                 ],
-                SizedBox(height: AppSpacing.md),
+                SizedBox(height: AppSpacing.s3),
 
                 // 결제일 + 결제 주기 그룹
                 AppCard(
@@ -195,7 +189,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('결제일', style: Theme.of(context).textTheme.labelSmall),
-                            SizedBox(height: AppSpacing.sm),
+                            SizedBox(height: AppSpacing.s2),
                             GestureDetector(
                               onTap: () async {
                               final result = await showDayPickerDialog(
@@ -208,7 +202,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                               }
                             },
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                                padding: EdgeInsets.symmetric(vertical: AppSpacing.s4),
                                 decoration: BoxDecoration(
                                   color: colorScheme.surfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(12),
@@ -216,7 +210,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                                 child: Center(
                                   child: Text(
                                     '매월 ${state.billingDay}일',
-                                    style: AppTypography.titleLarge.copyWith(
+                                    style: AppTypography.title.copyWith(
                                       color: colorScheme.primary,
                                     ),
                                   ),
@@ -226,14 +220,14 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(width: AppSpacing.md),
+                      SizedBox(width: AppSpacing.s3),
                       // 결제 주기
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('결제 주기', style: Theme.of(context).textTheme.labelSmall),
-                            SizedBox(height: AppSpacing.sm),
+                            SizedBox(height: AppSpacing.s2),
                             SegmentedSelector(
                               options: const ['MONTHLY', 'YEARLY'],
                               labels: const ['매월', '매년'],
@@ -247,7 +241,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: AppSpacing.md),
+                SizedBox(height: AppSpacing.s3),
 
                 // 메모
                 AppCard(
@@ -266,7 +260,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
 
           // 저장 버튼 - 하단 고정
           Container(
-            padding: EdgeInsets.all(AppSpacing.lg),
+            padding: EdgeInsets.all(AppSpacing.s4),
             child: SafeArea(
               child: FilledButton(
                 onPressed: state.isSaving ? null : () => _onSave(vm),
@@ -282,7 +276,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                         height: 24,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text('저장', style: AppTypography.titleLarge),
+                    : Text('저장', style: AppTypography.title),
               ),
             ),
           ),
@@ -308,16 +302,16 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
         focusNode: _amountFocusNode,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         textAlign: TextAlign.center,
-        style: AppTypography.displaySmall.copyWith(
+        style: AppTypography.display.copyWith(
           color: colorScheme.primary,
         ),
         decoration: InputDecoration(
           prefixText: prefix,
-          prefixStyle: AppTypography.displaySmall.copyWith(
+          prefixStyle: AppTypography.display.copyWith(
             color: colorScheme.primary,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.all(AppSpacing.lg),
+          contentPadding: EdgeInsets.all(AppSpacing.s4),
         ),
         onChanged: (value) {
           if (value.isEmpty) {
@@ -449,7 +443,7 @@ class _ServicePickerContentState extends ConsumerState<_ServicePickerContent> {
       children: [
         // 검색창
         Padding(
-          padding: EdgeInsets.all(AppSpacing.lg),
+          padding: EdgeInsets.all(AppSpacing.s4),
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
@@ -474,7 +468,7 @@ class _ServicePickerContentState extends ConsumerState<_ServicePickerContent> {
           height: 36,
           child: ListView(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.s4),
             children: [
               _CategoryChip(
                 label: '전체',
@@ -489,11 +483,11 @@ class _ServicePickerContentState extends ConsumerState<_ServicePickerContent> {
             ],
           ),
         ),
-        SizedBox(height: AppSpacing.md),
+        SizedBox(height: AppSpacing.s3),
 
         // 직접 입력 옵션
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.s4),
           child: ListTile(
             leading: Icon(Icons.edit_outlined, color: colorScheme.primary),
             title: const Text('직접 입력'),
@@ -508,7 +502,7 @@ class _ServicePickerContentState extends ConsumerState<_ServicePickerContent> {
             onTap: () => widget.vm.selectManualInput(),
           ),
         ),
-        SizedBox(height: AppSpacing.md),
+        SizedBox(height: AppSpacing.s3),
 
         // 결과 목록
         Expanded(
@@ -525,7 +519,7 @@ class _ServicePickerContentState extends ConsumerState<_ServicePickerContent> {
                               color: colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
-                          SizedBox(height: AppSpacing.sm),
+                          SizedBox(height: AppSpacing.s2),
                           TextButton(
                             onPressed: () => widget.vm.selectManualInput(),
                             child: const Text('직접 입력하기'),
@@ -611,7 +605,7 @@ class _CategoryChip extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: EdgeInsets.only(right: AppSpacing.sm),
+      padding: EdgeInsets.only(right: AppSpacing.s2),
       child: FilterChip(
         label: Text(label),
         selected: selected,

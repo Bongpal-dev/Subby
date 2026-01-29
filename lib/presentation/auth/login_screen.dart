@@ -32,7 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
           child: Column(
             children: [
               const Spacer(flex: 2),
@@ -41,18 +41,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Icon(
                 Icons.account_circle_outlined,
                 size: 80,
-                color: colors.primary,
+                color: colors.bgAccent,
               ),
-              SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.s5),
 
               // 제목
               Text(
                 '내 그룹 찾기',
-                style: AppTypography.headlineLarge.copyWith(
+                style: AppTypography.headline.copyWith(
                   color: colors.textPrimary,
                 ),
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.s3),
 
               // 설명
               Text(
@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       : const Icon(Icons.g_mobiledata, size: 24),
                   label: Text(_isLoading ? '로그인 중...' : 'Google로 계속하기'),
                   style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
                   ),
                 ),
               ),
@@ -88,9 +88,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               // 안내 문구
               Container(
-                padding: EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.all(AppSpacing.s3),
                 decoration: BoxDecoration(
-                  color: colors.warning.withValues(alpha: 0.1),
+                  color: colors.statusWarning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -98,13 +98,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Icon(
                       Icons.info_outline,
                       size: 20,
-                      color: colors.warning,
+                      color: colors.statusWarning,
                     ),
-                    SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.s2),
                     Expanded(
                       child: Text(
                         '로그인하지 않으면 기기 변경 시 데이터를 복구할 수 없습니다',
-                        style: AppTypography.captionLarge.copyWith(
+                        style: AppTypography.caption.copyWith(
                           color: colors.textSecondary,
                         ),
                       ),
