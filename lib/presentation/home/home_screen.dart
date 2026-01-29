@@ -23,7 +23,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
     final exchangeRate = ref.watch(exchangeRateProvider).valueOrNull;
-    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
 
     final hasGroup = state.groups.isNotEmpty;
 
@@ -76,22 +77,22 @@ class HomeScreen extends ConsumerWidget {
             SafeArea(
               top: false,
               child: Padding(
-                padding: EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.all(AppSpacing.s4),
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => _navigateToAdd(context, ref),
                     style: FilledButton.styleFrom(
-                      backgroundColor: colorScheme.secondary,
-                      foregroundColor: colorScheme.onSecondary,
-                      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                      backgroundColor: colors.buttonPrimaryBg,
+                      foregroundColor: colors.buttonPrimaryText,
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppSpacing.s3),
                       ),
                     ),
                     child: Text(
                       '+ 구독 추가하기',
-                      style: AppTypography.titleLarge,
+                      style: AppTypography.title,
                     ),
                   ),
                 ),
@@ -162,27 +163,30 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
     final formatted = CurrencyFormatter.formatKrw(total.toInt());
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.lg),
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.lg),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpacing.s6,
+        horizontal: AppSpacing.s4,
+      ),
       decoration: BoxDecoration(
-        color: colorScheme.primary,
-        borderRadius: BorderRadius.circular(16),
+        color: colors.bgAccent,
+        borderRadius: BorderRadius.circular(AppSpacing.s4),
       ),
       child: Column(
         children: [
           Text(
-            '이번 달 구독료',
-            style: AppTypography.titleLarge.copyWith(color: Colors.white),
+            '이번 달 예상 구독료',
+            style: AppTypography.body.copyWith(color: colors.textOnAccent),
           ),
-          SizedBox(height: AppSpacing.sm),
           Text(
             '\u20a9$formatted',
-            style: AppTypography.displayLarge.copyWith(color: Colors.white),
+            style: AppTypography.display.copyWith(color: colors.textOnAccent),
           ),
         ],
       ),
@@ -195,9 +199,8 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).brightness == Brightness.dark
-        ? AppColors.dark
-        : AppColors.light;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
 
     return Center(
       child: Column(
@@ -206,17 +209,17 @@ class _EmptyState extends StatelessWidget {
           Icon(
             Icons.subscriptions_outlined,
             size: 64,
-            color: colors.primary.withValues(alpha: 0.5),
+            color: colors.bgAccent.withValues(alpha: 0.5),
           ),
-          SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.s4),
           Text(
             '아직 등록된 구독이 없습니다',
-            style: AppTypography.titleLarge.copyWith(color: colors.textPrimary),
+            style: AppTypography.title.copyWith(color: colors.textPrimary),
           ),
-          SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.s2),
           Text(
             '아래 버튼을 눌러 첫 구독을 추가해보세요!',
-            style: AppTypography.bodySmall.copyWith(color: colors.textTertiary),
+            style: AppTypography.caption.copyWith(color: colors.textTertiary),
           ),
         ],
       ),
@@ -229,14 +232,12 @@ class _NoGroupState extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = Theme.of(context).brightness == Brightness.dark
-        ? AppColors.dark
-        : AppColors.light;
-    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
     final isAnonymous = ref.watch(isAnonymousProvider).valueOrNull ?? true;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
       child: Column(
         children: [
           const Spacer(flex: 3),
@@ -245,19 +246,19 @@ class _NoGroupState extends ConsumerWidget {
           Icon(
             Icons.subscriptions_outlined,
             size: 80,
-            color: colors.primary.withValues(alpha: 0.6),
+            color: colors.bgAccent.withValues(alpha: 0.6),
           ),
-          SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.s6),
 
           // 메인 텍스트
           Text(
             '구독을 한눈에 관리하세요',
-            style: AppTypography.headlineLarge.copyWith(
+            style: AppTypography.headline.copyWith(
               color: colors.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.s2),
           Text(
             '새 그룹을 만들거나 초대 코드로 참여해보세요',
             style: AppTypography.bodyLarge.copyWith(
@@ -266,7 +267,7 @@ class _NoGroupState extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
 
-          SizedBox(height: AppSpacing.xxxl),
+          const SizedBox(height: AppSpacing.s10),
 
           // 새 그룹 만들기 버튼
           SizedBox(
@@ -276,11 +277,11 @@ class _NoGroupState extends ConsumerWidget {
               icon: const Icon(Icons.add),
               label: const Text('새 그룹 만들기'),
               style: FilledButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
               ),
             ),
           ),
-          SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.s3),
 
           // 초대 코드로 참여 버튼
           SizedBox(
@@ -290,7 +291,7 @@ class _NoGroupState extends ConsumerWidget {
               icon: const Icon(Icons.link),
               label: const Text('초대 코드로 참여'),
               style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
               ),
             ),
           ),
@@ -304,10 +305,10 @@ class _NoGroupState extends ConsumerWidget {
               children: [
                 Expanded(child: Divider(color: colors.textTertiary.withValues(alpha: 0.3))),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
                   child: Text(
                     '이미 사용 중이셨나요?',
-                    style: AppTypography.captionLarge.copyWith(
+                    style: AppTypography.caption.copyWith(
                       color: colors.textTertiary,
                     ),
                   ),
@@ -315,7 +316,7 @@ class _NoGroupState extends ConsumerWidget {
                 Expanded(child: Divider(color: colors.textTertiary.withValues(alpha: 0.3))),
               ],
             ),
-            SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.s3),
 
             // 로그인 링크
             TextButton(
@@ -323,13 +324,13 @@ class _NoGroupState extends ConsumerWidget {
               child: Text(
                 '로그인하여 내 그룹 찾기',
                 style: AppTypography.bodyLarge.copyWith(
-                  color: colorScheme.primary,
+                  color: colors.textAccent,
                 ),
               ),
             ),
           ],
 
-          SizedBox(height: AppSpacing.xl + MediaQuery.of(context).padding.bottom),
+          SizedBox(height: AppSpacing.s6 + MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
@@ -359,7 +360,7 @@ class _SubscriptionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       itemCount: subscriptions.length,
       itemBuilder: (context, index) {
         final sub = subscriptions[index];
@@ -415,9 +416,8 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).brightness == Brightness.dark
-        ? AppColors.dark
-        : AppColors.light;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
     final colorScheme = Theme.of(context).colorScheme;
     final isKrw = widget.subscription.currency == 'KRW';
 
@@ -435,7 +435,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
       child: Card(
-        margin: EdgeInsets.only(bottom: AppSpacing.md),
+        margin: const EdgeInsets.only(bottom: AppSpacing.s3),
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
@@ -450,11 +450,11 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                     children: [
                       Text(
                         '삭제하기',
-                        style: AppTypography.headlineSmall.copyWith(
+                        style: AppTypography.title.copyWith(
                           color: Colors.white.withValues(alpha: progress),
                         ),
                       ),
-                      SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: AppSpacing.s2),
                       Icon(
                         Icons.delete,
                         color: Colors.white.withValues(alpha: progress),
@@ -485,7 +485,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                   child: InkWell(
                     onTap: widget.onTap,
                     child: Padding(
-                      padding: EdgeInsets.all(AppSpacing.lg),
+                      padding: const EdgeInsets.all(AppSpacing.s4),
                       child: Row(
                         children: [
                           Expanded(
@@ -494,14 +494,14 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                               children: [
                                 Text(
                                   widget.subscription.name,
-                                  style: AppTypography.titleLarge.copyWith(
+                                  style: AppTypography.title.copyWith(
                                     color: colors.textPrimary,
                                   ),
                                 ),
-                                SizedBox(height: AppSpacing.xs),
+                                const SizedBox(height: AppSpacing.s1),
                                 Text(
                                   '매월 ${widget.subscription.billingDay}일 결제',
-                                  style: AppTypography.bodySmall.copyWith(
+                                  style: AppTypography.caption.copyWith(
                                     color: colors.textTertiary,
                                   ),
                                 ),
@@ -513,15 +513,15 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             children: [
                               Text(
                                 '$currencySymbol$formattedAmount',
-                                style: AppTypography.titleLarge.copyWith(
-                                  color: colors.primary,
+                                style: AppTypography.title.copyWith(
+                                  color: colors.textAccent,
                                 ),
                               ),
                               if (krwConverted != null) ...[
-                                SizedBox(height: AppSpacing.xs),
+                                const SizedBox(height: AppSpacing.s1),
                                 Text(
                                   '\u2248 \u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
-                                  style: AppTypography.captionLarge.copyWith(
+                                  style: AppTypography.caption.copyWith(
                                     color: colors.textTertiary,
                                   ),
                                 ),
