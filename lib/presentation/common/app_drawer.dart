@@ -245,10 +245,22 @@ class AppDrawer extends ConsumerWidget {
   }
 
   void _showSignOutDialog(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
     showAppDialog(
       context: context,
-      title: '로그아웃',
-      description: '로그아웃하면 이 기기의 데이터가 삭제됩니다.\n계속하시겠습니까?',
+      icon: SvgPicture.asset(
+        'assets/icons/ic_logout.svg',
+        width: 24,
+        height: 24,
+        colorFilter: ColorFilter.mode(
+          colors.statusError,
+          BlendMode.srcIn,
+        ),
+      ),
+      title: '로그아웃 할까요?',
+      description: '로그아웃하면 다른 기기에서\n동기화되지 않아요',
       actions: [
         AppDialogAction(
           label: '취소',
@@ -257,7 +269,6 @@ class AppDrawer extends ConsumerWidget {
         AppDialogAction(
           label: '로그아웃',
           isPrimary: true,
-          isDestructive: true,
           onPressed: () async {
             Navigator.pop(context); // 다이얼로그 닫기
             Navigator.pop(context); // Drawer 닫기
