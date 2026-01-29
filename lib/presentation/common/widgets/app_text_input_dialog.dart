@@ -40,17 +40,29 @@ class AppTextInputDialog extends StatefulWidget {
 
 class _AppTextInputDialogState extends State<AppTextInputDialog> {
   late final TextEditingController _controller;
+  late final FocusNode _focusNode;
   final _formKey = GlobalKey<FormState>();
   String? _errorText;
+  bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialValue);
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    setState(() {
+      _isFocused = _focusNode.hasFocus;
+    });
   }
 
   @override
   void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -136,10 +148,13 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
                       decoration: BoxDecoration(
                         color: colors.bgTertiary,
                         borderRadius: AppRadius.mdAll,
-                        border: Border.all(color: colors.borderSecondary),
+                        border: Border.all(
+                          color: _isFocused ? colors.borderFocus : colors.borderSecondary,
+                        ),
                       ),
                       child: TextFormField(
                         controller: _controller,
+                        focusNode: _focusNode,
                         autofocus: true,
                         validator: widget.validator,
                         decoration: InputDecoration(

@@ -58,6 +58,8 @@ class AppDrawer extends ConsumerWidget {
                   },
                   onGroupEdit: (groupCode, currentName) =>
                       _showRenameGroupDialog(context, ref, groupCode, currentName),
+                  onGroupInvite: (groupCode, groupName) =>
+                      _showInviteGroupDialog(context, ref, groupCode, groupName),
                   onGroupLeave: (groupCode, groupName) =>
                       _showLeaveGroupDialog(context, ref, groupCode, groupName),
                 ),
@@ -224,6 +226,19 @@ class AppDrawer extends ConsumerWidget {
     }
   }
 
+  void _showInviteGroupDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String groupCode,
+    String groupName,
+  ) {
+    showInviteDialog(
+      context: context,
+      groupCode: groupCode,
+      groupName: groupName,
+    );
+  }
+
   void _showLeaveGroupDialog(
     BuildContext context,
     WidgetRef ref,
@@ -325,6 +340,7 @@ class _GroupSection extends StatelessWidget {
     required this.selectedGroupCode,
     required this.onGroupTap,
     required this.onGroupEdit,
+    required this.onGroupInvite,
     required this.onGroupLeave,
   });
 
@@ -332,6 +348,7 @@ class _GroupSection extends StatelessWidget {
   final String? selectedGroupCode;
   final void Function(String) onGroupTap;
   final void Function(String, String) onGroupEdit;
+  final void Function(String, String) onGroupInvite;
   final void Function(String, String) onGroupLeave;
 
   @override
@@ -371,6 +388,7 @@ class _GroupSection extends StatelessWidget {
           isSelected: isSelected,
           onTap: () => onGroupTap(group.code),
           onEdit: () => onGroupEdit(group.code, group.effectiveName),
+          onInvite: () => onGroupInvite(group.code, group.effectiveName),
           onLeave: () => onGroupLeave(group.code, group.effectiveName),
         );
       },
@@ -386,6 +404,7 @@ class _GroupItem extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     required this.onEdit,
+    required this.onInvite,
     required this.onLeave,
   });
 
@@ -394,6 +413,7 @@ class _GroupItem extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final VoidCallback onEdit;
+  final VoidCallback onInvite;
   final VoidCallback onLeave;
 
   @override
@@ -413,10 +433,14 @@ class _GroupItem extends StatelessWidget {
           child: Row(
             children: [
               // 그룹 아이콘
-              Icon(
-                memberCount > 1 ? Icons.group_outlined : Icons.person_outline,
-                size: 24,
-                color: colors.iconPrimary,
+              SvgPicture.asset(
+                'assets/icons/ic_group.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                  colors.iconPrimary,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: AppSpacing.s3),
 
@@ -444,16 +468,15 @@ class _GroupItem extends StatelessWidget {
                 ),
               ),
 
-              // 공유 아이콘 (selected 시)
+              // 체크 아이콘 (선택된 경우)
               if (isSelected) ...[
-                GestureDetector(
-                  onTap: () {
-                    // TODO: 공유 기능
-                  },
-                  child: Icon(
-                    Icons.share_outlined,
-                    size: 24,
-                    color: colors.iconSecondary,
+                SvgPicture.asset(
+                  'assets/icons/ic_check.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    colors.iconAccent,
+                    BlendMode.srcIn,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.s2),
@@ -461,35 +484,50 @@ class _GroupItem extends StatelessWidget {
 
               // 더보기 메뉴
               PopupMenuButton<String>(
-                icon: Icon(
-                  Icons.more_vert,
-                  size: 24,
-                  color: colors.iconSecondary,
+                icon: SvgPicture.asset(
+                  'assets/icons/ic_more.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    colors.iconSecondary,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadius.mdAll,
+                  side: BorderSide(color: colors.borderSecondary),
+                ),
+                color: colors.bgSecondary,
+                elevation: 4,
                 onSelected: (value) {
                   if (value == 'edit') onEdit();
+                  if (value == 'invite') onInvite();
                   if (value == 'leave') onLeave();
                 },
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit_outlined, size: 20, color: colors.iconPrimary),
-                        const SizedBox(width: AppSpacing.s2),
-                        Text('이름 변경', style: AppTypography.body.copyWith(color: colors.textPrimary)),
-                      ],
+                    height: 48,
+                    child: Text(
+                      '그룹 이름 수정',
+                      style: AppTypography.body.copyWith(color: colors.textPrimary),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'invite',
+                    height: 48,
+                    child: Text(
+                      '그룹 초대하기',
+                      style: AppTypography.body.copyWith(color: colors.textPrimary),
                     ),
                   ),
                   PopupMenuItem(
                     value: 'leave',
-                    child: Row(
-                      children: [
-                        Icon(Icons.logout, size: 20, color: colors.statusError),
-                        const SizedBox(width: AppSpacing.s2),
-                        Text('나가기', style: AppTypography.body.copyWith(color: colors.statusError)),
-                      ],
+                    height: 48,
+                    child: Text(
+                      '그룹 나가기',
+                      style: AppTypography.body.copyWith(color: colors.statusError),
                     ),
                   ),
                 ],
@@ -573,7 +611,7 @@ class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
   Widget build(BuildContext context) {
     return AppDialog(
       title: '그룹 나가기',
-      description: '"${widget.groupName}" 그룹에서 나가시겠습니까?\n\n그룹의 구독 내역이 삭제됩니다.',
+      description: '"${widget.groupName}" 그룹에서 나가시겠습니까?\n그룹의 구독 내역이 삭제됩니다.',
       actions: [
         AppDialogAction(
           label: '취소',
@@ -582,7 +620,6 @@ class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
         AppDialogAction(
           label: _isLoading ? '처리중...' : '나가기',
           isPrimary: true,
-          isDestructive: true,
           onPressed: _isLoading ? null : _onLeave,
         ),
       ],
