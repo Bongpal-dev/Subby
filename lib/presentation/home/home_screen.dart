@@ -465,17 +465,17 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                       padding: const EdgeInsets.all(AppSpacing.s4),
                       child: Row(
                         children: [
-                          // 로고
+                          // 로고 placeholder
                           Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: colors.bgTertiary,
+                              color: colors.buttonDisableBg,
                               borderRadius: BorderRadius.circular(AppSpacing.s3),
                             ),
                             child: Icon(
                               Icons.subscriptions_outlined,
-                              color: colors.iconSecondary,
+                              color: colors.buttonDisableText,
                               size: 20,
                             ),
                           ),
