@@ -242,14 +242,11 @@ Future<String?> showAppTextInputDialog({
   FormFieldValidator<String>? validator,
   bool barrierDismissible = true,
 }) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final colors = isDark ? AppColors.dark : AppColors.light;
-
   return showGeneralDialog<String>(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: '',
-    barrierColor: colors.bgPrimary.withValues(alpha: 0.5),
+    barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return AppTextInputDialog(

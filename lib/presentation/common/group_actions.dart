@@ -38,10 +38,11 @@ Future<void> showCreateGroupFlow(BuildContext context, WidgetRef ref) async {
 Future<void> showJoinGroupFlow(BuildContext context, WidgetRef ref) async {
   final groupCode = await showAppTextInputDialog(
     context: context,
-    title: '그룹 참여하기',
-    hint: '12자리 그룹 코드 입력',
+    title: '초대 코드로 참여',
+    description: '전달받은 초대 코드를 입력해\n그룹에 참여합니다',
+    hint: '초대 코드를 입력해 주세요',
     maxLength: 12,
-    confirmLabel: '확인',
+    confirmLabel: '참여하기',
     validator: (value) {
       if (value == null || value.trim().isEmpty) {
         return '그룹 코드를 입력해주세요';
