@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,7 +7,7 @@ import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/presentation/auth/login_screen.dart';
+import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/settings/settings_screen.dart';
@@ -113,7 +114,7 @@ class AppDrawer extends ConsumerWidget {
                 _MenuItem(
                   icon: Icons.login,
                   label: '로그인',
-                  onTap: () => _navigateToLogin(context),
+                  onTap: () => _showLoginDialog(context, ref),
                 ),
               const SizedBox(height: AppSpacing.s2),
               _MenuItem(
@@ -181,11 +182,10 @@ class AppDrawer extends ConsumerWidget {
     }
   }
 
-  void _navigateToLogin(BuildContext context) {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+  void _showLoginDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => _LoginDialog(ref: ref),
     );
   }
 
@@ -705,5 +705,165 @@ class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
         SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
       );
     }
+  }
+}
+
+/// 로그인 다이얼로그
+class _LoginDialog extends StatefulWidget {
+  final WidgetRef ref;
+
+  const _LoginDialog({required this.ref});
+
+  @override
+  State<_LoginDialog> createState() => _LoginDialogState();
+}
+
+class _LoginDialogState extends State<_LoginDialog> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: colors.bgSecondary,
+          borderRadius: AppRadius.lgAll,
+        ),
+        padding: const EdgeInsets.all(AppSpacing.s6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // TextGroup
+            Text(
+              '로그인',
+              style: AppTypography.title.copyWith(
+                color: colors.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.s2),
+            Text(
+              '로그인하면 데이터가 안전하게 저장되고\n다른 기기에서도 동기화돼요',
+              style: AppTypography.body.copyWith(
+                color: colors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: AppSpacing.s5),
+
+            // Google 로그인 버튼
+            Material(
+              color: colors.bgSecondary,
+              borderRadius: AppRadius.mdAll,
+              child: InkWell(
+                onTap: _isLoading ? null : _signInWithGoogle,
+                borderRadius: AppRadius.mdAll,
+                child: Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadius.mdAll,
+                    border: Border.all(color: colors.borderPrimary),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_isLoading)
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.textPrimary,
+                          ),
+                        )
+                      else
+                        SvgPicture.asset(
+                          'assets/icons/ic_google.svg',
+                          width: 20,
+                          height: 20,
+                        ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _isLoading ? '로그인 중...' : 'Google로 계속하기',
+                        style: AppTypography.body.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authDataSource = widget.ref.read(firebaseAuthDataSourceProvider);
+      final result = await authDataSource.signInWithGoogle();
+
+      if (!mounted) return;
+
+      switch (result) {
+        case GoogleSignInSuccess(:final isNewUser):
+          await _loadUserGroups(isNewUser);
+        case GoogleSignInCancelled():
+          setState(() => _isLoading = false);
+        case GoogleSignInError(:final message):
+          setState(() => _isLoading = false);
+          _showErrorSnackBar(message);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _showErrorSnackBar(e.toString());
+      }
+    }
+  }
+
+  Future<void> _loadUserGroups(bool isNewUser) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final groupRepository = widget.ref.read(groupRepositoryProvider);
+    final groups = await groupRepository.fetchRemoteGroupsByUserId(user.uid);
+
+    if (!mounted) return;
+
+    Navigator.pop(context); // 다이얼로그 닫기
+
+    if (groups.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그인되었습니다')),
+      );
+    } else {
+      for (final group in groups) {
+        await groupRepository.saveToLocal(group);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${groups.length}개의 그룹을 복구했습니다')),
+      );
+    }
+
+    widget.ref.invalidate(homeViewModelProvider);
+    widget.ref.invalidate(isAnonymousProvider);
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('로그인 실패: $message')),
+    );
   }
 }
