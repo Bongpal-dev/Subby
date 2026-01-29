@@ -486,9 +486,13 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
     return GestureDetector(
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
-      child: Card(
+      child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.s3),
         clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: colors.bgSecondary,
+          borderRadius: BorderRadius.circular(AppSpacing.s4),
+        ),
         child: Stack(
           children: [
             // 빨간 배경 (삭제 UI) - 스와이프 시에만 표시
@@ -533,20 +537,36 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                 },
                 blendMode: BlendMode.dstIn,
                 child: Container(
-                  color: Theme.of(context).cardColor,
+                  color: colors.bgSecondary,
                   child: InkWell(
                     onTap: widget.onTap,
                     child: Padding(
                       padding: const EdgeInsets.all(AppSpacing.s4),
                       child: Row(
                         children: [
+                          // 로고
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: colors.bgTertiary,
+                              borderRadius: BorderRadius.circular(AppSpacing.s3),
+                            ),
+                            child: Icon(
+                              Icons.subscriptions_outlined,
+                              color: colors.iconSecondary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          // 서비스 정보
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   widget.subscription.name,
-                                  style: AppTypography.title.copyWith(
+                                  style: AppTypography.bodySemi.copyWith(
                                     color: colors.textPrimary,
                                   ),
                                 ),
@@ -560,24 +580,32 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                               ],
                             ),
                           ),
+                          // 금액 정보
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
                                 '$currencySymbol$formattedAmount',
-                                style: AppTypography.title.copyWith(
-                                  color: colors.textAccent,
+                                style: AppTypography.bodyLargeSemi.copyWith(
+                                  color: colors.textPrimary,
                                 ),
                               ),
                               if (krwConverted != null) ...[
                                 const SizedBox(height: AppSpacing.s1),
                                 Text(
-                                  '\u2248 \u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
+                                  '\u2248\u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
                                   style: AppTypography.caption.copyWith(
                                     color: colors.textTertiary,
                                   ),
                                 ),
                               ],
+                              const SizedBox(height: AppSpacing.s1),
+                              Text(
+                                _getPeriodLabel(widget.subscription.period),
+                                style: AppTypography.caption.copyWith(
+                                  color: colors.textTertiary,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -603,6 +631,19 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
         return '¥';
       default:
         return '₩';
+    }
+  }
+
+  String _getPeriodLabel(String period) {
+    switch (period) {
+      case 'monthly':
+        return '월간 결제';
+      case 'yearly':
+        return '연간 결제';
+      case 'weekly':
+        return '주간 결제';
+      default:
+        return '월간 결제';
     }
   }
 
