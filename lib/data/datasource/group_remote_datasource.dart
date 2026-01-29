@@ -11,10 +11,14 @@ class GroupRemoteDataSource {
   CollectionReference<Map<String, dynamic>> get _groupsRef =>
       _firestore.collection('groups');
 
-  Future<void> saveGroup(GroupDto dto) async {
+  Future<void> saveGroup(GroupDto dto, {String? ownerNickname}) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final membersWithJoinedAt = {
-      for (var uid in dto.members) uid: {'joinedAt': now}
+      for (var uid in dto.members)
+        uid: {
+          'joinedAt': now,
+          if (ownerNickname != null && uid == dto.ownerId) 'nickname': ownerNickname,
+        }
     };
 
     final data = {
@@ -117,11 +121,14 @@ class GroupRemoteDataSource {
     return oldestUid ?? membersMap.keys.first;
   }
 
-  Future<void> addMember(String code, String userId) async {
+  Future<void> addMember(String code, String userId, {String? nickname}) async {
     final now = DateTime.now().millisecondsSinceEpoch;
 
     await _groupsRef.doc(code).update({
-      'members.$userId': {'joinedAt': now},
+      'members.$userId': {
+        'joinedAt': now,
+        if (nickname != null) 'nickname': nickname,
+      },
       'memberUids': FieldValue.arrayUnion([userId]),
     });
   }

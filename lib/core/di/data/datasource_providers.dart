@@ -11,6 +11,8 @@ import 'package:subby/data/datasource/preset_remote_datasource.dart';
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
 import 'package:subby/data/datasource/subscription_remote_datasource.dart';
 import 'package:subby/data/datasource/fcm_token_remote_datasource.dart';
+import 'package:subby/data/datasource/nickname_local_datasource.dart';
+import 'package:subby/data/datasource/user_remote_datasource.dart';
 
 final firebaseAuthDataSourceProvider = Provider<FirebaseAuthDataSource>((ref) {
   return FirebaseAuthDataSource();
@@ -70,4 +72,22 @@ final exchangeRateRemoteDataSourceProvider = Provider<ExchangeRateRemoteDataSour
 
 final fcmTokenRemoteDataSourceProvider = Provider<FcmTokenRemoteDataSource>((ref) {
   return FcmTokenRemoteDataSource();
+});
+
+final nicknameLocalDataSourceProvider = Provider<NicknameLocalDataSource>((ref) {
+  return NicknameLocalDataSource();
+});
+
+final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) {
+  return UserRemoteDataSource();
+});
+
+/// 현재 사용자 닉네임 (로컬 캐시 우선)
+final currentNicknameProvider = FutureProvider<String?>((ref) async {
+  final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
+  final userId = authDataSource.currentUserId;
+  if (userId == null) return null;
+
+  final localDataSource = ref.watch(nicknameLocalDataSourceProvider);
+  return localDataSource.getNickname();
 });

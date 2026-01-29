@@ -6,7 +6,9 @@ import 'package:subby/data/repository/group_repository_impl.dart';
 import 'package:subby/data/repository/pending_change_repository_impl.dart';
 import 'package:subby/data/repository/preset_repository_impl.dart';
 import 'package:subby/data/repository/subscription_repository_impl.dart';
+import 'package:subby/data/repository/nickname_repository_impl.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
+import 'package:subby/domain/repository/nickname_repository.dart';
 import 'package:subby/domain/repository/exchange_rate_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
@@ -54,4 +56,14 @@ final exchangeRateRepositoryProvider = Provider<ExchangeRateRepository>((ref) {
   final remoteDataSource = ref.watch(exchangeRateRemoteDataSourceProvider);
 
   return ExchangeRateRepositoryImpl(localDataSource, remoteDataSource);
+});
+
+final nicknameRepositoryProvider = Provider<NicknameRepository>((ref) {
+  final localDataSource = ref.watch(nicknameLocalDataSourceProvider);
+  final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
+
+  return NicknameRepositoryImpl(
+    localDataSource: localDataSource,
+    remoteDataSource: remoteDataSource,
+  );
 });

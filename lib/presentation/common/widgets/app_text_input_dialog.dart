@@ -17,6 +17,8 @@ class AppTextInputDialog extends StatefulWidget {
   final String cancelLabel;
   final String confirmLabel;
   final FormFieldValidator<String>? validator;
+  final Widget? suffixIcon;
+  final String Function()? onGenerateValue;
 
   const AppTextInputDialog({
     super.key,
@@ -28,6 +30,8 @@ class AppTextInputDialog extends StatefulWidget {
     this.cancelLabel = '취소',
     this.confirmLabel = '확인',
     this.validator,
+    this.suffixIcon,
+    this.onGenerateValue,
   });
 
   @override
@@ -154,6 +158,30 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
                             vertical: AppSpacing.s4,
                           ),
                           errorStyle: const TextStyle(height: 0, fontSize: 0),
+                          suffixIcon: widget.suffixIcon != null
+                              ? GestureDetector(
+                                  onTap: () {
+                                    if (widget.onGenerateValue != null) {
+                                      final newValue = widget.onGenerateValue!();
+                                      _controller.text = newValue;
+                                      _controller.selection = TextSelection.collapsed(
+                                        offset: newValue.length,
+                                      );
+                                      setState(() {
+                                        _errorText = null;
+                                      });
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: AppSpacing.s3),
+                                    child: widget.suffixIcon,
+                                  ),
+                                )
+                              : null,
+                          suffixIconConstraints: const BoxConstraints(
+                            minWidth: 24,
+                            minHeight: 24,
+                          ),
                         ),
                         style: AppTypography.body.copyWith(
                           color: colors.textPrimary,
@@ -240,6 +268,8 @@ Future<String?> showAppTextInputDialog({
   String cancelLabel = '취소',
   String confirmLabel = '확인',
   FormFieldValidator<String>? validator,
+  Widget? suffixIcon,
+  String Function()? onGenerateValue,
   bool barrierDismissible = true,
 }) {
   return showGeneralDialog<String>(
@@ -258,6 +288,8 @@ Future<String?> showAppTextInputDialog({
         cancelLabel: cancelLabel,
         confirmLabel: confirmLabel,
         validator: validator,
+        suffixIcon: suffixIcon,
+        onGenerateValue: onGenerateValue,
       );
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {

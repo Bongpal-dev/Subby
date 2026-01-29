@@ -10,6 +10,7 @@ import 'package:subby/presentation/auth/login_screen.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/settings/settings_screen.dart';
+import 'package:subby/core/utils/nickname_generator.dart';
 
 /// Figma Drawer 디자인
 /// - 너비: 300dp
@@ -39,8 +40,7 @@ class AppDrawer extends ConsumerWidget {
             children: [
               // ProfileSection
               _ProfileSection(
-                isAnonymous: isAnonymous,
-                onSettingsTap: () => _navigateToSettings(context),
+                onEditNicknameTap: () => _showEditNicknameDialog(context, ref),
               ),
 
               const SizedBox(height: AppSpacing.s6),
@@ -110,6 +110,50 @@ class AppDrawer extends ConsumerWidget {
       context,
       MaterialPageRoute(builder: (context) => const SettingsScreen()),
     );
+  }
+
+  Future<void> _showEditNicknameDialog(BuildContext context, WidgetRef ref) async {
+    final currentNickname = ref.read(currentNicknameProvider).valueOrNull;
+    final nicknameRepository = ref.read(nicknameRepositoryProvider);
+    final authDataSource = ref.read(firebaseAuthDataSourceProvider);
+    final userId = authDataSource.currentUserId;
+    final groups = ref.read(homeViewModelProvider).groups;
+
+    if (userId == null) return;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
+    final newNickname = await showAppTextInputDialog(
+      context: context,
+      title: '닉네임 변경',
+      hint: '닉네임을 입력하세요',
+      initialValue: currentNickname ?? NicknameGenerator.generate(),
+      maxLength: 20,
+      confirmLabel: '저장',
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return '닉네임을 입력해주세요';
+        }
+        return null;
+      },
+      suffixIcon: SvgPicture.asset(
+        'assets/icons/ic_refresh_small.svg',
+        width: 24,
+        height: 24,
+        colorFilter: ColorFilter.mode(
+          colors.iconSecondary,
+          BlendMode.srcIn,
+        ),
+      ),
+      onGenerateValue: NicknameGenerator.generate,
+    );
+
+    if (newNickname != null && context.mounted) {
+      final groupCodes = groups.map((g) => g.code).toList();
+      await nicknameRepository.saveNickname(userId, newNickname, groupCodes);
+      ref.invalidate(currentNicknameProvider);
+    }
   }
 
   void _navigateToLogin(BuildContext context) {
@@ -231,29 +275,25 @@ class AppDrawer extends ConsumerWidget {
   }
 }
 
-/// ProfileSection: 사용자 이름 + 설정 아이콘
+/// ProfileSection: 사용자 닉네임 + 편집 아이콘
 class _ProfileSection extends ConsumerWidget {
   const _ProfileSection({
-    required this.isAnonymous,
-    required this.onSettingsTap,
+    required this.onEditNicknameTap,
   });
 
-  final bool isAnonymous;
-  final VoidCallback onSettingsTap;
+  final VoidCallback onEditNicknameTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
-    final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
-
-    final displayName = isAnonymous ? '게스트' : (authDataSource.currentEmail ?? '사용자');
+    final nickname = ref.watch(currentNicknameProvider).valueOrNull;
 
     return Row(
       children: [
         Expanded(
           child: Text(
-            displayName,
+            nickname ?? '닉네임 없음',
             style: AppTypography.bodyLargeSemi.copyWith(
               color: colors.textPrimary,
             ),
@@ -262,9 +302,9 @@ class _ProfileSection extends ConsumerWidget {
         ),
         const SizedBox(width: AppSpacing.s3),
         GestureDetector(
-          onTap: onSettingsTap,
+          onTap: onEditNicknameTap,
           child: SvgPicture.asset(
-            'assets/icons/ic_setting.svg',
+            'assets/icons/ic_edit.svg',
             width: 24,
             height: 24,
             colorFilter: ColorFilter.mode(
