@@ -2,12 +2,15 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/presentation/common/widgets/app_button.dart';
 
-/// 텍스트 입력 다이얼로그
+/// Figma InputDialog 컴포넌트
 class AppTextInputDialog extends StatefulWidget {
   final String title;
+  final String? description;
   final String? hint;
   final String? initialValue;
   final int? maxLength;
@@ -18,6 +21,7 @@ class AppTextInputDialog extends StatefulWidget {
   const AppTextInputDialog({
     super.key,
     required this.title,
+    this.description,
     this.hint,
     this.initialValue,
     this.maxLength,
@@ -33,7 +37,7 @@ class AppTextInputDialog extends StatefulWidget {
 class _AppTextInputDialogState extends State<AppTextInputDialog> {
   late final TextEditingController _controller;
   final _formKey = GlobalKey<FormState>();
-  bool _showLimitError = false;
+  String? _errorText;
 
   @override
   void initState() {
@@ -48,15 +52,18 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
   }
 
   void _onTextChanged(String value) {
+    // maxLength 초과 시 자르기
     if (widget.maxLength != null && value.length > widget.maxLength!) {
       final trimmed = value.substring(0, widget.maxLength!);
       _controller.text = trimmed;
       _controller.selection = TextSelection.collapsed(offset: trimmed.length);
-      setState(() => _showLimitError = true);
-    } else {
-      if (_showLimitError) {
-        setState(() => _showLimitError = false);
-      }
+    }
+
+    // 에러 메시지 업데이트
+    if (widget.validator != null) {
+      setState(() {
+        _errorText = widget.validator!(_controller.text);
+      });
     }
   }
 
@@ -73,188 +80,148 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final backgroundColor = isDark
-        ? const Color(0xFF2C2C2E).withValues(alpha: 0.95)
-        : Colors.white.withValues(alpha: 0.95);
-    final dividerColor = isDark
-        ? const Color(0xFF545458).withValues(alpha: 0.6)
-        : const Color(0xFF3C3C43).withValues(alpha: 0.2);
-    final fillColor = isDark
-        ? const Color(0xFF1C1C1E).withValues(alpha: 0.6)
-        : const Color(0xFFF2F2F7);
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
       child: Dialog(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 44),
+        insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
         child: Container(
           decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
+            color: colors.bgSecondary,
+            borderRadius: AppRadius.lgAll,
           ),
+          padding: const EdgeInsets.all(AppSpacing.s6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Title + Input
-              Padding(
-                padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.lg),
-                child: Column(
-                  children: [
+              // TextGroup (Title + Description)
+              Column(
+                children: [
+                  Text(
+                    widget.title,
+                    style: AppTypography.title.copyWith(
+                      color: colors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (widget.description != null) ...[
+                    const SizedBox(height: AppSpacing.s2),
                     Text(
-                      widget.title,
-                      style: AppTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.w600,
+                      widget.description!,
+                      style: AppTypography.body.copyWith(
+                        color: colors.textSecondary,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: AppSpacing.md),
-                    Form(
-                      key: _formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      child: FormField<String>(
-                        initialValue: _controller.text,
+                  ],
+                ],
+              ),
+
+              const SizedBox(height: AppSpacing.s5),
+
+              // TextField
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: colors.bgTertiary,
+                        borderRadius: AppRadius.mdAll,
+                        border: Border.all(color: colors.borderSecondary),
+                      ),
+                      child: TextFormField(
+                        controller: _controller,
+                        autofocus: true,
                         validator: widget.validator,
-                        builder: (state) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: fillColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: TextField(
-                                  controller: _controller,
-                                  autofocus: true,
-                                  decoration: InputDecoration(
-                                    hintText: widget.hint,
-                                    hintStyle: AppTypography.bodyLarge.copyWith(
-                                      color: colors.textTertiary,
-                                    ),
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    filled: false,
-                                    isDense: true,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
-                                  ),
-                                  style: AppTypography.bodyLarge,
-                                  onChanged: (value) {
-                                    state.didChange(value);
-                                    _onTextChanged(value);
-                                  },
+                        decoration: InputDecoration(
+                          hintText: widget.hint,
+                          hintStyle: AppTypography.body.copyWith(
+                            color: colors.textTertiary,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          filled: false,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.s4,
+                            vertical: AppSpacing.s4,
+                          ),
+                          errorStyle: const TextStyle(height: 0, fontSize: 0),
+                        ),
+                        style: AppTypography.body.copyWith(
+                          color: colors.textPrimary,
+                        ),
+                        onChanged: _onTextChanged,
+                      ),
+                    ),
+                    // Error/Counter row
+                    if (_errorText != null || widget.maxLength != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.s2),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _errorText != null
+                                  ? Text(
+                                      _errorText!,
+                                      style: AppTypography.caption.copyWith(
+                                        color: colors.statusError,
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                            if (widget.maxLength != null)
+                              Text(
+                                '${_controller.text.length}/${widget.maxLength}',
+                                style: AppTypography.caption.copyWith(
+                                  color: colors.textTertiary,
                                 ),
                               ),
-                              if (state.hasError ||
-                                  (widget.maxLength != null))
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 6),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: state.hasError
-                                            ? Text(
-                                                state.errorText!,
-                                                style: AppTypography.captionSmall
-                                                    .copyWith(
-                                                  color: colorScheme.error,
-                                                ),
-                                              )
-                                            : const SizedBox.shrink(),
-                                      ),
-                                      if (widget.maxLength != null)
-                                        Text(
-                                          '${_controller.text.length}/${widget.maxLength}',
-                                          style:
-                                              AppTypography.captionSmall.copyWith(
-                                            color: colors.textTertiary,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
 
-              // Divider
-              Container(height: 0.5, color: dividerColor),
+              const SizedBox(height: AppSpacing.s5),
 
-              // Actions
-              IntrinsicHeight(
-                child: Row(
-                  children: [
-                    // Cancel
-                    Expanded(
-                      child: _ActionButton(
+              // ButtonRow
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 44,
+                      child: AppButton(
                         label: widget.cancelLabel,
+                        type: AppButtonType.outline,
                         onPressed: () => Navigator.pop(context),
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w400,
+                        isExpanded: true,
                       ),
                     ),
-                    Container(width: 0.5, color: dividerColor),
-                    // Confirm
-                    Expanded(
-                      child: _ActionButton(
+                  ),
+                  const SizedBox(width: AppSpacing.s3),
+                  Expanded(
+                    child: SizedBox(
+                      height: 44,
+                      child: AppButton(
                         label: widget.confirmLabel,
+                        type: AppButtonType.primary,
                         onPressed: _onConfirm,
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w600,
+                        isExpanded: true,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-  final Color color;
-  final FontWeight fontWeight;
-
-  const _ActionButton({
-    required this.label,
-    required this.onPressed,
-    required this.color,
-    required this.fontWeight,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: AppTypography.titleLarge.copyWith(
-              color: color,
-              fontWeight: fontWeight,
-            ),
           ),
         ),
       ),
@@ -266,6 +233,7 @@ class _ActionButton extends StatelessWidget {
 Future<String?> showAppTextInputDialog({
   required BuildContext context,
   required String title,
+  String? description,
   String? hint,
   String? initialValue,
   int? maxLength,
@@ -274,15 +242,19 @@ Future<String?> showAppTextInputDialog({
   FormFieldValidator<String>? validator,
   bool barrierDismissible = true,
 }) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final colors = isDark ? AppColors.dark : AppColors.light;
+
   return showGeneralDialog<String>(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: '',
-    barrierColor: Colors.black.withValues(alpha: 0.3),
+    barrierColor: colors.bgPrimary.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return AppTextInputDialog(
         title: title,
+        description: description,
         hint: hint,
         initialValue: initialValue,
         maxLength: maxLength,
