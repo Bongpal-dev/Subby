@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/core/theme/app_typography.dart';
@@ -120,26 +122,30 @@ class HomeScreen extends ConsumerWidget {
   }
 
   void _onDelete(BuildContext context, WidgetRef ref, UserSubscription sub) {
-    showDialog(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
+    showAppDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('구독 삭제'),
-        content: Text('\'${sub.name}\'을(를) 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              final vm = ref.read(homeViewModelProvider.notifier);
-              await vm.deleteSubscription(sub.id);
-            },
-            child: const Text('삭제', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      iconType: AppIconType.trash,
+      iconColor: colors.statusError,
+      title: '구독 삭제',
+      description: '"${sub.name}"를 정말 삭제할까요?',
+      actions: [
+        AppDialogAction(
+          label: '취소',
+          onPressed: () => Navigator.pop(context),
+        ),
+        AppDialogAction(
+          label: '삭제',
+          isPrimary: true,
+          onPressed: () async {
+            Navigator.pop(context);
+            final vm = ref.read(homeViewModelProvider.notifier);
+            await vm.deleteSubscription(sub.id);
+          },
+        ),
+      ],
     );
   }
 }
@@ -429,7 +435,7 @@ class _NoGroupState extends ConsumerWidget {
   }
 }
 
-/// Figma: SubscriptionCard
+/// Figma: SubscriptionCard with swipe-to-delete
 class _SubscriptionTile extends StatefulWidget {
   final UserSubscription subscription;
   final ExchangeRate? exchangeRate;
@@ -449,21 +455,38 @@ class _SubscriptionTile extends StatefulWidget {
 }
 
 class _SubscriptionTileState extends State<_SubscriptionTile> {
-  double _dragExtent = 0;
-  static const double _deleteThreshold = 80;
+  double _dragOffset = 0;
+  bool _hasTriggered = false;
 
   void _handleDragUpdate(DragUpdateDetails details) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     setState(() {
-      _dragExtent = (_dragExtent - details.delta.dx).clamp(0.0, 120.0);
+      // 왼쪽으로만 스와이프 가능 (음수 방향)
+      _dragOffset = (_dragOffset + details.delta.dx).clamp(-double.infinity, 0.0);
     });
+
+    if (!_hasTriggered && _dragOffset.abs() > screenWidth * 0.42) {
+      _hasTriggered = true;
+      HapticFeedback.mediumImpact();
+
+      // 다이얼로그 띄우고 카드 원위치
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _dragOffset = 0;
+        });
+        widget.onDelete();
+      });
+    }
   }
 
   void _handleDragEnd(DragEndDetails details) {
-    if (_dragExtent >= _deleteThreshold) {
-      widget.onDelete();
+    if (_hasTriggered) {
+      _hasTriggered = false;
+      return;
     }
     setState(() {
-      _dragExtent = 0;
+      _dragOffset = 0;
     });
   }
 
@@ -471,7 +494,6 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
-    final colorScheme = Theme.of(context).colorScheme;
     final isKrw = widget.subscription.currency == 'KRW';
 
     final currencySymbol = _getCurrencySymbol(widget.subscription.currency);
@@ -481,147 +503,134 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
 
     final krwConverted = _getKrwConverted();
 
-    // 스와이프 진행률 (0.0 ~ 1.0)
-    final progress = (_dragExtent / _deleteThreshold).clamp(0.0, 1.0);
-
     return GestureDetector(
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: colors.bgSecondary,
-          borderRadius: BorderRadius.circular(AppSpacing.s4),
-        ),
-        child: Stack(
-          children: [
-            // 빨간 배경 (삭제 UI) - 스와이프 시에만 표시
-            if (progress > 0)
-              Positioned.fill(
-                child: Container(
-                  color: colorScheme.error,
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '삭제하기',
-                        style: AppTypography.title.copyWith(
-                          color: Colors.white.withValues(alpha: progress),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.s2),
-                      Icon(
-                        Icons.delete,
-                        color: Colors.white.withValues(alpha: progress),
-                        size: 28,
-                      ),
-                    ],
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 뒤쪽 삭제 UI (카드가 스와이프되면 보임)
+          Positioned.fill(
+            child: Container(
+              padding: const EdgeInsets.only(right: AppSpacing.s4),
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '삭제하기',
+                    style: AppTypography.bodyLargeSemi.copyWith(
+                      color: colors.statusError,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: AppSpacing.s2),
+                  SvgPicture.asset(
+                    'assets/icons/ic_trash.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(
+                      colors.statusError,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ],
               ),
-            // 카드 내용 (오른쪽에서 왼쪽으로 페이드)
-            // Stack 크기 유지를 위해 항상 렌더링 (Opacity로 숨김)
-            Opacity(
-              opacity: progress < 1.0 ? 1.0 : 0.0,
-              child: ShaderMask(
-                shaderCallback: (bounds) {
-                  // progress가 0이면 전체 불투명, 1이면 완전히 투명
-                  final fadeEnd = 1.0 - progress;
-                  return LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Colors.white, Colors.transparent],
-                    stops: [fadeEnd.clamp(0.0, 1.0), 1.0],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.dstIn,
-                child: Container(
-                  color: colors.bgSecondary,
-                  child: InkWell(
-                    onTap: widget.onTap,
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.s4),
-                      child: Row(
-                        children: [
-                          // 로고 placeholder (SubLogo)
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: colors.buttonDisableBg,
-                              borderRadius: BorderRadius.circular(AppSpacing.s3),
-                            ),
-                            alignment: Alignment.center,
-                            child: SvgPicture.asset(
-                              'assets/icons/subby_place_holder.svg',
-                              width: 28,
-                              height: 28,
-                              colorFilter: ColorFilter.mode(
-                                colors.buttonDisableText,
-                                BlendMode.srcIn,
-                              ),
+            ),
+          ),
+          // 카드 (스와이프 시 왼쪽으로 이동)
+          Transform.translate(
+            offset: Offset(_dragOffset, 0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: colors.bgSecondary,
+                borderRadius: BorderRadius.circular(AppSpacing.s4),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(AppSpacing.s4),
+                  onTap: _dragOffset == 0 ? widget.onTap : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.s4),
+                    child: Row(
+                      children: [
+                        // 로고 placeholder (SubLogo)
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: colors.buttonDisableBg,
+                            borderRadius: BorderRadius.circular(AppSpacing.s3),
+                          ),
+                          alignment: Alignment.center,
+                          child: SvgPicture.asset(
+                            'assets/icons/subby_place_holder.svg',
+                            width: 28,
+                            height: 28,
+                            colorFilter: ColorFilter.mode(
+                              colors.buttonDisableText,
+                              BlendMode.srcIn,
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          // 서비스 정보
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.subscription.name,
-                                  style: AppTypography.bodySemi.copyWith(
-                                    color: colors.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.s1),
-                                Text(
-                                  '매월 ${widget.subscription.billingDay}일 결제',
-                                  style: AppTypography.caption.copyWith(
-                                    color: colors.textTertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // 금액 정보
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                        ),
+                        const SizedBox(width: 10),
+                        // 서비스 정보
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '$currencySymbol$formattedAmount',
-                                style: AppTypography.bodyLargeSemi.copyWith(
+                                widget.subscription.name,
+                                style: AppTypography.bodySemi.copyWith(
                                   color: colors.textPrimary,
                                 ),
                               ),
-                              if (krwConverted != null) ...[
-                                const SizedBox(height: AppSpacing.s1),
-                                Text(
-                                  '\u2248\u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
-                                  style: AppTypography.caption.copyWith(
-                                    color: colors.textTertiary,
-                                  ),
-                                ),
-                              ],
                               const SizedBox(height: AppSpacing.s1),
                               Text(
-                                _getPeriodLabel(widget.subscription.period),
+                                '매월 ${widget.subscription.billingDay}일 결제',
                                 style: AppTypography.caption.copyWith(
                                   color: colors.textTertiary,
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        // 금액 정보
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '$currencySymbol$formattedAmount',
+                              style: AppTypography.bodyLargeSemi.copyWith(
+                                color: colors.textPrimary,
+                              ),
+                            ),
+                            if (krwConverted != null) ...[
+                              const SizedBox(height: AppSpacing.s1),
+                              Text(
+                                '\u2248\u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
+                                style: AppTypography.caption.copyWith(
+                                  color: colors.textTertiary,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: AppSpacing.s1),
+                            Text(
+                              _getPeriodLabel(widget.subscription.period),
+                              style: AppTypography.caption.copyWith(
+                                color: colors.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

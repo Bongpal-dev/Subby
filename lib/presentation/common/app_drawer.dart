@@ -186,6 +186,7 @@ class AppDrawer extends ConsumerWidget {
   void _showLoginDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (context) => _LoginDialog(ref: ref),
     );
   }
@@ -238,6 +239,7 @@ class AppDrawer extends ConsumerWidget {
   ) {
     showDialog(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (context) => _LeaveGroupDialog(
         groupCode: groupCode,
         groupName: groupName,
