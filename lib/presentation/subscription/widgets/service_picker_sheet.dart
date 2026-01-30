@@ -129,6 +129,7 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
 
     showDialog(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (ctx) => AlertDialog(
         backgroundColor: colors.bgSecondary,
         title: Text('서비스명 입력', style: AppTypography.title),

@@ -233,7 +233,7 @@ Future<int?> showDayPickerDialog({
     context: context,
     barrierDismissible: true,
     barrierLabel: '',
-    barrierColor: Colors.black.withValues(alpha: 0.3),
+    barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return DayPickerDialog(initialDay: initialDay);

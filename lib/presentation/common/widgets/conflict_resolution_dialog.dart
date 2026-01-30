@@ -11,6 +11,7 @@ Future<ConflictResolution?> showConflictResolutionDialog({
   return showDialog<ConflictResolution>(
     context: context,
     barrierDismissible: false,
+    barrierColor: Colors.black.withValues(alpha: 0.5),
     builder: (context) => _ConflictResolutionDialog(conflict: conflict),
   );
 }

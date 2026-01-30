@@ -192,7 +192,7 @@ Future<T?> showAppDialog<T>({
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: '',
-    barrierColor: colors.bgPrimary.withValues(alpha: 0.5),
+    barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return AppDialog(

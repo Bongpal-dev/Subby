@@ -317,6 +317,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
   void _onDelete(SubscriptionEditViewModel vm) {
     showDialog(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (dialogContext) => AlertDialog(
         title: const Text('구독 삭제'),
         content: const Text('이 구독을 삭제하시겠습니까?'),
