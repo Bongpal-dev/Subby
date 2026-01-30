@@ -8,6 +8,7 @@ export 'app_dialog.dart';
 export 'app_dropdown.dart';
 export 'app_fab.dart';
 export 'app_text_field.dart';
+export 'app_toggle.dart';
 
 // App-specific Widgets
 export 'amount_adder.dart';
