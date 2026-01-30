@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/data/service_providers.dart';
 import 'package:subby/core/util/invite_link_generator.dart';
+import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/providers/deep_link_provider.dart';
-import 'package:subby/presentation/common/widgets/widgets.dart';
 
 class AppInitializationWrapper extends ConsumerStatefulWidget {
   final Widget child;
@@ -88,8 +88,9 @@ class _AppInitializationWrapperState
 
     if (groupCode == null || !mounted) return;
 
-    showJoinGroupDialog(
+    await joinGroupWithConfirmation(
       context: context,
+      ref: ref,
       groupCode: groupCode,
     );
   }
