@@ -191,12 +191,13 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
   }
 
   void selectManualInput() {
+    // 프리셋 선택 해제, 입력한 이름은 유지
     state = state.copyWith(
       clearSelectedPreset: true,
       clearSelectedPlan: true,
       isServiceSelected: true,
       isManualPriceInput: true,
-      name: '',
+      // name은 유지 (사용자가 입력한 텍스트)
       currency: 'KRW',
       amount: 0,
       period: 'MONTHLY',
@@ -222,6 +223,16 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
 
   void setName(String name) {
     state = state.copyWith(name: name);
+  }
+
+  /// 서비스 선택 해제 (입력 시 검색 아이콘으로 전환)
+  void clearPresetSelection() {
+    if (state.isServiceSelected) {
+      state = state.copyWith(
+        clearSelectedPreset: true,
+        isServiceSelected: false,
+      );
+    }
   }
 
   void setCurrency(String currency) {

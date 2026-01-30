@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
@@ -12,6 +13,7 @@ import 'package:subby/presentation/subscription/subscription_add_view_model.dart
 /// 서비스 검색/선택 드롭다운
 /// - 텍스트 입력 시 검색 결과 드롭다운 표시
 /// - 프리셋 선택 시 로고 + 이름 표시
+/// - 직접 입력 선택 시 입력한 텍스트가 서비스명이 됨
 class ServiceDropdown extends ConsumerStatefulWidget {
   const ServiceDropdown({super.key});
 
@@ -78,14 +80,16 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
     final size = renderBox.size;
 
     return OverlayEntry(
-      builder: (context) => Positioned(
-        width: size.width,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: Offset(0, size.height + 4),
-          child: _ServiceDropdownMenu(
-            onItemSelected: (preset) {
+      builder: (context) => CompositedTransformFollower(
+        link: _layerLink,
+        showWhenUnlinked: false,
+        offset: Offset(0, size.height + 4),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: size.width,
+            child: _ServiceDropdownMenu(
+            onPresetSelected: (preset) {
               final vm = ref.read(subscriptionAddViewModelProvider.notifier);
               final locale = Localizations.localeOf(this.context);
               vm.selectPreset(preset, locale);
@@ -93,7 +97,15 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
               _removeOverlay();
               _focusNode.unfocus();
             },
+            onManualInputSelected: () {
+              final vm = ref.read(subscriptionAddViewModelProvider.notifier);
+              // 현재 입력된 텍스트를 서비스명으로 사용
+              vm.selectManualInput();
+              _removeOverlay();
+              _focusNode.unfocus();
+            },
           ),
+        ),
         ),
       ),
     );
@@ -107,10 +119,15 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
     final colors = isDark ? AppColors.dark : AppColors.light;
     final locale = Localizations.localeOf(context);
 
-    // 프리셋 선택되면 컨트롤러 동기화
-    if (state.selectedPreset != null && _controller.text != state.selectedPreset!.displayName(locale)) {
-      _controller.text = state.selectedPreset!.displayName(locale);
-    }
+    // 프리셋 선택 변경 감지하여 컨트롤러 동기화
+    ref.listen(
+      subscriptionAddViewModelProvider.select((s) => s.selectedPreset),
+      (prev, next) {
+        if (next != null) {
+          _controller.text = next.displayName(locale);
+        }
+      },
+    );
 
     return CompositedTransformTarget(
       link: _layerLink,
@@ -119,11 +136,12 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
         hint: '서비스 이름을 입력해 주세요',
         controller: _controller,
         focusNode: _focusNode,
-        prefix: state.selectedPreset != null
-            ? _ServiceLogo(preset: state.selectedPreset!, colors: colors)
+        prefix: state.isServiceSelected
+            ? _ServiceLogo(colors: colors)
             : AppIcon(AppIconType.search, size: 24, color: colors.iconSecondary),
         onChanged: (value) {
           vm.setName(value);
+          vm.clearPresetSelection(); // 입력 시 프리셋 선택 해제
           vm.filterPresets(value, locale);
           _updateOverlay();
         },
@@ -132,31 +150,29 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
   }
 }
 
-/// 서비스 로고 위젯
+/// 서비스 로고 플레이스홀더 위젯
 class _ServiceLogo extends StatelessWidget {
-  const _ServiceLogo({
-    required this.preset,
-    required this.colors,
-  });
+  const _ServiceLogo({required this.colors});
 
-  final SubscriptionPreset preset;
   final AppColorScheme colors;
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context);
-    final initial = preset.displayName(locale).isNotEmpty
-        ? preset.displayName(locale).substring(0, 1).toUpperCase()
-        : 'S';
-
     return Container(
       width: 40,
       height: 40,
-      decoration: BoxDecoration(color: colors.buttonDisableBg),
-      child: Center(
-        child: Text(
-          initial,
-          style: AppTypography.title.copyWith(color: colors.textSecondary),
+      decoration: BoxDecoration(
+        color: colors.buttonDisableBg,
+        borderRadius: BorderRadius.circular(AppSpacing.s3),
+      ),
+      alignment: Alignment.center,
+      child: SvgPicture.asset(
+        'assets/icons/subby_place_holder.svg',
+        width: 28,
+        height: 28,
+        colorFilter: ColorFilter.mode(
+          colors.buttonDisableText,
+          BlendMode.srcIn,
         ),
       ),
     );
@@ -166,10 +182,12 @@ class _ServiceLogo extends StatelessWidget {
 /// 서비스 드롭다운 메뉴
 class _ServiceDropdownMenu extends ConsumerWidget {
   const _ServiceDropdownMenu({
-    required this.onItemSelected,
+    required this.onPresetSelected,
+    required this.onManualInputSelected,
   });
 
-  final void Function(SubscriptionPreset preset) onItemSelected;
+  final void Function(SubscriptionPreset preset) onPresetSelected;
+  final VoidCallback onManualInputSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -178,15 +196,9 @@ class _ServiceDropdownMenu extends ConsumerWidget {
     final colors = isDark ? AppColors.dark : AppColors.light;
     final locale = Localizations.localeOf(context);
 
-    // 검색 결과가 없으면 표시하지 않음
-    if (state.filteredPresets.isEmpty && !state.isLoadingPresets) {
-      return const SizedBox.shrink();
-    }
-
     return Material(
       color: Colors.transparent,
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 240),
         decoration: BoxDecoration(
           color: colors.bgSecondary,
           borderRadius: AppRadius.mdAll,
@@ -199,33 +211,49 @@ class _ServiceDropdownMenu extends ConsumerWidget {
             ),
           ],
         ),
-        child: state.isLoadingPresets
-            ? const Padding(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 프리셋 목록 (스크롤 가능, 최대 176px)
+            if (state.isLoadingPresets)
+              const Padding(
                 padding: EdgeInsets.all(AppSpacing.s4),
                 child: Center(child: CircularProgressIndicator()),
               )
-            : ListView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(AppSpacing.s2),
-                itemCount: state.filteredPresets.length,
-                itemBuilder: (context, index) {
-                  final preset = state.filteredPresets[index];
-                  return _DropdownItem(
-                    preset: preset,
-                    locale: locale,
-                    colors: colors,
-                    onTap: () => onItemSelected(preset),
-                  );
-                },
+            else if (state.filteredPresets.isNotEmpty)
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 176),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(AppSpacing.s2),
+                  itemCount: state.filteredPresets.length,
+                  itemBuilder: (context, index) {
+                    final preset = state.filteredPresets[index];
+                    return _PresetDropdownItem(
+                      preset: preset,
+                      locale: locale,
+                      colors: colors,
+                      onTap: () => onPresetSelected(preset),
+                    );
+                  },
+                ),
               ),
+            // 직접 입력 (항상 하단에 고정)
+            _ManualInputItem(
+              colors: colors,
+              showDivider: state.filteredPresets.isNotEmpty,
+              onTap: onManualInputSelected,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// 드롭다운 아이템
-class _DropdownItem extends StatelessWidget {
-  const _DropdownItem({
+/// 프리셋 드롭다운 아이템
+class _PresetDropdownItem extends StatelessWidget {
+  const _PresetDropdownItem({
     required this.preset,
     required this.locale,
     required this.colors,
@@ -239,31 +267,32 @@ class _DropdownItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initial = preset.displayName(locale).isNotEmpty
-        ? preset.displayName(locale).substring(0, 1).toUpperCase()
-        : 'S';
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: AppRadius.smAll,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.s3,
-            vertical: AppSpacing.s2,
-          ),
+        borderRadius: BorderRadius.circular(AppSpacing.s2),
+        child: Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
           child: Row(
             children: [
-              // 로고
+              // 로고 플레이스홀더
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(color: colors.buttonDisableBg),
-                child: Center(
-                  child: Text(
-                    initial,
-                    style: AppTypography.title.copyWith(color: colors.textSecondary),
+                decoration: BoxDecoration(
+                  color: colors.buttonDisableBg,
+                  borderRadius: BorderRadius.circular(AppSpacing.s3),
+                ),
+                alignment: Alignment.center,
+                child: SvgPicture.asset(
+                  'assets/icons/subby_place_holder.svg',
+                  width: 28,
+                  height: 28,
+                  colorFilter: ColorFilter.mode(
+                    colors.buttonDisableText,
+                    BlendMode.srcIn,
                   ),
                 ),
               ),
@@ -278,6 +307,67 @@ class _DropdownItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 직접 입력 아이템
+class _ManualInputItem extends StatelessWidget {
+  const _ManualInputItem({
+    required this.colors,
+    required this.showDivider,
+    required this.onTap,
+  });
+
+  final AppColorScheme colors;
+  final bool showDivider;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showDivider)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
+            child: Divider(
+              height: 1,
+              thickness: 1,
+              color: colors.borderSecondary,
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.s2),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(AppSpacing.s2),
+              child: Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
+                child: Row(
+                  children: [
+                    AppIcon(
+                      AppIconType.plus,
+                      size: 24,
+                      color: colors.iconSecondary,
+                    ),
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(
+                      child: Text(
+                        '직접 입력',
+                        style: AppTypography.body.copyWith(color: colors.textPrimary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
