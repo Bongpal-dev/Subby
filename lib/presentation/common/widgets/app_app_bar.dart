@@ -14,6 +14,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showBackButton = false,
     this.onBackPressed,
     this.centerTitle = true,
+    this.useAccentBackground = false,
   });
 
   final String? title;
@@ -22,6 +23,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final VoidCallback? onBackPressed;
   final bool centerTitle;
+  final bool useAccentBackground;
 
   @override
   Size get preferredSize => const Size.fromHeight(56);
@@ -31,16 +33,21 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
 
+    final backgroundColor = useAccentBackground ? colors.bgAccent : colors.bgPrimary;
+    final textColor = useAccentBackground ? colors.textOnAccent : colors.textPrimary;
+    final iconColor = useAccentBackground ? colors.iconOnAccent : colors.iconPrimary;
+
     Widget? leadingWidget = leading;
     if (showBackButton && leadingWidget == null) {
       leadingWidget = AppBarIconButton(
         icon: AppIconType.back,
         onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
+        color: iconColor,
       );
     }
 
     return Container(
-      color: colors.bgPrimary,
+      color: backgroundColor,
       child: SafeArea(
         bottom: false,
         child: SizedBox(
@@ -61,7 +68,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ? Text(
                           title!,
                           style: AppTypography.title.copyWith(
-                            color: colors.textPrimary,
+                            color: textColor,
                           ),
                           textAlign: centerTitle ? TextAlign.center : TextAlign.start,
                         )
@@ -91,10 +98,12 @@ class AppBarIconButton extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onPressed,
+    this.color,
   });
 
   final AppIconType icon;
   final VoidCallback onPressed;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +120,7 @@ class AppBarIconButton extends StatelessWidget {
           child: AppIcon(
             icon,
             size: 24,
-            color: colors.iconPrimary,
+            color: color ?? colors.iconPrimary,
           ),
         ),
       ),

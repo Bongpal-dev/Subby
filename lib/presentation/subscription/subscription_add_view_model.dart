@@ -263,6 +263,10 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
     state = state.copyWith(memo: memo);
   }
 
+  void setCategory(String category) {
+    state = state.copyWith(category: category);
+  }
+
   Future<bool> save() async {
     if (state.name.isEmpty || state.amount <= 0) {
       return false;

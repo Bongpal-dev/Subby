@@ -37,7 +37,7 @@ class AppDropdown<T> extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: AppTypography.label.copyWith(color: colors.textSecondary),
+            style: AppTypography.label.copyWith(color: colors.textPrimary),
           ),
           const SizedBox(height: AppSpacing.s2),
         ],
@@ -85,6 +85,9 @@ class AppDropdown<T> extends StatelessWidget {
   }
 
   void _showDropdownMenu(BuildContext context, AppColorScheme colors) {
+    // 메뉴 열기 전 포커스 해제 (키보드 닫기)
+    FocusScope.of(context).unfocus();
+
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
         Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
@@ -114,6 +117,8 @@ class AppDropdown<T> extends StatelessWidget {
       if (selectedValue != null) {
         onChanged(selectedValue);
       }
+      // 메뉴 닫힌 후 포커스 해제
+      FocusManager.instance.primaryFocus?.unfocus();
     });
   }
 }
@@ -139,16 +144,14 @@ class AppDropdownItem extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: AppTypography.body.copyWith(
-              color: isSelected ? colors.textAccent : colors.textPrimary,
-            ),
+            style: AppTypography.body.copyWith(color: colors.textPrimary),
           ),
         ),
         if (isSelected)
           AppIcon(
             AppIconType.check,
             size: 20,
-            color: colors.iconAccent,
+            color: colors.bgAccent,
           ),
       ],
     );

@@ -22,7 +22,12 @@ class AppTextField extends StatefulWidget {
     this.keyboardType,
     this.textInputAction,
     this.obscureText = false,
+    this.prefix,
     this.suffix,
+    this.onTap,
+    this.readOnly = false,
+    this.textAlign = TextAlign.start,
+    this.height,
   });
 
   final String? label;
@@ -38,7 +43,12 @@ class AppTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final bool obscureText;
+  final Widget? prefix;
   final Widget? suffix;
+  final VoidCallback? onTap;
+  final bool readOnly;
+  final TextAlign textAlign;
+  final double? height;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -78,7 +88,7 @@ class _AppTextFieldState extends State<AppTextField> {
 
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
     final borderColor = _getBorderColor(colors, hasError);
-    final fillColor = widget.enabled ? colors.bgSecondary : colors.bgTertiary;
+    final fillColor = widget.enabled ? colors.bgTertiary : colors.buttonDisableBg;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,48 +98,92 @@ class _AppTextFieldState extends State<AppTextField> {
         if (widget.label != null) ...[
           Text(
             widget.label!,
-            style: AppTypography.label.copyWith(color: colors.textSecondary),
+            style: AppTypography.label.copyWith(
+              color: widget.enabled ? colors.textPrimary : colors.textTertiary,
+            ),
           ),
           const SizedBox(height: AppSpacing.s2),
         ],
 
         // Input Field
-        Container(
-          decoration: BoxDecoration(
-            color: fillColor,
-            borderRadius: AppRadius.mdAll,
-            border: Border.all(color: borderColor),
-          ),
-          child: TextField(
-            controller: widget.controller,
-            focusNode: _focusNode,
-            enabled: widget.enabled,
-            onChanged: widget.onChanged,
-            onSubmitted: widget.onSubmitted,
-            maxLines: widget.maxLines,
-            maxLength: widget.maxLength,
-            keyboardType: widget.keyboardType,
-            textInputAction: widget.textInputAction,
-            obscureText: widget.obscureText,
-            style: AppTypography.body.copyWith(
-              color: widget.enabled ? colors.textPrimary : colors.textTertiary,
+        GestureDetector(
+          onTap: widget.onTap,
+          child: Container(
+            height: widget.height ?? 52,
+            decoration: BoxDecoration(
+              color: fillColor,
+              borderRadius: AppRadius.mdAll,
+              border: Border.all(color: borderColor),
             ),
-            decoration: InputDecoration(
-              hintText: widget.hint,
-              hintStyle: AppTypography.body.copyWith(color: colors.textTertiary),
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              disabledBorder: InputBorder.none,
-              errorBorder: InputBorder.none,
-              focusedErrorBorder: InputBorder.none,
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.s4,
-                vertical: AppSpacing.s3,
-              ),
-              counterText: '',
-              suffixIcon: widget.suffix,
+            child: ClipRRect(
+              borderRadius: AppRadius.mdAll,
+              child: Row(
+              children: [
+                if (widget.prefix != null) ...[
+                  const SizedBox(width: AppSpacing.s4),
+                  widget.prefix!,
+                ],
+                Expanded(
+                  child: widget.onTap != null && widget.readOnly
+                      ? Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: widget.prefix != null ? AppSpacing.s2 : AppSpacing.s4,
+                          ),
+                          child: Text(
+                            widget.controller?.text.isNotEmpty == true
+                                ? widget.controller!.text
+                                : widget.hint ?? '',
+                            style: AppTypography.body.copyWith(
+                              color: widget.controller?.text.isNotEmpty == true
+                                  ? colors.textPrimary
+                                  : colors.textTertiary,
+                            ),
+                            textAlign: widget.textAlign,
+                          ),
+                        )
+                      : TextField(
+                          controller: widget.controller,
+                          focusNode: _focusNode,
+                          enabled: widget.enabled,
+                          onChanged: widget.onChanged,
+                          onSubmitted: widget.onSubmitted,
+                          maxLines: widget.maxLines,
+                          maxLength: widget.maxLength,
+                          keyboardType: widget.keyboardType,
+                          textInputAction: widget.textInputAction,
+                          obscureText: widget.obscureText,
+                          readOnly: widget.readOnly,
+                          onTap: widget.onTap,
+                          textAlign: widget.textAlign,
+                          style: AppTypography.body.copyWith(
+                            color: widget.enabled ? colors.textPrimary : colors.textTertiary,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: widget.hint,
+                            hintStyle: AppTypography.body.copyWith(color: colors.textTertiary),
+                            filled: false,
+                            fillColor: Colors.transparent,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: widget.prefix != null ? AppSpacing.s2 : AppSpacing.s4,
+                              vertical: AppSpacing.s4,
+                            ),
+                            counterText: '',
+                          ),
+                        ),
+                ),
+                if (widget.suffix != null) ...[
+                  widget.suffix!,
+                  const SizedBox(width: AppSpacing.s4),
+                ],
+              ],
+            ),
             ),
           ),
         ),
@@ -148,7 +202,7 @@ class _AppTextFieldState extends State<AppTextField> {
 
   Color _getBorderColor(AppColorScheme colors, bool hasError) {
     if (!widget.enabled) {
-      return colors.borderSecondary;
+      return colors.buttonDisableText;
     }
     if (hasError) {
       return colors.statusError;
