@@ -101,16 +101,44 @@ class AppDropdown<T> extends StatelessWidget {
         buttonPosition.dx + button.size.width,
         buttonPosition.dy + button.size.height + 200,
       ),
+      constraints: const BoxConstraints(maxHeight: 240),
       shape: RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
       color: colors.bgSecondary,
+      elevation: 4,
+      shadowColor: Colors.black.withValues(alpha: 0.32),
+      surfaceTintColor: Colors.transparent,
+      menuPadding: const EdgeInsets.all(AppSpacing.s2),
       items: items.map((item) {
+        final isSelected = item == value;
         return PopupMenuItem<T>(
           value: item,
-          child: itemBuilder?.call(item) ??
-              Text(
-                item.toString(),
-                style: AppTypography.body.copyWith(color: colors.textPrimary),
-              ),
+          padding: EdgeInsets.zero,
+          height: 48,
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
+            decoration: BoxDecoration(
+              color: isSelected ? colors.bgTertiary : Colors.transparent,
+              borderRadius: AppRadius.smAll,
+            ),
+            child: itemBuilder?.call(item) ??
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.toString(),
+                        style: AppTypography.body.copyWith(color: colors.textPrimary),
+                      ),
+                    ),
+                    if (isSelected)
+                      AppIcon(
+                        AppIconType.check,
+                        size: 24,
+                        color: colors.bgAccent,
+                      ),
+                  ],
+                ),
+          ),
         );
       }).toList(),
     ).then((selectedValue) {
@@ -150,7 +178,7 @@ class AppDropdownItem extends StatelessWidget {
         if (isSelected)
           AppIcon(
             AppIconType.check,
-            size: 20,
+            size: 24,
             color: colors.bgAccent,
           ),
       ],
