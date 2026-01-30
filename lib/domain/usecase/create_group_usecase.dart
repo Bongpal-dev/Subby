@@ -3,19 +3,23 @@ import 'package:subby/domain/model/pending_change.dart';
 import 'package:subby/domain/model/subscription_group.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
+import 'package:subby/domain/repository/nickname_repository.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
 
 class CreateGroupUseCase {
   final AuthRepository _authRepository;
   final GroupRepository _groupRepository;
+  final NicknameRepository _nicknameRepository;
   final PendingChangeRepository _pendingChangeRepository;
 
   CreateGroupUseCase({
     required AuthRepository authRepository,
     required GroupRepository groupRepository,
+    required NicknameRepository nicknameRepository,
     required PendingChangeRepository pendingChangeRepository,
   })  : _authRepository = authRepository,
         _groupRepository = groupRepository,
+        _nicknameRepository = nicknameRepository,
         _pendingChangeRepository = pendingChangeRepository;
 
   Future<String> call(String name) async {
@@ -42,14 +46,17 @@ class CreateGroupUseCase {
     );
 
     await _groupRepository.create(newGroup);
-    _trySync(newGroup);
+
+    // 현재 닉네임 조회
+    final nickname = await _nicknameRepository.getNickname(userId);
+    _trySync(newGroup, nickname);
 
     return newGroup.code;
   }
 
-  void _trySync(SubscriptionGroup group) async {
+  void _trySync(SubscriptionGroup group, String? ownerNickname) async {
     try {
-      await _groupRepository.syncCreate(group);
+      await _groupRepository.syncCreate(group, ownerNickname: ownerNickname);
     } catch (e) {
       await _pendingChangeRepository.saveGroupChange(
         group,

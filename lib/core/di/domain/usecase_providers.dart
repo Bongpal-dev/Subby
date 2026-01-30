@@ -15,11 +15,13 @@ import 'package:subby/domain/usecase/watch_subscriptions_usecase.dart';
 final createGroupUseCaseProvider = Provider<CreateGroupUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final groupRepository = ref.watch(groupRepositoryProvider);
+  final nicknameRepository = ref.watch(nicknameRepositoryProvider);
   final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
 
   return CreateGroupUseCase(
     authRepository: authRepository,
     groupRepository: groupRepository,
+    nicknameRepository: nicknameRepository,
     pendingChangeRepository: pendingChangeRepository,
   );
 });
@@ -40,9 +42,13 @@ final leaveGroupUseCaseProvider = Provider<LeaveGroupUseCase>((ref) {
 
 final joinGroupUseCaseProvider = Provider<JoinGroupUseCase>((ref) {
   final groupRepository = ref.watch(groupRepositoryProvider);
+  final authRepository = ref.watch(authRepositoryProvider);
+  final nicknameRepository = ref.watch(nicknameRepositoryProvider);
 
   return JoinGroupUseCase(
     groupRepository: groupRepository,
+    authRepository: authRepository,
+    nicknameRepository: nicknameRepository,
   );
 });
 

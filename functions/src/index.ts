@@ -58,6 +58,7 @@ export const syncExchangeRates = onSchedule(
 
 interface JoinGroupRequest {
   groupCode: string;
+  nickname?: string;
 }
 
 interface JoinGroupResponse {
@@ -87,7 +88,7 @@ export const joinGroup = functions.https.onCall(
     }
 
     const userId = auth.uid;
-    const {groupCode} = data;
+    const {groupCode, nickname} = data;
 
     // 그룹 코드 유효성 검사
     if (!groupCode || typeof groupCode !== "string") {
@@ -135,8 +136,16 @@ export const joinGroup = functions.https.onCall(
       }
 
       // 멤버 추가
+      const memberData: { joinedAt: number; nickname?: string } = {
+        joinedAt: Date.now(),
+      };
+      if (nickname) {
+        memberData.nickname = nickname;
+      }
+
       await groupRef.update({
-        [`members.${userId}`]: true,
+        [`members.${userId}`]: memberData,
+        memberUids: admin.firestore.FieldValue.arrayUnion(userId),
       });
 
       // 업데이트된 그룹 정보 반환

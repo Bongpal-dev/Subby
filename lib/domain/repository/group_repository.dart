@@ -13,7 +13,7 @@ abstract class GroupRepository {
   Stream<List<SubscriptionGroup>> watchAll();
   Stream<SubscriptionGroup?> watchByCode(String code);
 
-  Future<void> syncCreate(SubscriptionGroup group);
+  Future<void> syncCreate(SubscriptionGroup group, {String? ownerNickname});
   Future<void> syncUpdate(SubscriptionGroup group);
   Future<void> syncLeave(String code, String userId);
 

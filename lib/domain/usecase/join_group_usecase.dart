@@ -1,6 +1,8 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:subby/domain/model/subscription_group.dart';
+import 'package:subby/domain/repository/auth_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
+import 'package:subby/domain/repository/nickname_repository.dart';
 
 enum JoinGroupResult {
   success,
@@ -11,12 +13,18 @@ enum JoinGroupResult {
 
 class JoinGroupUseCase {
   final GroupRepository _groupRepository;
+  final AuthRepository _authRepository;
+  final NicknameRepository _nicknameRepository;
   final FirebaseFunctions _functions;
 
   JoinGroupUseCase({
     required GroupRepository groupRepository,
+    required AuthRepository authRepository,
+    required NicknameRepository nicknameRepository,
     FirebaseFunctions? functions,
   })  : _groupRepository = groupRepository,
+        _authRepository = authRepository,
+        _nicknameRepository = nicknameRepository,
         _functions = functions ?? FirebaseFunctions.instance;
 
   Future<(JoinGroupResult, SubscriptionGroup?)> call(String groupCode) async {
@@ -29,8 +37,17 @@ class JoinGroupUseCase {
 
     // 2. Cloud Function 호출
     try {
+      // 현재 닉네임 조회
+      final userId = _authRepository.currentUserId;
+      final nickname = userId != null
+          ? await _nicknameRepository.getNickname(userId)
+          : null;
+
       final callable = _functions.httpsCallable('joinGroup');
-      final result = await callable.call({'groupCode': groupCode});
+      final result = await callable.call({
+        'groupCode': groupCode,
+        if (nickname != null) 'nickname': nickname,
+      });
 
       final data = Map<String, dynamic>.from(result.data as Map);
       final success = data['success'] as bool;

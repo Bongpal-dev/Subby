@@ -64,8 +64,8 @@ class GroupRepositoryImpl implements GroupRepository {
   }
 
   @override
-  Future<void> syncCreate(SubscriptionGroup group) async {
-    await _remoteDataSource.saveGroup(group.toDto());
+  Future<void> syncCreate(SubscriptionGroup group, {String? ownerNickname}) async {
+    await _remoteDataSource.saveGroup(group.toDto(), ownerNickname: ownerNickname);
   }
 
   @override
