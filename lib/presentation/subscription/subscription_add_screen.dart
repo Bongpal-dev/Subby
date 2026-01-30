@@ -125,17 +125,20 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
       children: [
         Text('요금제', style: AppTypography.label.copyWith(color: colors.textPrimary)),
         const SizedBox(height: AppSpacing.s2),
-        Wrap(
-          spacing: AppSpacing.s2,
-          runSpacing: AppSpacing.s2,
-          children: plans.map((plan) {
-            return AppChip(
-              label: plan.displayName(locale),
-              isSelected: state.selectedPlan == plan,
-              onTap: () {
-                _focusSink.requestFocus();
-                vm.selectPlan(plan);
-              },
+        Row(
+          children: plans.asMap().entries.map((entry) {
+            final index = entry.key;
+            final plan = entry.value;
+            return Padding(
+              padding: EdgeInsets.only(right: index < plans.length - 1 ? AppSpacing.s2 : 0),
+              child: AppChip(
+                label: plan.displayName(locale),
+                isSelected: state.selectedPlan == plan,
+                onTap: () {
+                  _focusSink.requestFocus();
+                  vm.selectPlan(plan);
+                },
+              ),
             );
           }).toList(),
         ),
