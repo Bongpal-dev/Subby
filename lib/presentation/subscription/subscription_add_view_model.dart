@@ -99,11 +99,48 @@ class SubscriptionAddState {
   }
 }
 
-class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState> {
+class SubscriptionAddViewModel extends AutoDisposeFamilyNotifier<SubscriptionAddState, String?> {
   @override
-  SubscriptionAddState build() {
-    _loadPresets();
+  SubscriptionAddState build(String? editSubscriptionId) {
+    _initialize(editSubscriptionId);
     return const SubscriptionAddState();
+  }
+
+  Future<void> _initialize(String? editSubscriptionId) async {
+    await _loadPresets();
+    if (editSubscriptionId != null) {
+      await _loadSubscription(editSubscriptionId);
+    }
+  }
+
+  Future<void> _loadSubscription(String subscriptionId) async {
+    final getByIdUseCase = ref.read(getSubscriptionByIdUseCaseProvider);
+    final subscription = await getByIdUseCase(subscriptionId);
+
+    if (subscription != null) {
+      // 구독 이름과 일치하는 프리셋 찾기
+      SubscriptionPreset? matchingPreset;
+      for (final preset in state.presets) {
+        if (preset.displayNameKo == subscription.name ||
+            preset.displayNameEn == subscription.name) {
+          matchingPreset = preset;
+          break;
+        }
+      }
+
+      state = state.copyWith(
+        name: subscription.name,
+        currency: subscription.currency,
+        amount: subscription.amount,
+        billingDay: subscription.billingDay,
+        period: subscription.period.toUpperCase(),
+        category: subscription.category,
+        memo: subscription.memo ?? '',
+        isServiceSelected: true,
+        selectedPreset: matchingPreset,
+        isManualPriceInput: matchingPreset == null || !matchingPreset.hasPlans,
+      );
+    }
   }
 
   Future<void> _loadPresets() async {
@@ -278,6 +315,46 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
     state = state.copyWith(category: category);
   }
 
+  /// 편집 모드: 기존 구독 업데이트
+  Future<bool> update(String subscriptionId) async {
+    if (state.name.isEmpty || state.amount <= 0) {
+      return false;
+    }
+
+    state = state.copyWith(isSaving: true);
+
+    try {
+      final updateUseCase = ref.read(updateSubscriptionUseCaseProvider);
+      final getByIdUseCase = ref.read(getSubscriptionByIdUseCaseProvider);
+
+      // 기존 구독 가져오기
+      final existing = await getByIdUseCase(subscriptionId);
+      if (existing == null) {
+        state = state.copyWith(isSaving: false);
+        return false;
+      }
+
+      // 업데이트된 구독 생성
+      final updated = existing.copyWith(
+        amount: state.amount,
+        currency: state.currency,
+        billingDay: state.billingDay,
+        period: state.period,
+        category: state.category,
+        memo: state.memo.isEmpty ? null : state.memo,
+        clearMemo: state.memo.isEmpty,
+      );
+
+      await updateUseCase(updated);
+      ref.read(pendingSyncTriggerProvider.notifier).state++;
+      state = state.copyWith(isSaving: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isSaving: false);
+      return false;
+    }
+  }
+
   Future<bool> save() async {
     if (state.name.isEmpty || state.amount <= 0) {
       return false;
@@ -348,6 +425,6 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
 }
 
 final subscriptionAddViewModelProvider =
-    NotifierProvider.autoDispose<SubscriptionAddViewModel, SubscriptionAddState>(() {
+    NotifierProvider.autoDispose.family<SubscriptionAddViewModel, SubscriptionAddState, String?>(() {
   return SubscriptionAddViewModel();
 });

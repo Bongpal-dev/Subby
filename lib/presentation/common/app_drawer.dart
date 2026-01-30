@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
@@ -250,15 +251,8 @@ class AppDrawer extends ConsumerWidget {
 
     showAppDialog(
       context: context,
-      icon: SvgPicture.asset(
-        'assets/icons/ic_logout.svg',
-        width: 24,
-        height: 24,
-        colorFilter: ColorFilter.mode(
-          colors.statusError,
-          BlendMode.srcIn,
-        ),
-      ),
+      iconType: AppIconType.logout,
+      iconColor: colors.statusError,
       title: '로그아웃 할까요?',
       description: '로그아웃하면 다른 기기에서\n동기화되지 않아요',
       actions: [

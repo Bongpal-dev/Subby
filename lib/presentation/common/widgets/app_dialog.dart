@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
@@ -9,17 +10,20 @@ import 'package:subby/core/theme/app_typography.dart';
 /// - 배경: bgSecondary, 라운드: 16dp
 /// - 패딩: 24dp, gap: 20dp
 /// - 버튼: 높이 44dp, 라운드 12dp, gap 12dp
+/// - 아이콘: 48px 고정
 class AppDialog extends StatelessWidget {
   const AppDialog({
     super.key,
-    this.icon,
+    this.iconType,
+    this.iconColor,
     required this.title,
     this.description,
     this.content,
     required this.actions,
   });
 
-  final Widget? icon;
+  final AppIconType? iconType;
+  final Color? iconColor;
   final String title;
   final String? description;
   final Widget? content;
@@ -45,9 +49,13 @@ class AppDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon (optional)
-              if (icon != null) ...[
-                icon!,
+              // Icon (optional) - 48px 고정
+              if (iconType != null) ...[
+                AppIcon(
+                  iconType!,
+                  size: 48,
+                  color: iconColor ?? colors.iconPrimary,
+                ),
                 const SizedBox(height: AppSpacing.s5),
               ],
 
@@ -126,11 +134,7 @@ class _DialogButton extends StatelessWidget {
     final colors = isDark ? AppColors.dark : AppColors.light;
 
     final bgColor = isPrimary ? colors.buttonPrimaryBg : Colors.transparent;
-    final textColor = action.isDestructive
-        ? colors.statusError
-        : isPrimary
-            ? colors.buttonPrimaryText
-            : colors.buttonSecondaryText;
+    final textColor = isPrimary ? colors.buttonPrimaryText : colors.buttonSecondaryText;
     final borderColor = isPrimary ? Colors.transparent : colors.borderPrimary;
 
     return Material(
@@ -162,20 +166,19 @@ class AppDialogAction {
   const AppDialogAction({
     required this.label,
     this.onPressed,
-    this.isDestructive = false,
     this.isPrimary = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
-  final bool isDestructive;
   final bool isPrimary;
 }
 
 /// 커스텀 다이얼로그 표시 헬퍼
 Future<T?> showAppDialog<T>({
   required BuildContext context,
-  Widget? icon,
+  AppIconType? iconType,
+  Color? iconColor,
   required String title,
   String? description,
   Widget? content,
@@ -193,7 +196,8 @@ Future<T?> showAppDialog<T>({
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return AppDialog(
-        icon: icon,
+        iconType: iconType,
+        iconColor: iconColor,
         title: title,
         description: description,
         content: content,

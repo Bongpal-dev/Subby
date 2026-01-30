@@ -10,6 +10,7 @@ enum AppIconType {
   dropdown('ic_dropdown'),
   group('ic_group'),
   home('ic_home'),
+  logout('ic_logout'),
   menu('ic_menu'),
   more('ic_more'),
   my('ic_my'),

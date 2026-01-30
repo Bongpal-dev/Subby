@@ -13,7 +13,7 @@ import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
-import 'package:subby/presentation/subscription/subscription_edit_screen.dart';
+import 'package:subby/presentation/subscription/subscription_detail_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -85,7 +85,7 @@ class HomeScreen extends ConsumerWidget {
                   onCategorySelected: (category) {
                     ref.read(homeViewModelProvider.notifier).selectCategory(category);
                   },
-                  onTap: (sub) => _navigateToEdit(context, ref, sub.id),
+                  onTap: (sub) => _navigateToDetail(context, sub.id),
                   onDelete: (sub) => _onDelete(context, ref, sub),
                 ),
     );
@@ -100,11 +100,11 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _navigateToEdit(BuildContext context, WidgetRef ref, String id) {
+  void _navigateToDetail(BuildContext context, String subscriptionId) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SubscriptionEditScreen(subscriptionId: id),
+        builder: (context) => SubscriptionDetailScreen(subscriptionId: subscriptionId),
       ),
     );
   }
