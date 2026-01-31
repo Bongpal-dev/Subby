@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/di/data/service_providers.dart';
@@ -112,3 +114,64 @@ final fcmInitializedProvider = FutureProvider<void>((ref) async {
 
   await fcmService.initialize(userId);
 });
+
+/// 테마 모드 Provider
+const _themeModeKey = 'theme_mode';
+
+final themeModeProvider =
+    NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
+
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() {
+    _loadThemeMode();
+    return ThemeMode.system;
+  }
+
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_themeModeKey);
+    if (value != null) {
+      state = _stringToThemeMode(value);
+    }
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    state = mode;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_themeModeKey, _themeModeToString(mode));
+  }
+
+  String _themeModeToString(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return 'system';
+      case ThemeMode.light:
+        return 'light';
+      case ThemeMode.dark:
+        return 'dark';
+    }
+  }
+
+  ThemeMode _stringToThemeMode(String value) {
+    switch (value) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+}
+
+String themeModeToLabel(ThemeMode mode) {
+  switch (mode) {
+    case ThemeMode.system:
+      return '시스템 설정';
+    case ThemeMode.light:
+      return '라이트';
+    case ThemeMode.dark:
+      return '다크';
+  }
+}

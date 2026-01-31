@@ -7,6 +7,7 @@ import 'package:subby/firebase_options.dart';
 import 'package:subby/core/theme/app_theme.dart';
 import 'package:subby/data/service/fcm_service.dart';
 import 'package:subby/presentation/common/app_initialization_wrapper.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/conflict_listener.dart';
 import 'package:subby/presentation/common/widgets/sync_notification_listener.dart';
 import 'package:subby/presentation/home/home_screen.dart';
@@ -23,16 +24,18 @@ Future<void> main() async {
   runApp(const ProviderScope(child: SubbyApp()));
 }
 
-class SubbyApp extends StatelessWidget {
+class SubbyApp extends ConsumerWidget {
   const SubbyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
       title: 'Subby',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

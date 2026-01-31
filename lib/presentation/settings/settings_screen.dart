@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 
 /// 설정 화면
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _notificationEnabled = true;
   String _appVersion = '';
 
@@ -55,12 +57,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SettingGroup(
               label: '앱 설정',
               children: [
-                SettingItem(
+                SettingItemDropdown<ThemeMode>(
                   title: '다크 모드',
-                  value: '시스템 설정에 맞춤',
-                  type: SettingItemType.chevron,
-                  onTap: () {
-                    // TODO: 다크 모드 설정 화면으로 이동
+                  value: ref.watch(themeModeProvider),
+                  items: ThemeMode.values,
+                  itemLabel: themeModeToLabel,
+                  onChanged: (mode) {
+                    ref.read(themeModeProvider.notifier).setThemeMode(mode);
                   },
                 ),
                 SettingItem(
@@ -274,5 +277,128 @@ class SettingItem extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// 드롭다운이 포함된 설정 아이템
+class SettingItemDropdown<T> extends StatelessWidget {
+  const SettingItemDropdown({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.items,
+    required this.itemLabel,
+    required this.onChanged,
+  });
+
+  final String title;
+  final T value;
+  final List<T> items;
+  final String Function(T) itemLabel;
+  final ValueChanged<T> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showDropdownMenu(context, colors),
+        child: Container(
+          height: 52,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s4,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTypography.body.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                ),
+              ),
+              Text(
+                itemLabel(value),
+                style: AppTypography.body.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s2),
+              AppIcon(
+                AppIconType.dropdown,
+                size: 20,
+                color: colors.iconSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDropdownMenu(BuildContext context, AppColorScheme colors) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+
+    showMenu<T>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        buttonPosition.dx + button.size.width - 160,
+        buttonPosition.dy + button.size.height + 4,
+        overlay.size.width - buttonPosition.dx - button.size.width,
+        buttonPosition.dy + button.size.height + 200,
+      ),
+      constraints: const BoxConstraints(maxHeight: 240),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+      color: colors.bgSecondary,
+      elevation: 4,
+      shadowColor: Colors.black.withValues(alpha: 0.32),
+      surfaceTintColor: Colors.transparent,
+      menuPadding: const EdgeInsets.all(AppSpacing.s2),
+      items: items.map((item) {
+        final isSelected = item == value;
+        return PopupMenuItem<T>(
+          value: item,
+          padding: EdgeInsets.zero,
+          height: 48,
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
+            decoration: BoxDecoration(
+              color: isSelected ? colors.bgTertiary : Colors.transparent,
+              borderRadius: AppRadius.smAll,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    itemLabel(item),
+                    style: AppTypography.body.copyWith(
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  AppIcon(
+                    AppIconType.check,
+                    size: 24,
+                    color: colors.bgAccent,
+                  ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    ).then((selectedValue) {
+      if (selectedValue != null) {
+        onChanged(selectedValue);
+      }
+    });
   }
 }
