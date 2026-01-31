@@ -58,7 +58,7 @@ class AppDrawer extends ConsumerWidget {
               ),
 
               const SizedBox(height: AppSpacing.s4),
-              const AppDivider(),
+              const SubbyDivider(),
               const SizedBox(height: AppSpacing.s4),
 
               // GroupSection (scrollable)
@@ -79,7 +79,7 @@ class AppDrawer extends ConsumerWidget {
                 ),
               ),
 
-              const AppDivider(),
+              const SubbyDivider(),
               const SizedBox(height: AppSpacing.s4),
 
               // GroupAddItems Section
@@ -101,7 +101,7 @@ class AppDrawer extends ConsumerWidget {
               ),
 
               const SizedBox(height: AppSpacing.s4),
-              const AppDivider(),
+              const SubbyDivider(),
               const SizedBox(height: AppSpacing.s4),
 
               // MenuItems Section
@@ -147,7 +147,7 @@ class AppDrawer extends ConsumerWidget {
 
     final colors = context.colors;
 
-    final newNickname = await showAppTextInputDialog(
+    final newNickname = await showSubbyTextInputDialog(
       context: context,
       title: '닉네임 변경',
       hint: '닉네임을 입력하세요',
@@ -193,7 +193,7 @@ class AppDrawer extends ConsumerWidget {
     String groupCode,
     String currentName,
   ) async {
-    final newName = await showAppTextInputDialog(
+    final newName = await showSubbyTextInputDialog(
       context: context,
       title: '그룹 이름 변경',
       hint: '그룹 이름을 입력하세요',
@@ -246,18 +246,18 @@ class AppDrawer extends ConsumerWidget {
   void _showSignOutDialog(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
 
-    showAppDialog(
+    showSubbyDialog(
       context: context,
       iconType: AppIconType.logout,
       iconColor: colors.statusError,
       title: '로그아웃 할까요?',
       description: '로그아웃하면 다른 기기에서\n동기화되지 않아요',
       actions: [
-        AppDialogAction(
+        SubbyDialogAction(
           label: '취소',
           onPressed: () => Navigator.pop(context),
         ),
-        AppDialogAction(
+        SubbyDialogAction(
           label: '로그아웃',
           isPrimary: true,
           onPressed: () async {
@@ -662,15 +662,15 @@ class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AppDialog(
+    return SubbyDialog(
       title: '그룹 나가기',
       description: '"${widget.groupName}" 그룹에서 나가시겠습니까?\n그룹의 구독 내역이 삭제됩니다.',
       actions: [
-        AppDialogAction(
+        SubbyDialogAction(
           label: '취소',
           onPressed: _isLoading ? null : () => Navigator.pop(context),
         ),
-        AppDialogAction(
+        SubbyDialogAction(
           label: _isLoading ? '처리중...' : '나가기',
           isPrimary: true,
           onPressed: _isLoading ? null : _onLeave,

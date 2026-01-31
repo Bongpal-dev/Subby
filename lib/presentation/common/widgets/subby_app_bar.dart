@@ -5,8 +5,8 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 디자인 시스템 AppBar
-class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppAppBar({
+class SubbyAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const SubbyAppBar({
     super.key,
     this.title,
     this.leading,
@@ -38,7 +38,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     Widget? leadingWidget = leading;
     if (showBackButton && leadingWidget == null) {
-      leadingWidget = AppBarIconButton(
+      leadingWidget = SubbyAppBarIconButton(
         icon: AppIconType.back,
         onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
         color: iconColor,
@@ -92,8 +92,8 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 /// AppBar 아이콘 버튼
-class AppBarIconButton extends StatelessWidget {
-  const AppBarIconButton({
+class SubbyAppBarIconButton extends StatelessWidget {
+  const SubbyAppBarIconButton({
     super.key,
     required this.icon,
     required this.onPressed,

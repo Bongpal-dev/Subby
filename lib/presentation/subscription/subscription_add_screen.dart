@@ -42,7 +42,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
         focusNode: _focusSink,
         child: Scaffold(
           backgroundColor: colors.bgPrimary,
-          appBar: AppAppBar(
+          appBar: SubbyAppBar(
             title: widget.isEditMode ? '구독 수정' : '구독 추가',
             showBackButton: true,
           ),
@@ -134,7 +134,7 @@ class _PlanSection extends ConsumerWidget {
             final plan = entry.value;
             return Padding(
               padding: EdgeInsets.only(right: index < plans.length - 1 ? AppSpacing.s2 : 0),
-              child: AppChip(
+              child: SubbyChip(
                 label: plan.displayName(locale),
                 isSelected: selectedPlan == plan,
                 onTap: () {
@@ -257,14 +257,14 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
         // 통화
         SizedBox(
           width: 120,
-          child: AppDropdown<String>(
+          child: SubbyDropdown<String>(
             label: '통화',
             items: _currencies,
             value: currency,
             onChanged: (value) {
               if (value != null) vm.setCurrency(value);
             },
-            itemBuilder: (item) => AppDropdownItem(
+            itemBuilder: (item) => SubbyDropdownItem(
               label: _currencyLabels[item] ?? item,
               isSelected: currency == item,
             ),
@@ -363,7 +363,7 @@ class _PeriodSection extends ConsumerWidget {
             return Expanded(
               child: Padding(
                 padding: EdgeInsets.only(right: p.$1 != 'YEARLY' ? AppSpacing.s2 : 0),
-                child: AppChip(
+                child: SubbyChip(
                   label: p.$2,
                   isSelected: period == p.$1,
                   onTap: () {
@@ -396,7 +396,7 @@ class _CategorySection extends ConsumerWidget {
     final category = ref.watch(provider.select((s) => s.category));
     final vm = ref.read(provider.notifier);
 
-    return AppDropdown<String>(
+    return SubbyDropdown<String>(
       label: '카테고리',
       hint: '카테고리를 선택해 주세요',
       items: _categories,
@@ -404,7 +404,7 @@ class _CategorySection extends ConsumerWidget {
       onChanged: (value) {
         if (value != null) vm.setCategory(value);
       },
-      itemBuilder: (item) => AppDropdownItem(
+      itemBuilder: (item) => SubbyDropdownItem(
         label: item,
         isSelected: category == item,
       ),
@@ -446,7 +446,7 @@ class _MemoSectionState extends ConsumerState<_MemoSection> {
       _initialized = true;
     }
 
-    return AppTextField(
+    return SubbyTextField(
       label: '메모',
       hint: '메모를 입력해 주세요',
       controller: _controller,
@@ -483,7 +483,7 @@ class _SaveButton extends ConsumerWidget {
         top: AppSpacing.s4,
         bottom: MediaQuery.of(context).padding.bottom + AppSpacing.s4,
       ),
-      child: AppButton(
+      child: SubbyButton(
         label: '저장하기',
         onPressed: isSaving ? null : () => _onSave(context, ref),
         isExpanded: true,

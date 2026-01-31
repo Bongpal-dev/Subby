@@ -5,10 +5,10 @@ import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/presentation/common/widgets/app_button.dart';
+import 'package:subby/presentation/common/widgets/subby_button.dart';
 
 /// Figma InputDialog 컴포넌트
-class AppTextInputDialog extends StatefulWidget {
+class SubbyTextInputDialog extends StatefulWidget {
   final String title;
   final String? description;
   final String? hint;
@@ -20,7 +20,7 @@ class AppTextInputDialog extends StatefulWidget {
   final Widget? suffixIcon;
   final String Function()? onGenerateValue;
 
-  const AppTextInputDialog({
+  const SubbyTextInputDialog({
     super.key,
     required this.title,
     this.description,
@@ -35,10 +35,10 @@ class AppTextInputDialog extends StatefulWidget {
   });
 
   @override
-  State<AppTextInputDialog> createState() => _AppTextInputDialogState();
+  State<SubbyTextInputDialog> createState() => _SubbyTextInputDialogState();
 }
 
-class _AppTextInputDialogState extends State<AppTextInputDialog> {
+class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
   final _formKey = GlobalKey<FormState>();
@@ -241,9 +241,9 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
                   Expanded(
                     child: SizedBox(
                       height: 44,
-                      child: AppButton(
+                      child: SubbyButton(
                         label: widget.cancelLabel,
-                        type: AppButtonType.outline,
+                        type: SubbyButtonType.outline,
                         onPressed: () => Navigator.pop(context),
                         isExpanded: true,
                       ),
@@ -253,9 +253,9 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
                   Expanded(
                     child: SizedBox(
                       height: 44,
-                      child: AppButton(
+                      child: SubbyButton(
                         label: widget.confirmLabel,
-                        type: AppButtonType.primary,
+                        type: SubbyButtonType.primary,
                         onPressed: _onConfirm,
                         isExpanded: true,
                       ),
@@ -272,7 +272,7 @@ class _AppTextInputDialogState extends State<AppTextInputDialog> {
 }
 
 /// 텍스트 입력 다이얼로그 표시 헬퍼
-Future<String?> showAppTextInputDialog({
+Future<String?> showSubbyTextInputDialog({
   required BuildContext context,
   required String title,
   String? description,
@@ -293,7 +293,7 @@ Future<String?> showAppTextInputDialog({
     barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
-      return AppTextInputDialog(
+      return SubbyTextInputDialog(
         title: title,
         description: description,
         hint: hint,

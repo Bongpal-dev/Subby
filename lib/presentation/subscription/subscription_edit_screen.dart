@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/presentation/common/subby_app_bar.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/subscription/subscription_edit_view_model.dart';
 
@@ -40,7 +39,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
 
     if (state.isLoading) {
       return Scaffold(
-        appBar: const SubbyAppBar(title: '구독 수정'),
+        appBar: const SubbyAppBar(title: '구독 수정', showBackButton: true),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -68,6 +67,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
     return Scaffold(
       appBar: const SubbyAppBar(
         title: '구독 수정',
+        showBackButton: true,
       ),
       body: Form(
         key: _formKey,
@@ -78,7 +78,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                 padding: EdgeInsets.all(AppSpacing.s4),
                 children: [
                   // 서비스명 (읽기 전용)
-                  AppCard(
+                  SubbyCard(
                     child: Row(
                       children: [
                         Icon(Icons.subscriptions_outlined, color: colorScheme.primary),
@@ -99,7 +99,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                   SizedBox(height: AppSpacing.s3),
 
                   // 통화 + 금액 그룹
-                  AppCard(
+                  SubbyCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -127,7 +127,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                   SizedBox(height: AppSpacing.s3),
 
                   // 결제일 + 결제 주기 그룹
-                  AppCard(
+                  SubbyCard(
                     child: Row(
                       children: [
                         Expanded(
@@ -189,8 +189,8 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
                   SizedBox(height: AppSpacing.s3),
 
                   // 메모
-                  AppCard(
-                    child: AppTextField(
+                  SubbyCard(
+                    child: SubbyTextField(
                       label: '메모 (선택)',
                       hint: '메모를 입력하세요',
                       controller: _memoController,

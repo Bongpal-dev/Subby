@@ -41,7 +41,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: colors.bgPrimary,
-      appBar: AppAppBar(
+      appBar: SubbyAppBar(
         title: '설정',
         showBackButton: true,
       ),
@@ -266,7 +266,7 @@ class SettingItem extends StatelessWidget {
                 ),
               ],
               if (type == SettingItemType.toggle)
-                AppToggle(
+                SubbyToggle(
                   value: toggleValue ?? false,
                   onChanged: onToggleChanged,
                 ),

@@ -5,15 +5,15 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 디자인 시스템 Bottom Navigation Bar
-class AppBottomNavBar extends StatelessWidget {
-  const AppBottomNavBar({
+class SubbyBottomNavBar extends StatelessWidget {
+  const SubbyBottomNavBar({
     super.key,
     required this.items,
     required this.currentIndex,
     required this.onTap,
   });
 
-  final List<AppNavItem> items;
+  final List<SubbyNavItem> items;
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -64,7 +64,7 @@ class _NavItemWidget extends StatelessWidget {
     required this.onTap,
   });
 
-  final AppNavItem item;
+  final SubbyNavItem item;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -104,8 +104,8 @@ class _NavItemWidget extends StatelessWidget {
 }
 
 /// Navigation Item 데이터 클래스
-class AppNavItem {
-  const AppNavItem({
+class SubbyNavItem {
+  const SubbyNavItem({
     required this.icon,
     required this.label,
   });

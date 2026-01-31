@@ -5,8 +5,8 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 디자인 시스템 Chip
-class AppChip extends StatelessWidget {
-  const AppChip({
+class SubbyChip extends StatelessWidget {
+  const SubbyChip({
     super.key,
     required this.label,
     this.isSelected = false,
@@ -52,8 +52,8 @@ class AppChip extends StatelessWidget {
 }
 
 /// Chip 그룹 (단일 선택)
-class AppChipGroup extends StatelessWidget {
-  const AppChipGroup({
+class SubbyChipGroup extends StatelessWidget {
+  const SubbyChipGroup({
     super.key,
     required this.labels,
     required this.selectedIndex,
@@ -71,7 +71,7 @@ class AppChipGroup extends StatelessWidget {
       runSpacing: AppSpacing.s2,
       children: List.generate(
         labels.length,
-        (index) => AppChip(
+        (index) => SubbyChip(
           label: labels[index],
           isSelected: index == selectedIndex,
           onTap: () => onSelected(index),

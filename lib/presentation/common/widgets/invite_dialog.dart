@@ -8,7 +8,7 @@ import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/core/util/invite_link_generator.dart';
-import 'package:subby/presentation/common/widgets/app_button.dart';
+import 'package:subby/presentation/common/widgets/subby_button.dart';
 
 /// Figma InputDialog 스타일 초대 다이얼로그
 class InviteDialog extends StatelessWidget {
@@ -101,9 +101,9 @@ class InviteDialog extends StatelessWidget {
               SizedBox(
                 height: 44,
                 width: double.infinity,
-                child: AppButton(
+                child: SubbyButton(
                   label: '링크 공유하기',
-                  type: AppButtonType.primary,
+                  type: SubbyButtonType.primary,
                   onPressed: () => _shareCode(context),
                   isExpanded: true,
                 ),

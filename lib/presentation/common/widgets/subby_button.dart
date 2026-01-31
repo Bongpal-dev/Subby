@@ -4,19 +4,19 @@ import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
-enum AppButtonType {
+enum SubbyButtonType {
   primary,
   outline,
   text,
 }
 
 /// Figma 디자인 시스템 버튼
-class AppButton extends StatelessWidget {
-  const AppButton({
+class SubbyButton extends StatelessWidget {
+  const SubbyButton({
     super.key,
     required this.label,
     this.onPressed,
-    this.type = AppButtonType.primary,
+    this.type = SubbyButtonType.primary,
     this.isEnabled = true,
     this.isExpanded = false,
     this.icon,
@@ -24,7 +24,7 @@ class AppButton extends StatelessWidget {
 
   final String label;
   final VoidCallback? onPressed;
-  final AppButtonType type;
+  final SubbyButtonType type;
   final bool isEnabled;
   final bool isExpanded;
   final Widget? icon;
@@ -95,11 +95,11 @@ class AppButton extends StatelessWidget {
     }
 
     switch (type) {
-      case AppButtonType.primary:
+      case SubbyButtonType.primary:
         return colors.buttonPrimaryBg;
-      case AppButtonType.outline:
+      case SubbyButtonType.outline:
         return Colors.transparent;
-      case AppButtonType.text:
+      case SubbyButtonType.text:
         return Colors.transparent;
     }
   }
@@ -110,11 +110,11 @@ class AppButton extends StatelessWidget {
     }
 
     switch (type) {
-      case AppButtonType.primary:
+      case SubbyButtonType.primary:
         return colors.buttonPrimaryText;
-      case AppButtonType.outline:
+      case SubbyButtonType.outline:
         return colors.buttonSecondaryText;
-      case AppButtonType.text:
+      case SubbyButtonType.text:
         return colors.buttonSecondaryText;
     }
   }
@@ -125,11 +125,11 @@ class AppButton extends StatelessWidget {
     }
 
     switch (type) {
-      case AppButtonType.primary:
+      case SubbyButtonType.primary:
         return null;
-      case AppButtonType.outline:
+      case SubbyButtonType.outline:
         return colors.borderPrimary;
-      case AppButtonType.text:
+      case SubbyButtonType.text:
         return null;
     }
   }

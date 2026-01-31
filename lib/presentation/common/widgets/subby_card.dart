@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class AppCard extends StatelessWidget {
+class SubbyCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final double? borderRadius;
 
-  const AppCard({
+  const SubbyCard({
     super.key,
     required this.child,
     this.padding,

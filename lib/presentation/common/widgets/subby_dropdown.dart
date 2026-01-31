@@ -6,8 +6,8 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 디자인 시스템 Dropdown
-class AppDropdown<T> extends StatelessWidget {
-  const AppDropdown({
+class SubbyDropdown<T> extends StatelessWidget {
+  const SubbyDropdown({
     super.key,
     required this.items,
     required this.value,
@@ -151,8 +151,8 @@ class AppDropdown<T> extends StatelessWidget {
 }
 
 /// Dropdown Menu Item
-class AppDropdownItem extends StatelessWidget {
-  const AppDropdownItem({
+class SubbyDropdownItem extends StatelessWidget {
+  const SubbyDropdownItem({
     super.key,
     required this.label,
     this.isSelected = false,

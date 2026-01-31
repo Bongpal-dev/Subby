@@ -34,11 +34,11 @@ class SubscriptionDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: colors.bgPrimary,
-      appBar: AppAppBar(
+      appBar: SubbyAppBar(
         title: '구독 상세',
         showBackButton: true,
         actions: [
-          AppBarIconButton(
+          SubbyAppBarIconButton(
             icon: AppIconType.trash,
             onPressed: () => subscriptionAsync.whenData(
               (sub) => sub != null ? _showDeleteDialog(context, ref, sub) : null,
@@ -95,18 +95,18 @@ class SubscriptionDetailScreen extends ConsumerWidget {
   void _showDeleteDialog(BuildContext context, WidgetRef ref, UserSubscription subscription) {
     final colors = context.colors;
 
-    showAppDialog(
+    showSubbyDialog(
       context: context,
       iconType: AppIconType.trash,
       iconColor: colors.statusError,
       title: '구독 삭제',
       description: '"${subscription.name}"를 정말 삭제할까요?',
       actions: [
-        AppDialogAction(
+        SubbyDialogAction(
           label: '취소',
           onPressed: () => Navigator.pop(context),
         ),
-        AppDialogAction(
+        SubbyDialogAction(
           label: '삭제',
           isPrimary: true,
           onPressed: () async {
@@ -172,7 +172,7 @@ class _HeaderSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.s2),
 
         // Divider
-        const AppDivider(),
+        const SubbyDivider(),
       ],
     );
   }
@@ -327,7 +327,7 @@ class _BottomButton extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const AppDivider(),
+        const SubbyDivider(),
         Container(
           color: colors.bgPrimary,
           padding: EdgeInsets.only(
@@ -336,7 +336,7 @@ class _BottomButton extends StatelessWidget {
             top: AppSpacing.s4,
             bottom: MediaQuery.of(context).padding.bottom + AppSpacing.s4,
           ),
-          child: AppButton(
+          child: SubbyButton(
             label: '수정하기',
             onPressed: onPressed,
             isExpanded: true,

@@ -4,8 +4,8 @@ import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_icons.dart';
 
 /// Figma 디자인 시스템 FAB (Floating Action Button)
-class AppFab extends StatelessWidget {
-  const AppFab({
+class SubbyFab extends StatelessWidget {
+  const SubbyFab({
     super.key,
     required this.onPressed,
     this.icon = AppIconType.plus,

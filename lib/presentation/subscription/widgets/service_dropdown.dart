@@ -7,7 +7,7 @@ import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
-import 'package:subby/presentation/common/widgets/app_text_field.dart';
+import 'package:subby/presentation/common/widgets/subby_text_field.dart';
 import 'package:subby/presentation/subscription/subscription_add_view_model.dart';
 
 /// 서비스 검색/선택 드롭다운
@@ -141,7 +141,7 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
 
     return CompositedTransformTarget(
       link: _layerLink,
-      child: AppTextField(
+      child: SubbyTextField(
         label: '서비스',
         hint: '서비스 이름을 입력해 주세요',
         controller: _controller,

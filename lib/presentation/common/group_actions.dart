@@ -10,7 +10,7 @@ Future<void> showCreateGroupFlow(BuildContext context, WidgetRef ref) async {
   final createGroup = ref.read(createGroupUseCaseProvider);
   final homeViewModel = ref.read(homeViewModelProvider.notifier);
 
-  final groupName = await showAppTextInputDialog(
+  final groupName = await showSubbyTextInputDialog(
     context: context,
     title: '새 그룹 만들기',
     hint: '예: 가족 구독, 친구들',
@@ -37,7 +37,7 @@ Future<void> showCreateGroupFlow(BuildContext context, WidgetRef ref) async {
 }
 
 Future<void> showJoinGroupFlow(BuildContext context, WidgetRef ref) async {
-  final groupCode = await showAppTextInputDialog(
+  final groupCode = await showSubbyTextInputDialog(
     context: context,
     title: '초대 코드로 참여',
     description: '전달받은 초대 코드를 입력해\n그룹에 참여합니다',
@@ -84,16 +84,16 @@ Future<bool> joinGroupWithConfirmation({
 }) async {
   final displayName = groupName ?? groupCode;
 
-  final confirmed = await showAppDialog<bool>(
+  final confirmed = await showSubbyDialog<bool>(
     context: context,
     title: '그룹 참여하기',
     description: '"$displayName" 그룹에 참여하시겠습니까?',
     actions: [
-      AppDialogAction(
+      SubbyDialogAction(
         label: '취소',
         onPressed: () => Navigator.pop(context, false),
       ),
-      AppDialogAction(
+      SubbyDialogAction(
         label: '참여하기',
         isPrimary: true,
         onPressed: () => Navigator.pop(context, true),

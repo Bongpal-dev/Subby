@@ -68,7 +68,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       drawer: const AppDrawer(),
       floatingActionButton: hasGroup
-          ? AppFab(
+          ? SubbyFab(
               onPressed: () => _navigateToAdd(context, ref),
             )
           : null,
@@ -108,18 +108,18 @@ class HomeScreen extends ConsumerWidget {
   void _onDelete(BuildContext context, WidgetRef ref, UserSubscription sub) {
     final colors = context.colors;
 
-    showAppDialog(
+    showSubbyDialog(
       context: context,
       iconType: AppIconType.trash,
       iconColor: colors.statusError,
       title: '구독 삭제',
       description: '"${sub.name}"를 정말 삭제할까요?',
       actions: [
-        AppDialogAction(
+        SubbyDialogAction(
           label: '취소',
           onPressed: () => Navigator.pop(context),
         ),
-        AppDialogAction(
+        SubbyDialogAction(
           label: '삭제',
           isPrimary: true,
           onPressed: () async {
@@ -248,14 +248,14 @@ class _FilterSection extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.s2),
         itemBuilder: (context, index) {
           if (index == 0) {
-            return AppChip(
+            return SubbyChip(
               label: '전체',
               isSelected: selectedCategory == null,
               onTap: () => onCategorySelected(null),
             );
           }
           final category = categories[index - 1];
-          return AppChip(
+          return SubbyChip(
             label: category,
             isSelected: selectedCategory == category,
             onTap: () => onCategorySelected(category),
@@ -388,19 +388,19 @@ class _NoGroupState extends ConsumerWidget {
           const SizedBox(height: AppSpacing.s6),
 
           // 새 그룹 만들기 버튼
-          AppButton(
+          SubbyButton(
             label: '+ 새 그룹 만들기',
             onPressed: () => showCreateGroupFlow(context, ref),
-            type: AppButtonType.primary,
+            type: SubbyButtonType.primary,
             isExpanded: true,
           ),
           const SizedBox(height: AppSpacing.s3),
 
           // 초대 코드로 참여 버튼
-          AppButton(
+          SubbyButton(
             label: '초대 코드로 참여',
             onPressed: () => showJoinGroupFlow(context, ref),
-            type: AppButtonType.outline,
+            type: SubbyButtonType.outline,
             isExpanded: true,
           ),
 

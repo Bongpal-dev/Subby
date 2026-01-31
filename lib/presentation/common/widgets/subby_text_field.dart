@@ -6,8 +6,8 @@ import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 디자인 시스템 TextField
 /// 상태: Default, Focused, Error, Disabled
-class AppTextField extends StatefulWidget {
-  const AppTextField({
+class SubbyTextField extends StatefulWidget {
+  const SubbyTextField({
     super.key,
     this.label,
     this.hint,
@@ -51,10 +51,10 @@ class AppTextField extends StatefulWidget {
   final double? height;
 
   @override
-  State<AppTextField> createState() => _AppTextFieldState();
+  State<SubbyTextField> createState() => _SubbyTextFieldState();
 }
 
-class _AppTextFieldState extends State<AppTextField> {
+class _SubbyTextFieldState extends State<SubbyTextField> {
   late FocusNode _focusNode;
   bool _isFocused = false;
 

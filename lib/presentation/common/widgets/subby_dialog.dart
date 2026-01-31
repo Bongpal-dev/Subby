@@ -11,8 +11,8 @@ import 'package:subby/core/theme/app_typography.dart';
 /// - 패딩: 24dp, gap: 20dp
 /// - 버튼: 높이 44dp, 라운드 12dp, gap 12dp
 /// - 아이콘: 48px 고정
-class AppDialog extends StatelessWidget {
-  const AppDialog({
+class SubbyDialog extends StatelessWidget {
+  const SubbyDialog({
     super.key,
     this.iconType,
     this.iconColor,
@@ -27,7 +27,7 @@ class AppDialog extends StatelessWidget {
   final String title;
   final String? description;
   final Widget? content;
-  final List<AppDialogAction> actions;
+  final List<SubbyDialogAction> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +124,7 @@ class _DialogButton extends StatelessWidget {
     required this.isPrimary,
   });
 
-  final AppDialogAction action;
+  final SubbyDialogAction action;
   final bool isPrimary;
 
   @override
@@ -160,8 +160,8 @@ class _DialogButton extends StatelessWidget {
   }
 }
 
-class AppDialogAction {
-  const AppDialogAction({
+class SubbyDialogAction {
+  const SubbyDialogAction({
     required this.label,
     this.onPressed,
     this.isPrimary = false,
@@ -173,14 +173,14 @@ class AppDialogAction {
 }
 
 /// 커스텀 다이얼로그 표시 헬퍼
-Future<T?> showAppDialog<T>({
+Future<T?> showSubbyDialog<T>({
   required BuildContext context,
   AppIconType? iconType,
   Color? iconColor,
   required String title,
   String? description,
   Widget? content,
-  required List<AppDialogAction> actions,
+  required List<SubbyDialogAction> actions,
   bool barrierDismissible = true,
 }) {
   return showGeneralDialog<T>(
@@ -190,7 +190,7 @@ Future<T?> showAppDialog<T>({
     barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
-      return AppDialog(
+      return SubbyDialog(
         iconType: iconType,
         iconColor: iconColor,
         title: title,
@@ -216,8 +216,8 @@ Future<T?> showAppDialog<T>({
 }
 
 /// Figma 디자인 시스템 Divider
-class AppDivider extends StatelessWidget {
-  const AppDivider({
+class SubbyDivider extends StatelessWidget {
+  const SubbyDivider({
     super.key,
     this.color,
     this.thickness = 1,

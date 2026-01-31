@@ -3,8 +3,8 @@ import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_radius.dart';
 
 /// Figma 디자인 시스템 토글 스위치
-class AppToggle extends StatelessWidget {
-  const AppToggle({
+class SubbyToggle extends StatelessWidget {
+  const SubbyToggle({
     super.key,
     required this.value,
     required this.onChanged,
