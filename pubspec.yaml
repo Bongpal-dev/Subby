@@ -45,6 +45,9 @@ dependencies:
   # SVG 아이콘
   flutter_svg: ^2.0.17
 
+  # 패키지 정보 (버전 등)
+  package_info_plus: ^8.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
