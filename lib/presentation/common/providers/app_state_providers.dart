@@ -10,6 +10,7 @@ import 'package:subby/core/di/data/service_providers.dart';
 import 'package:subby/core/utils/currency_converter.dart';
 import 'package:subby/domain/model/conflict_resolution.dart';
 import 'package:subby/domain/model/exchange_rate.dart';
+import 'package:subby/domain/model/currency.dart';
 import 'package:subby/presentation/common/providers/conflict_state_provider.dart';
 
 final authStateProvider = StreamProvider<String?>((ref) {
@@ -174,4 +175,40 @@ String themeModeToLabel(ThemeMode mode) {
     case ThemeMode.dark:
       return '다크';
   }
+}
+
+/// 기본 통화 Provider
+const _defaultCurrencyKey = 'default_currency';
+
+final defaultCurrencyProvider =
+    NotifierProvider<DefaultCurrencyNotifier, Currency>(
+        DefaultCurrencyNotifier.new);
+
+class DefaultCurrencyNotifier extends Notifier<Currency> {
+  @override
+  Currency build() {
+    _loadCurrency();
+    return Currency.KRW;
+  }
+
+  Future<void> _loadCurrency() async {
+    final prefs = await SharedPreferences.getInstance();
+    final code = prefs.getString(_defaultCurrencyKey);
+    if (code != null) {
+      final currency = Currency.fromCode(code);
+      if (currency != null) {
+        state = currency;
+      }
+    }
+  }
+
+  Future<void> setCurrency(Currency currency) async {
+    state = currency;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_defaultCurrencyKey, currency.code);
+  }
+}
+
+String currencyToLabel(Currency currency) {
+  return '${currency.code}  ${currency.name}(${currency.symbol})';
 }

@@ -2,27 +2,52 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/utils/currency_converter.dart';
+import 'package:subby/domain/model/currency.dart';
 import 'package:subby/domain/model/subscription_group.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
+/// 구독 카드 UI 모델
+class SubscriptionUiModel {
+  final String id;
+  final String name;
+  final String? category;
+  final int billingDay;
+  final String period;
+  final String formattedAmount; // 원래 통화로 포맷된 금액
+  final String? convertedAmount; // 기본 통화로 변환된 금액 (다를 경우)
+  final String periodLabel;
+
+  const SubscriptionUiModel({
+    required this.id,
+    required this.name,
+    this.category,
+    required this.billingDay,
+    required this.period,
+    required this.formattedAmount,
+    this.convertedAmount,
+    required this.periodLabel,
+  });
+}
+
 class HomeState {
   final List<UserSubscription> subscriptions;
-  final List<UserSubscription> filteredSubscriptions;
+  final List<SubscriptionUiModel> subscriptionUiModels;
   final List<SubscriptionGroup> groups;
   final String? selectedGroupCode;
-  final String? selectedCategory; // null이면 '전체'
+  final String? selectedCategory;
   final bool isLoading;
-  final double totalKrw;
+  final String formattedTotal;
 
   const HomeState({
     this.subscriptions = const [],
-    this.filteredSubscriptions = const [],
+    this.subscriptionUiModels = const [],
     this.groups = const [],
     this.selectedGroupCode,
     this.selectedCategory,
     this.isLoading = true,
-    this.totalKrw = 0,
+    this.formattedTotal = '',
   });
 
   String get currentGroupName {
@@ -45,32 +70,38 @@ class HomeState {
 
   HomeState copyWith({
     List<UserSubscription>? subscriptions,
-    List<UserSubscription>? filteredSubscriptions,
+    List<SubscriptionUiModel>? subscriptionUiModels,
     List<SubscriptionGroup>? groups,
     String? selectedGroupCode,
     bool clearSelectedGroup = false,
     String? selectedCategory,
     bool clearSelectedCategory = false,
     bool? isLoading,
-    double? totalKrw,
+    String? formattedTotal,
   }) {
     return HomeState(
       subscriptions: subscriptions ?? this.subscriptions,
-      filteredSubscriptions: filteredSubscriptions ?? this.filteredSubscriptions,
+      subscriptionUiModels: subscriptionUiModels ?? this.subscriptionUiModels,
       groups: groups ?? this.groups,
       selectedGroupCode: clearSelectedGroup ? null : (selectedGroupCode ?? this.selectedGroupCode),
       selectedCategory: clearSelectedCategory ? null : (selectedCategory ?? this.selectedCategory),
       isLoading: isLoading ?? this.isLoading,
-      totalKrw: totalKrw ?? this.totalKrw,
+      formattedTotal: formattedTotal ?? this.formattedTotal,
     );
   }
 }
 
 class HomeViewModel extends Notifier<HomeState> {
   StreamSubscription<List<SubscriptionGroup>>? _remoteGroupsSubscription;
+  StreamSubscription<List<UserSubscription>>? _subscriptionsSubscription;
+  List<UserSubscription> _rawSubscriptions = [];
 
   @override
   HomeState build() {
+    // 설정 변경 시 UI 모델 재생성
+    ref.watch(defaultCurrencyProvider);
+    ref.watch(currencyConverterProvider);
+
     _watchGroups();
     _watchSubscriptions();
     _watchRemoteGroups();
@@ -128,18 +159,26 @@ class HomeViewModel extends Notifier<HomeState> {
   }
 
   void _watchSubscriptions() {
+    _subscriptionsSubscription?.cancel();
     final watchUseCase = ref.read(watchSubscriptionsUseCaseProvider);
-    watchUseCase().listen((subscriptions) {
-      final groupFiltered = _filterByGroup(subscriptions);
-      final categoryFiltered = _filterByCategory(groupFiltered);
-      final total = _calculateTotal(categoryFiltered);
-      state = state.copyWith(
-        subscriptions: groupFiltered,
-        filteredSubscriptions: categoryFiltered,
-        isLoading: false,
-        totalKrw: total,
-      );
+    _subscriptionsSubscription = watchUseCase().listen((subscriptions) {
+      _rawSubscriptions = subscriptions;
+      _updateState();
     });
+  }
+
+  void _updateState() {
+    final groupFiltered = _filterByGroup(_rawSubscriptions);
+    final categoryFiltered = _filterByCategory(groupFiltered);
+    final uiModels = _mapToUiModels(categoryFiltered);
+    final formattedTotal = _calculateFormattedTotal(categoryFiltered);
+
+    state = state.copyWith(
+      subscriptions: groupFiltered,
+      subscriptionUiModels: uiModels,
+      isLoading: false,
+      formattedTotal: formattedTotal,
+    );
   }
 
   List<UserSubscription> _filterByGroup(List<UserSubscription> subscriptions) {
@@ -176,30 +215,72 @@ class HomeViewModel extends Notifier<HomeState> {
   }
 
   void _applyFilters() {
-    final categoryFiltered = _filterByCategory(state.subscriptions);
-    final total = _calculateTotal(categoryFiltered);
-    state = state.copyWith(
-      filteredSubscriptions: categoryFiltered,
-      totalKrw: total,
-    );
+    _updateState();
   }
 
-  double _calculateTotal(List<UserSubscription> subscriptions) {
-    final exchangeRate = ref.read(exchangeRateProvider).valueOrNull;
+  List<SubscriptionUiModel> _mapToUiModels(List<UserSubscription> subscriptions) {
+    final defaultCurrency = ref.read(defaultCurrencyProvider);
+    final converter = ref.read(currencyConverterProvider);
+
+    return subscriptions.map((sub) {
+      final subCurrency = Currency.fromCode(sub.currency) ?? Currency.KRW;
+      final isSameCurrency = subCurrency == defaultCurrency;
+
+      // 원래 통화로 포맷
+      final formattedAmount = converter?.format(sub.amount, subCurrency) ??
+          '${subCurrency.symbol}${sub.amount.toStringAsFixed(subCurrency.decimalDigits)}';
+
+      // 기본 통화와 다르면 변환
+      String? convertedAmount;
+      if (!isSameCurrency && converter != null) {
+        final converted = converter.convert(sub.amount, subCurrency, defaultCurrency);
+        convertedAmount = '≈${converter.format(converted, defaultCurrency)}';
+      }
+
+      return SubscriptionUiModel(
+        id: sub.id,
+        name: sub.name,
+        category: sub.category,
+        billingDay: sub.billingDay,
+        period: sub.period,
+        formattedAmount: formattedAmount,
+        convertedAmount: convertedAmount,
+        periodLabel: _getPeriodLabel(sub.period),
+      );
+    }).toList();
+  }
+
+  String _calculateFormattedTotal(List<UserSubscription> subscriptions) {
+    final defaultCurrency = ref.read(defaultCurrencyProvider);
+    final converter = ref.read(currencyConverterProvider);
 
     double total = 0;
     for (final sub in subscriptions) {
-      if (sub.currency == 'KRW') {
+      final subCurrency = Currency.fromCode(sub.currency) ?? Currency.KRW;
+      if (subCurrency == defaultCurrency) {
         total += sub.amount;
-      } else if (exchangeRate != null) {
-        total += exchangeRate.convert(sub.amount, sub.currency, 'KRW');
+      } else if (converter != null) {
+        total += converter.convert(sub.amount, subCurrency, defaultCurrency);
       } else {
-        // 환율 없으면 기본값 사용
-        total += sub.amount * 1400;
+        total += sub.amount;
       }
     }
 
-    return total;
+    return converter?.format(total, defaultCurrency) ??
+        '${defaultCurrency.symbol}${total.toStringAsFixed(defaultCurrency.decimalDigits)}';
+  }
+
+  String _getPeriodLabel(String period) {
+    switch (period) {
+      case 'monthly':
+        return '월간 결제';
+      case 'yearly':
+        return '연간 결제';
+      case 'weekly':
+        return '주간 결제';
+      default:
+        return '월간 결제';
+    }
   }
 
   Future<bool> deleteSubscription(String subscriptionId) async {

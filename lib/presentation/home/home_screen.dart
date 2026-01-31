@@ -5,13 +5,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
-import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/domain/model/exchange_rate.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
-import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
@@ -23,7 +20,6 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
-    final exchangeRate = ref.watch(exchangeRateProvider).valueOrNull;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
     final hasGroup = state.groups.isNotEmpty;
@@ -83,7 +79,6 @@ class HomeScreen extends ConsumerWidget {
               ? const _NoGroupState()
               : _HomeContent(
                   state: state,
-                  exchangeRate: exchangeRate,
                   onCategorySelected: (category) {
                     ref.read(homeViewModelProvider.notifier).selectCategory(category);
                   },
@@ -153,14 +148,12 @@ class HomeScreen extends ConsumerWidget {
 /// Figma HomeContent - 스크롤 가능한 메인 콘텐츠
 class _HomeContent extends StatelessWidget {
   final HomeState state;
-  final ExchangeRate? exchangeRate;
   final ValueChanged<String?> onCategorySelected;
   final ValueChanged<UserSubscription> onTap;
   final ValueChanged<UserSubscription> onDelete;
 
   const _HomeContent({
     required this.state,
-    required this.exchangeRate,
     required this.onCategorySelected,
     required this.onTap,
     required this.onDelete,
@@ -177,7 +170,7 @@ class _HomeContent extends StatelessWidget {
       child: Column(
         children: [
           // SummarySection
-          _HeaderCard(total: state.totalKrw),
+          _HeaderCard(formattedTotal: state.formattedTotal),
 
           // FilterSection (구독이 있을 때만)
           if (state.subscriptions.isNotEmpty && state.categories.isNotEmpty) ...[
@@ -195,8 +188,8 @@ class _HomeContent extends StatelessWidget {
             const _EmptyState()
           else
             _SubscriptionSection(
-              subscriptions: state.filteredSubscriptions,
-              exchangeRate: exchangeRate,
+              subscriptions: state.subscriptions,
+              uiModels: state.subscriptionUiModels,
               onTap: onTap,
               onDelete: onDelete,
             ),
@@ -207,17 +200,15 @@ class _HomeContent extends StatelessWidget {
 }
 
 class _HeaderCard extends StatelessWidget {
-  final double total;
+  final String formattedTotal;
 
-  const _HeaderCard({required this.total});
+  const _HeaderCard({required this.formattedTotal});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
-    final formatted = CurrencyFormatter.formatKrw(total.toInt());
 
-    // Figma: SummaryCard
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       child: Container(
@@ -237,7 +228,7 @@ class _HeaderCard extends StatelessWidget {
               style: AppTypography.body.copyWith(color: colors.textOnAccent),
             ),
             Text(
-              '\u20a9$formatted',
+              formattedTotal,
               style: AppTypography.display.copyWith(color: colors.textOnAccent),
             ),
           ],
@@ -291,13 +282,13 @@ class _FilterSection extends StatelessWidget {
 /// Figma: SubscriptionSection - 카드 간격 12px
 class _SubscriptionSection extends StatelessWidget {
   final List<UserSubscription> subscriptions;
-  final ExchangeRate? exchangeRate;
+  final List<SubscriptionUiModel> uiModels;
   final ValueChanged<UserSubscription> onTap;
   final ValueChanged<UserSubscription> onDelete;
 
   const _SubscriptionSection({
     required this.subscriptions,
-    required this.exchangeRate,
+    required this.uiModels,
     required this.onTap,
     required this.onDelete,
   });
@@ -308,11 +299,11 @@ class _SubscriptionSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       child: Column(
         children: [
-          for (int i = 0; i < subscriptions.length; i++) ...[
-            if (i > 0) const SizedBox(height: AppSpacing.s3), // 12px gap
+          for (int i = 0; i < uiModels.length; i++) ...[
+            if (i > 0) const SizedBox(height: AppSpacing.s3),
             _SubscriptionTile(
               subscription: subscriptions[i],
-              exchangeRate: exchangeRate,
+              uiModel: uiModels[i],
               onTap: () => onTap(subscriptions[i]),
               onDelete: () => onDelete(subscriptions[i]),
             ),
@@ -438,14 +429,14 @@ class _NoGroupState extends ConsumerWidget {
 /// Figma: SubscriptionCard with swipe-to-delete
 class _SubscriptionTile extends StatefulWidget {
   final UserSubscription subscription;
-  final ExchangeRate? exchangeRate;
+  final SubscriptionUiModel uiModel;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
   const _SubscriptionTile({
     super.key,
     required this.subscription,
-    required this.exchangeRate,
+    required this.uiModel,
     required this.onTap,
     required this.onDelete,
   });
@@ -494,14 +485,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? AppColors.dark : AppColors.light;
-    final isKrw = widget.subscription.currency == 'KRW';
-
-    final currencySymbol = _getCurrencySymbol(widget.subscription.currency);
-    final formattedAmount = isKrw
-        ? CurrencyFormatter.formatKrw(widget.subscription.amount.toInt())
-        : widget.subscription.amount.toStringAsFixed(2);
-
-    final krwConverted = _getKrwConverted();
+    final uiModel = widget.uiModel;
 
     return GestureDetector(
       onHorizontalDragUpdate: _handleDragUpdate,
@@ -600,15 +584,15 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '$currencySymbol$formattedAmount',
+                              uiModel.formattedAmount,
                               style: AppTypography.bodyLargeSemi.copyWith(
                                 color: colors.textPrimary,
                               ),
                             ),
-                            if (krwConverted != null) ...[
+                            if (uiModel.convertedAmount != null) ...[
                               const SizedBox(height: AppSpacing.s1),
                               Text(
-                                '\u2248\u20a9${CurrencyFormatter.formatKrw(krwConverted)}',
+                                uiModel.convertedAmount!,
                                 style: AppTypography.caption.copyWith(
                                   color: colors.textTertiary,
                                 ),
@@ -616,7 +600,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             ],
                             const SizedBox(height: AppSpacing.s1),
                             Text(
-                              _getPeriodLabel(widget.subscription.period),
+                              uiModel.periodLabel,
                               style: AppTypography.caption.copyWith(
                                 color: colors.textTertiary,
                               ),
@@ -635,42 +619,4 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
     );
   }
 
-  String _getCurrencySymbol(String currency) {
-    switch (currency) {
-      case 'USD':
-        return '\$';
-      case 'EUR':
-        return '€';
-      case 'JPY':
-        return '¥';
-      default:
-        return '₩';
-    }
-  }
-
-  String _getPeriodLabel(String period) {
-    switch (period) {
-      case 'monthly':
-        return '월간 결제';
-      case 'yearly':
-        return '연간 결제';
-      case 'weekly':
-        return '주간 결제';
-      default:
-        return '월간 결제';
-    }
-  }
-
-  int? _getKrwConverted() {
-    if (widget.subscription.currency == 'KRW') return null;
-
-    if (widget.exchangeRate != null) {
-      return widget.exchangeRate!
-          .convert(widget.subscription.amount, widget.subscription.currency, 'KRW')
-          .toInt();
-    }
-
-    // 환율 없으면 기본값 사용
-    return (widget.subscription.amount * 1400).toInt();
-  }
 }

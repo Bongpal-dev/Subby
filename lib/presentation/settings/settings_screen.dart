@@ -6,6 +6,7 @@ import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/domain/model/currency.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 
@@ -76,12 +77,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     });
                   },
                 ),
-                SettingItem(
+                SettingItemDropdown<Currency>(
                   title: '기본 통화',
-                  value: 'KRW',
-                  type: SettingItemType.chevron,
-                  onTap: () {
-                    // TODO: 통화 선택 화면으로 이동
+                  value: ref.watch(defaultCurrencyProvider),
+                  items: Currency.values,
+                  itemLabel: currencyToLabel,
+                  onChanged: (currency) {
+                    ref.read(defaultCurrencyProvider.notifier).setCurrency(currency);
                   },
                 ),
               ],
