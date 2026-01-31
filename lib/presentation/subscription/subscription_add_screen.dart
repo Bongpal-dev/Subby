@@ -34,8 +34,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return GestureDetector(
       onTap: () => _focusSink.requestFocus(),
@@ -120,8 +119,7 @@ class _PlanSection extends ConsumerWidget {
     }
 
     final vm = ref.read(provider.notifier);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final locale = Localizations.localeOf(context);
     final plans = selectedPreset!.plans;
 
@@ -202,8 +200,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
     final currency = ref.watch(provider.select((s) => s.currency));
     final vm = ref.read(provider.notifier);
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     _syncAmountController(amount, currency);
 
@@ -294,8 +291,7 @@ class _BillingDaySection extends ConsumerWidget {
     final billingDay = ref.watch(provider.select((s) => s.billingDay));
     final vm = ref.read(provider.notifier);
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,8 +349,7 @@ class _PeriodSection extends ConsumerWidget {
     final period = ref.watch(provider.select((s) => s.period));
     final vm = ref.read(provider.notifier);
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     const periods = [('WEEKLY', '매주'), ('MONTHLY', '매월'), ('YEARLY', '매년')];
 
@@ -475,8 +470,7 @@ class _SaveButton extends ConsumerWidget {
     final provider = subscriptionAddViewModelProvider(editSubscriptionId);
     final isSaving = ref.watch(provider.select((s) => s.isSaving));
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return Container(
       decoration: BoxDecoration(

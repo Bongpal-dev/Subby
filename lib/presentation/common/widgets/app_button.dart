@@ -31,8 +31,7 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     final backgroundColor = _getBackgroundColor(colors);
     final textColor = _getTextColor(colors);

@@ -21,8 +21,7 @@ class AppToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return GestureDetector(
       onTap: onChanged != null ? () => onChanged!(!value) : null,

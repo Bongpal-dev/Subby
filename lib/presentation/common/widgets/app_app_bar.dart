@@ -30,8 +30,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     final backgroundColor = useAccentBackground ? colors.bgAccent : colors.bgPrimary;
     final textColor = useAccentBackground ? colors.textOnAccent : colors.textPrimary;
@@ -107,8 +106,7 @@ class AppBarIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return Material(
       color: Colors.transparent,

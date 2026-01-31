@@ -26,8 +26,7 @@ class AppDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final isAnonymous = ref.watch(isAnonymousProvider).valueOrNull ?? true;
 
     // 키보드가 올라와도 Drawer 레이아웃이 변하지 않도록 높이 고정
@@ -148,8 +147,7 @@ class AppDrawer extends ConsumerWidget {
 
     if (userId == null) return;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     final newNickname = await showAppTextInputDialog(
       context: context,
@@ -248,8 +246,7 @@ class AppDrawer extends ConsumerWidget {
   }
 
   void _showSignOutDialog(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     showAppDialog(
       context: context,
@@ -297,8 +294,7 @@ class _ProfileSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final nickname = ref.watch(currentNicknameProvider).valueOrNull;
 
     return Row(
@@ -350,8 +346,7 @@ class _GroupSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     if (groups.isEmpty) {
       return Center(
@@ -415,8 +410,7 @@ class _GroupItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return Material(
       color: isSelected ? colors.bgTertiary : Colors.transparent,
@@ -557,8 +551,7 @@ class _SvgMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final textColor = labelColor ?? colors.textPrimary;
     final svgColor = iconColor ?? colors.iconPrimary;
 
@@ -619,8 +612,7 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final textColor = labelColor ?? colors.textPrimary;
 
     return Material(
@@ -730,8 +722,7 @@ class _LoginDialogState extends State<_LoginDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return Dialog(
       backgroundColor: Colors.transparent,

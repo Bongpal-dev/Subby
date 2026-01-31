@@ -31,8 +31,7 @@ class AppDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
@@ -130,8 +129,7 @@ class _DialogButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     final bgColor = isPrimary ? colors.buttonPrimaryBg : Colors.transparent;
     final textColor = isPrimary ? colors.buttonPrimaryText : colors.buttonSecondaryText;
@@ -185,9 +183,6 @@ Future<T?> showAppDialog<T>({
   required List<AppDialogAction> actions,
   bool barrierDismissible = true,
 }) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final colors = isDark ? AppColors.dark : AppColors.light;
-
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
@@ -237,8 +232,7 @@ class AppDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     return Container(
       height: thickness,

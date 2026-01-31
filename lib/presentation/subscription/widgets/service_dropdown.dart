@@ -121,8 +121,7 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
   Widget build(BuildContext context) {
     final state = ref.watch(subscriptionAddViewModelProvider(widget.editSubscriptionId));
     final vm = ref.read(subscriptionAddViewModelProvider(widget.editSubscriptionId).notifier);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final locale = Localizations.localeOf(context);
 
     // 프리셋 선택 변경 감지하여 컨트롤러 동기화
@@ -205,8 +204,7 @@ class _ServiceDropdownMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(subscriptionAddViewModelProvider(editSubscriptionId));
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final locale = Localizations.localeOf(context);
 
     return Material(

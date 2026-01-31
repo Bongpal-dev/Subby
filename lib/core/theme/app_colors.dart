@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 
 /// Figma 디자인 시스템 색상 토큰
 abstract class AppColors {
-  // Light Mode
   static const AppColorScheme light = _LightColors();
-
-  // Dark Mode
   static const AppColorScheme dark = _DarkColors();
+}
+
+/// context.colors로 현재 테마 색상에 접근
+extension AppColorsExtension on BuildContext {
+  AppColorScheme get colors {
+    final isDark = Theme.of(this).brightness == Brightness.dark;
+    return isDark ? AppColors.dark : AppColors.light;
+  }
 }
 
 abstract class AppColorScheme {

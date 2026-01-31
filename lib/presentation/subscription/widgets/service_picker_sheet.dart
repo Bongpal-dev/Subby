@@ -29,8 +29,7 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
   Widget build(BuildContext context) {
     final state = ref.watch(subscriptionAddViewModelProvider);
     final vm = ref.read(subscriptionAddViewModelProvider.notifier);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
     final locale = Localizations.localeOf(context);
 
     return Container(
@@ -124,8 +123,7 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
 
   void _showManualInputDialog(SubscriptionAddViewModel vm) {
     final controller = TextEditingController();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     showDialog(
       context: context,

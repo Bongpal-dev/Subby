@@ -83,8 +83,7 @@ class _AppTextFieldState extends State<AppTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = isDark ? AppColors.dark : AppColors.light;
+    final colors = context.colors;
 
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
     final borderColor = _getBorderColor(colors, hasError);
