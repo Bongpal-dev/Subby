@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
@@ -10,7 +12,6 @@ import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
-import 'package:subby/presentation/subscription/subscription_add_screen.dart';
 
 /// 구독 상세 조회 Provider (autoDispose로 화면 닫힐 때 캐시 해제)
 final subscriptionDetailProvider = FutureProvider.autoDispose.family<UserSubscription?, String>((ref, id) async {
@@ -81,13 +82,8 @@ class SubscriptionDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _navigateToEdit(BuildContext context, WidgetRef ref) async {
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubscriptionAddScreen(
-          editSubscriptionId: subscriptionId,
-        ),
-      ),
+    final result = await context.push<bool>(
+      AppRoutes.subscriptionEditPath(subscriptionId),
     );
 
     // 수정 완료 시 상세 데이터 refresh

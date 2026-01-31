@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
@@ -11,7 +13,6 @@ import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
-import 'package:subby/presentation/settings/settings_screen.dart';
 import 'package:subby/core/utils/nickname_generator.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 
@@ -131,11 +132,8 @@ class AppDrawer extends ConsumerWidget {
   }
 
   void _navigateToSettings(BuildContext context) {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SettingsScreen()),
-    );
+    Navigator.pop(context); // Drawer 닫기
+    context.push(AppRoutes.settings);
   }
 
   Future<void> _showEditNicknameDialog(BuildContext context, WidgetRef ref) async {

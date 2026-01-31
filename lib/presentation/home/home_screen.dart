@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
@@ -11,8 +13,6 @@ import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
-import 'package:subby/presentation/subscription/subscription_add_screen.dart';
-import 'package:subby/presentation/subscription/subscription_detail_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -88,21 +88,11 @@ class HomeScreen extends ConsumerWidget {
   }
 
   void _navigateToAdd(BuildContext context, WidgetRef ref) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SubscriptionAddScreen(),
-      ),
-    );
+    context.push(AppRoutes.subscriptionAdd);
   }
 
   void _navigateToDetail(BuildContext context, String subscriptionId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubscriptionDetailScreen(subscriptionId: subscriptionId),
-      ),
-    );
+    context.push(AppRoutes.subscriptionDetailPath(subscriptionId));
   }
 
   void _onInvite(BuildContext context, String groupName, String? groupCode) {
