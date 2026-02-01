@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
+import 'package:subby/core/utils/nickname_generator.dart';
 import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/subby_dialog.dart';
@@ -99,16 +101,27 @@ class OnboardingFlowHandler {
   Future<void> _showNicknameDialog() async {
     if (!context.mounted) return;
 
+    final colors = context.colors;
+
     final nickname = await showSubbyTextInputDialog(
       context: context,
       title: '닉네임 설정',
       description: '다른 사람에게 보일 이름을\n입력해 주세요',
       hint: '닉네임을 입력하세요',
+      initialValue: NicknameGenerator.generate(),
       cancelLabel: '취소',
       confirmLabel: '변경하기',
       barrierDismissible: false,
-      suffixIcon: const AppIcon(AppIconType.refresh, size: 24),
-      onGenerateValue: _generateRandomNickname,
+      suffixIcon: SvgPicture.asset(
+        'assets/icons/ic_refresh_small.svg',
+        width: 24,
+        height: 24,
+        colorFilter: ColorFilter.mode(
+          colors.iconSecondary,
+          BlendMode.srcIn,
+        ),
+      ),
+      onGenerateValue: NicknameGenerator.generate,
     );
 
     if (nickname != null && nickname.isNotEmpty) {
@@ -166,17 +179,4 @@ class OnboardingFlowHandler {
     // 취소하거나 실패해도 다시 묻지 않음 (cloudSyncPrompted = true)
   }
 
-  /// 랜덤 닉네임 생성
-  String _generateRandomNickname() {
-    final adjectives = ['즐거운', '행복한', '빛나는', '멋진', '귀여운', '활발한', '상큼한'];
-    final colors = ['빨간색', '주황색', '노란색', '초록색', '파란색', '보라색', '분홍색'];
-    final animals = ['판다', '코끼리', '토끼', '고양이', '강아지', '여우', '곰'];
-
-    final random = DateTime.now().millisecondsSinceEpoch;
-    final adj = adjectives[random % adjectives.length];
-    final color = colors[(random ~/ 7) % colors.length];
-    final animal = animals[(random ~/ 49) % animals.length];
-
-    return '$adj $color $animal';
-  }
 }

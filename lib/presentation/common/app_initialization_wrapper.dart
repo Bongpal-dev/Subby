@@ -5,6 +5,7 @@ import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/providers/deep_link_provider.dart';
+import 'package:subby/presentation/onboarding/onboarding_coach_mark_screen.dart';
 import 'package:subby/presentation/onboarding/onboarding_screen.dart';
 
 class AppInitializationWrapper extends ConsumerStatefulWidget {
@@ -58,12 +59,19 @@ class _AppInitializationWrapperState
   Widget build(BuildContext context) {
     final appInit = ref.watch(appInitializedProvider);
     final onboardingCompleted = ref.watch(onboardingCompletedProvider);
+    final coachMarkCompleted = ref.watch(coachMarkCompletedProvider);
+    final onboardingType = ref.watch(onboardingTypeProvider);
 
     return appInit.when(
       data: (_) {
-        // 온보딩 미완료 시 온보딩 화면 표시
+        // 1. 온보딩 미완료 시 온보딩 화면 (로그인 선택)
         if (!onboardingCompleted) {
           return const OnboardingScreen();
+        }
+
+        // 2. 신규 사용자이고 코치마크 미완료 시 코치마크 화면
+        if (onboardingType == OnboardingType.newUser && !coachMarkCompleted) {
+          return const OnboardingCoachMarkScreen();
         }
 
         ref.watch(realtimeSyncProvider);
