@@ -212,3 +212,44 @@ class DefaultCurrencyNotifier extends Notifier<Currency> {
 String currencyToLabel(Currency currency) {
   return '${currency.code}  ${currency.name}(${currency.symbol})';
 }
+
+/// 알림 설정 Provider
+const _notificationEnabledKey = 'notification_enabled';
+
+final notificationEnabledProvider =
+    NotifierProvider<NotificationEnabledNotifier, bool>(
+        NotificationEnabledNotifier.new);
+
+class NotificationEnabledNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _loadNotificationEnabled();
+    return true; // 기본값: 알림 활성화
+  }
+
+  Future<void> _loadNotificationEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool(_notificationEnabledKey);
+    if (value != null) {
+      state = value;
+    }
+  }
+
+  Future<void> setNotificationEnabled(bool enabled) async {
+    state = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_notificationEnabledKey, enabled);
+
+    // FCM 토큰 등록/삭제로 서버 푸시 제어
+    final fcmService = ref.read(fcmServiceProvider);
+    final userId = ref.read(currentUserIdProvider);
+
+    if (userId != null) {
+      if (enabled) {
+        await fcmService.registerToken(userId);
+      } else {
+        await fcmService.deleteToken();
+      }
+    }
+  }
+}

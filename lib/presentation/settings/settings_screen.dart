@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
@@ -19,7 +20,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _notificationEnabled = true;
   String _appVersion = '';
 
   @override
@@ -69,11 +69,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 SettingItem(
                   title: '알림 설정',
                   type: SettingItemType.toggle,
-                  toggleValue: _notificationEnabled,
+                  toggleValue: ref.watch(notificationEnabledProvider),
                   onToggleChanged: (value) {
-                    setState(() {
-                      _notificationEnabled = value;
-                    });
+                    ref
+                        .read(notificationEnabledProvider.notifier)
+                        .setNotificationEnabled(value);
+                    Fluttertoast.showToast(
+                      msg: value ? '알림이 설정되었습니다' : '알림이 해제되었습니다',
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
                   },
                 ),
                 SettingItemDropdown<Currency>(
