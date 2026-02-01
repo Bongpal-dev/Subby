@@ -44,10 +44,8 @@ class SubbyButton extends StatelessWidget {
         onTap: isEnabled ? onPressed : null,
         borderRadius: AppRadius.mdAll,
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.s5,
-            vertical: AppSpacing.s3,
-          ),
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
           decoration: BoxDecoration(
             borderRadius: AppRadius.mdAll,
             border: borderColor != null
@@ -68,7 +66,7 @@ class SubbyButton extends StatelessWidget {
               Flexible(
                 child: Text(
                   label,
-                  style: AppTypography.bodySemi.copyWith(color: textColor),
+                  style: AppTypography.labelBold.copyWith(color: textColor),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
@@ -90,13 +88,9 @@ class SubbyButton extends StatelessWidget {
   }
 
   Color _getBackgroundColor(AppColorScheme colors) {
-    if (!isEnabled) {
-      return colors.buttonDisableBg;
-    }
-
     switch (type) {
       case SubbyButtonType.primary:
-        return colors.buttonPrimaryBg;
+        return isEnabled ? colors.buttonPrimaryBg : colors.buttonDisableBg;
       case SubbyButtonType.outline:
         return Colors.transparent;
       case SubbyButtonType.text:
@@ -120,15 +114,11 @@ class SubbyButton extends StatelessWidget {
   }
 
   Color? _getBorderColor(AppColorScheme colors) {
-    if (!isEnabled) {
-      return null;
-    }
-
     switch (type) {
       case SubbyButtonType.primary:
         return null;
       case SubbyButtonType.outline:
-        return colors.borderPrimary;
+        return isEnabled ? colors.borderPrimary : colors.borderSecondary;
       case SubbyButtonType.text:
         return null;
     }

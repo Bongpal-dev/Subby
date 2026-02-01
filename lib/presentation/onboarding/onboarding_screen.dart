@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
@@ -102,18 +103,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   children: [
                     // 로고
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 64,
+                      height: 64,
                       decoration: BoxDecoration(
                         color: colors.bgAccent,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppSpacing.s4),
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        'S',
-                        style: AppTypography.title.copyWith(
-                          color: colors.textOnAccent,
-                          fontWeight: FontWeight.bold,
+                      padding: const EdgeInsets.all(12),
+                      child: SvgPicture.asset(
+                        'assets/icons/subby_place_holder.svg',
+                        colorFilter: ColorFilter.mode(
+                          colors.textOnAccent,
+                          BlendMode.srcIn,
                         ),
                       ),
                     ),
@@ -155,7 +157,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     isEnabled: !_isLoading,
                     onPressed: _handleAnonymousLogin,
                   ),
-                  const SizedBox(height: AppSpacing.s3),
+                  const SizedBox(height: AppSpacing.s4),
                   // 써본 적 있어요 버튼 (Google 로그인)
                   SubbyButton(
                     label: '써본 적 있어요',
