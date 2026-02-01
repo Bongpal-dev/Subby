@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
@@ -106,14 +108,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: '이용약관',
                   type: SettingItemType.chevron,
                   onTap: () {
-                    // TODO: 이용약관 화면으로 이동
+                    context.push(
+                      AppRoutes.webview,
+                      extra: {
+                        'title': '이용약관',
+                        'url': 'https://subby-terms.notion.site/',
+                      },
+                    );
                   },
                 ),
                 SettingItem(
                   title: '개인정보처리방침',
                   type: SettingItemType.chevron,
                   onTap: () {
-                    // TODO: 개인정보처리방침 화면으로 이동
+                    context.push(
+                      AppRoutes.webview,
+                      extra: {
+                        'title': '개인정보처리방침',
+                        'url': 'https://subby-privacy.notion.site/',
+                      },
+                    );
                   },
                 ),
               ],

@@ -54,6 +54,9 @@ dependencies:
   # 토스트 메시지
   fluttertoast: ^8.2.8
 
+  # 웹뷰
+  webview_flutter: ^4.10.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
