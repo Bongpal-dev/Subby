@@ -160,21 +160,7 @@ final currentUserIdProvider = Provider<String?>((ref) {
 });
 
 final appInitializedProvider = FutureProvider<void>((ref) async {
-  final authRepository = ref.watch(authRepositoryProvider);
-  final prefs = await SharedPreferences.getInstance();
-
-  // 기존 사용자 감지: 이미 로그인된 사용자가 있고, onboarding_completed 키가 없으면
-  // → 기존 사용자이므로 온보딩 스킵
-  final hasOnboardingKey = prefs.containsKey(_onboardingCompletedKey);
-  final currentUserId = authRepository.currentUserId;
-
-  if (!hasOnboardingKey && currentUserId != null) {
-    // 기존 사용자 - 온보딩 관련 모든 플래그 완료 처리
-    await prefs.setBool(_onboardingCompletedKey, true);
-    await prefs.setBool(_coachMarkCompletedKey, true);
-    await prefs.setBool(_nicknameSetKey, true);
-    await prefs.setBool(_cloudSyncPromptedKey, true);
-  }
+  // 비어있음 - onboardingCompletedProvider가 SharedPreferences 체크
 });
 
 final currentGroupCodeProvider = StateProvider<String?>((ref) => null);
