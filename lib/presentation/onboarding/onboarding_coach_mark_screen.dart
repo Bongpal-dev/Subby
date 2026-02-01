@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/core/utils/nickname_generator.dart';
-import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/subby_app_bar.dart';
 import 'package:subby/presentation/common/widgets/subby_chip.dart';
-import 'package:subby/presentation/common/widgets/subby_dialog.dart';
 import 'package:subby/presentation/common/widgets/subby_fab.dart';
-import 'package:subby/presentation/common/widgets/subby_text_input_dialog.dart';
 import 'package:subby/presentation/common/widgets/subby_tooltip.dart';
 
 /// 온보딩 코치마크 전용 화면
@@ -28,11 +23,7 @@ class OnboardingCoachMarkScreen extends ConsumerStatefulWidget {
 
 class _OnboardingCoachMarkScreenState
     extends ConsumerState<OnboardingCoachMarkScreen> {
-  final GlobalKey _fabKey = GlobalKey();
-  final GlobalKey _summaryCardKey = GlobalKey();
-  final GlobalKey _drawerKey = GlobalKey();
-
-  int _currentStep = 0; // 0: 구독추가, 1: 예상구독료, 2: 그룹관리, 3: 완료
+  int _currentStep = 0; // 0: 대기, 1: FAB, 2: SummaryCard, 3: Drawer
 
   @override
   void initState() {
@@ -53,102 +44,9 @@ class _OnboardingCoachMarkScreenState
   }
 
   Future<void> _completeCoachMark() async {
-    // 닉네임 설정 다이얼로그
-    final nicknameSet = ref.read(nicknameSetProvider);
-    if (!nicknameSet && mounted) {
-      await _showNicknameDialog();
-    }
-
-    // 클라우드 연동 다이얼로그 (신규 사용자만)
-    final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
-    if (!cloudSyncPrompted && mounted) {
-      await _showCloudSyncDialog();
-    }
-
-    // 코치마크 완료 처리
+    // 코치마크 완료 처리 → 홈 화면으로 이동 후 다이얼로그 표시
     await ref.read(coachMarkCompletedProvider.notifier).completeCoachMark();
   }
-
-  /// 닉네임 설정 다이얼로그
-  Future<void> _showNicknameDialog() async {
-    if (!mounted) return;
-
-    final colors = context.colors;
-
-    final nickname = await showSubbyTextInputDialog(
-      context: context,
-      title: '닉네임 설정',
-      description: '다른 사람에게 보일 이름을\n입력해 주세요',
-      hint: '닉네임을 입력하세요',
-      initialValue: NicknameGenerator.generate(),
-      cancelLabel: '취소',
-      confirmLabel: '변경하기',
-      barrierDismissible: false,
-      suffixIcon: SvgPicture.asset(
-        'assets/icons/ic_refresh_small.svg',
-        width: 24,
-        height: 24,
-        colorFilter: ColorFilter.mode(
-          colors.iconSecondary,
-          BlendMode.srcIn,
-        ),
-      ),
-      onGenerateValue: NicknameGenerator.generate,
-    );
-
-    if (nickname != null && nickname.isNotEmpty) {
-      // TODO: 닉네임 저장 (NicknameRepository 사용)
-    }
-    // 취소해도 완료 처리 (다시 묻지 않음)
-    await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
-  }
-
-  /// 클라우드 연동 다이얼로그
-  Future<void> _showCloudSyncDialog() async {
-    if (!mounted) return;
-
-    final colors = context.colors;
-
-    await showSubbyDialog(
-      context: context,
-      iconType: AppIconType.download,
-      iconColor: colors.statusInfo,
-      title: '클라우드에 연동할까요?',
-      description: '로그인하면 데이터가 안전하게 저장되고,\n다른 기기에서도 사용할 수 있어요',
-      barrierDismissible: false,
-      actions: [
-        SubbyDialogAction(
-          label: '나중에',
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        SubbyDialogAction(
-          label: '로그인',
-          isPrimary: true,
-          onPressed: () async {
-            Navigator.pop(context);
-            await _handleGoogleLogin();
-          },
-        ),
-      ],
-    );
-
-    // 클라우드 연동 제안 완료 저장
-    await ref.read(cloudSyncPromptedProvider.notifier).completeCloudSyncPrompt();
-  }
-
-  /// Google 로그인 처리
-  Future<void> _handleGoogleLogin() async {
-    final authRepository = ref.read(authRepositoryProvider);
-    final result = await authRepository.signInWithGoogle();
-
-    if (result is GoogleSignInSuccess) {
-      // 로그인 성공 - 기존 데이터 마이그레이션 필요할 수 있음
-    }
-    // 취소하거나 실패해도 다시 묻지 않음 (cloudSyncPrompted = true)
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -160,126 +58,114 @@ class _OnboardingCoachMarkScreenState
       return const SizedBox.shrink();
     }
 
-    return Scaffold(
-      backgroundColor: colors.bgPrimary,
-      appBar: SubbyAppBar(
-        title: '그룹 이름',
-        useAccentBackground: true,
-        leading: Builder(
-          key: _drawerKey,
-          builder: (ctx) => SubbyAppBarIconButton(
-            icon: AppIconType.menu,
-            color: colors.iconOnAccent,
-            onPressed: () {},
+    // Step 3: 드로어 화면
+    if (_currentStep == 3) {
+      return _DrawerCoachMarkScreen(onTap: _showNextCoachMark);
+    }
+
+    // Step 1, 2: 홈 화면 + 전체 화면 오버레이
+    return Stack(
+      children: [
+        // 더미 홈 화면
+        Scaffold(
+          backgroundColor: colors.bgPrimary,
+          appBar: SubbyAppBar(
+            title: '그룹 이름',
+            useAccentBackground: true,
+            leading: SubbyAppBarIconButton(
+              icon: AppIconType.menu,
+              color: colors.iconOnAccent,
+              onPressed: () {},
+            ),
+            actions: [
+              SubbyAppBarIconButton(
+                icon: AppIconType.share,
+                color: colors.iconOnAccent,
+                onPressed: () {},
+              ),
+            ],
           ),
-        ),
-        actions: [
-          SubbyAppBarIconButton(
-            icon: AppIconType.share,
-            color: colors.iconOnAccent,
-            onPressed: () {},
-          ),
-        ],
-      ),
-      floatingActionButton: SubbyFab(
-        key: _fabKey,
-        onPressed: () {},
-      ),
-      body: Stack(
-        children: [
-          // 더미 HomeScreen 콘텐츠
-          SingleChildScrollView(
+          body: SingleChildScrollView(
             padding: const EdgeInsets.only(
               top: AppSpacing.s4,
               bottom: 80,
             ),
-            child: Column(
+            child: const Column(
               children: [
-                // Summary Card
-                _DummySummaryCard(key: _summaryCardKey),
-                const SizedBox(height: AppSpacing.s4),
-                // Filter Chips
-                const _DummyFilterSection(),
-                const SizedBox(height: AppSpacing.s4),
-                // Subscription Cards
-                const _DummySubscriptionSection(),
+                _DummySummaryCard(),
+                SizedBox(height: AppSpacing.s4),
+                _DummyFilterSection(),
+                SizedBox(height: AppSpacing.s4),
+                _DummySubscriptionSection(),
               ],
             ),
           ),
+          floatingActionButton: SubbyFab(onPressed: () {}),
+        ),
 
-          // 코치마크 오버레이
-          if (_currentStep >= 1 && _currentStep <= 3)
-            _CoachMarkOverlay(
-              step: _currentStep,
-              fabKey: _fabKey,
-              summaryCardKey: _summaryCardKey,
-              drawerKey: _drawerKey,
-              onTap: _showNextCoachMark,
-            ),
-        ],
-      ),
+        // 오버레이 (전체 화면)
+        if (_currentStep == 1)
+          _FabCoachMarkOverlay(onTap: _showNextCoachMark),
+
+        if (_currentStep == 2)
+          _SummaryCardCoachMarkOverlay(onTap: _showNextCoachMark),
+      ],
     );
   }
 }
 
-/// 코치마크 오버레이
-class _CoachMarkOverlay extends StatelessWidget {
-  final int step;
-  final GlobalKey fabKey;
-  final GlobalKey summaryCardKey;
-  final GlobalKey drawerKey;
+/// Step 1: FAB 코치마크 오버레이 (전체 화면)
+class _FabCoachMarkOverlay extends StatelessWidget {
   final VoidCallback onTap;
 
-  const _CoachMarkOverlay({
-    required this.step,
-    required this.fabKey,
-    required this.summaryCardKey,
-    required this.drawerKey,
-    required this.onTap,
-  });
+  const _FabCoachMarkOverlay({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final mediaQuery = MediaQuery.of(context);
+    final bottomPadding = mediaQuery.padding.bottom;
 
-    String title;
-    String description;
-    GlobalKey targetKey;
-    TooltipPosition position;
-
-    switch (step) {
-      case 1: // 구독 추가
-        title = '구독 추가하기';
-        description = '+버튼을 눌러 구독중인 서비스를 추가하세요';
-        targetKey = fabKey;
-        position = TooltipPosition.top;
-      case 2: // 예상 구독료
-        title = '예상 구독료 확인하기';
-        description = '이번 달 총 예상 구독료를 확인하세요';
-        targetKey = summaryCardKey;
-        position = TooltipPosition.bottom;
-      case 3: // 그룹 관리
-        title = '그룹으로 함께 관리';
-        description = '그룹을 만들고 가족·친구와 공유하세요';
-        targetKey = drawerKey;
-        position = TooltipPosition.bottom;
-      default:
-        return const SizedBox.shrink();
-    }
+    // FAB 위치 계산 (Scaffold FAB 기본 위치 기준)
+    const fabSize = 56.0;
+    const fabMargin = 16.0;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Colors.black.withValues(alpha: 0.5),
+        color: Colors.black.withOpacity(0.5),
         child: Stack(
           children: [
-            // 하이라이트 영역 + 툴팁
-            _HighlightWithTooltip(
-              targetKey: targetKey,
-              title: title,
-              description: description,
-              position: position,
-              highlightColor: colors.bgPrimary,
+            // 연두색 하이라이트 테두리 (FAB 주변)
+            Positioned(
+              right: fabMargin - 8,
+              bottom: fabMargin + bottomPadding - 8,
+              child: Container(
+                width: fabSize + 16,
+                height: fabSize + 16,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: colors.bgAccent,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+            // FAB 다시 그리기
+            Positioned(
+              right: fabMargin,
+              bottom: fabMargin + bottomPadding,
+              child: SubbyFab(onPressed: () {}),
+            ),
+            // 툴팁 (FAB 왼쪽 위)
+            Positioned(
+              left: 16,
+              bottom: fabMargin + bottomPadding + fabSize + 32,
+              child: const SubbyTooltip(
+                title: '구독 추가하기',
+                description: '+버튼을 눌러 구독중인 서비스를 추가하세요',
+              ),
             ),
           ],
         ),
@@ -288,105 +174,398 @@ class _CoachMarkOverlay extends StatelessWidget {
   }
 }
 
-/// 하이라이트 영역과 툴팁
-class _HighlightWithTooltip extends StatelessWidget {
-  final GlobalKey targetKey;
-  final String title;
-  final String description;
-  final TooltipPosition position;
-  final Color highlightColor;
+/// Step 2: Summary Card 코치마크 오버레이 (전체 화면)
+class _SummaryCardCoachMarkOverlay extends StatelessWidget {
+  final VoidCallback onTap;
 
-  const _HighlightWithTooltip({
-    required this.targetKey,
-    required this.title,
-    required this.description,
-    required this.position,
-    required this.highlightColor,
+  const _SummaryCardCoachMarkOverlay({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final mediaQuery = MediaQuery.of(context);
+    final statusBarHeight = mediaQuery.padding.top;
+    const appBarHeight = 56.0;
+
+    // Summary Card 위치 (앱바 아래, padding 16)
+    final cardTop = statusBarHeight + appBarHeight + AppSpacing.s4;
+    const cardHorizontalPadding = AppSpacing.s4;
+    // Summary Card 높이 (padding 24*2 + text)
+    const cardHeight = 92.0;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        color: Colors.black.withOpacity(0.5),
+        child: Stack(
+          children: [
+            // 연두색 하이라이트 테두리 (Summary Card 주변)
+            Positioned(
+              left: cardHorizontalPadding - 4,
+              top: cardTop - 4,
+              right: cardHorizontalPadding - 4,
+              child: Container(
+                height: cardHeight + 8,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: colors.bgAccent,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+            // Summary Card 다시 그리기
+            Positioned(
+              left: cardHorizontalPadding,
+              top: cardTop,
+              right: cardHorizontalPadding,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.s6,
+                  horizontal: AppSpacing.s4,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.bgAccent,
+                  borderRadius: BorderRadius.circular(AppSpacing.s4),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '이번 달 예상 구독료',
+                      style: AppTypography.body.copyWith(color: colors.textOnAccent),
+                    ),
+                    Text(
+                      '₩199,200',
+                      style: AppTypography.display.copyWith(color: colors.textOnAccent),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // 툴팁 (카드 아래)
+            Positioned(
+              left: 16,
+              top: cardTop + cardHeight + 16,
+              child: const SubbyTooltip(
+                title: '예상 구독료 확인하기',
+                description: '이번 달 총 예상 구독료를 확인하세요',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Step 3: 드로어 코치마크 화면
+class _DrawerCoachMarkScreen extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _DrawerCoachMarkScreen({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final mediaQuery = MediaQuery.of(context);
+    final statusBarHeight = mediaQuery.padding.top;
+
+    // 그룹 아이템 위치 계산
+    const drawerWidth = 300.0;
+    const profileSectionHeight = 24.0; // 닉네임 높이
+    const dividerHeight = 1.0;
+    const groupItemHeight = 56.0;
+    final groupItemTop = statusBarHeight + AppSpacing.s6 + profileSectionHeight + AppSpacing.s4 + dividerHeight + AppSpacing.s4;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Scaffold(
+        backgroundColor: Colors.black.withOpacity(0.5),
+        body: Stack(
+          children: [
+            // 드로어 배경 (dim 적용)
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: drawerWidth,
+              child: Stack(
+                children: [
+                  // 드로어 흰색 배경
+                  Container(
+                    color: colors.bgSecondary,
+                    padding: EdgeInsets.only(
+                      left: AppSpacing.s4,
+                      right: AppSpacing.s4,
+                      top: statusBarHeight + AppSpacing.s6,
+                      bottom: AppSpacing.s6,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 프로필 섹션
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '졸린 빨간색 판다',
+                                style: AppTypography.bodyLargeSemi.copyWith(
+                                  color: colors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            SvgPicture.asset(
+                              'assets/icons/ic_edit.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: ColorFilter.mode(
+                                colors.iconPrimary,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.s4),
+                        Divider(color: colors.borderSecondary, height: 1),
+                        const SizedBox(height: AppSpacing.s4),
+
+                        // 그룹 목록
+                        Expanded(
+                          child: Column(
+                            children: [
+                              _DummyGroupItem(
+                                name: '그룹이름',
+                                memberCount: '2명 참여중',
+                                isSelected: false,
+                              ),
+                              const SizedBox(height: AppSpacing.s2),
+                              _DummyGroupItem(
+                                name: '그룹이름',
+                                memberCount: '나만 사용중',
+                                isSelected: true,
+                              ),
+                              const SizedBox(height: AppSpacing.s2),
+                              _DummyGroupItem(
+                                name: '그룹이름',
+                                memberCount: '2명 참여중',
+                                isSelected: false,
+                              ),
+                              const SizedBox(height: AppSpacing.s2),
+                              _DummyGroupItem(
+                                name: '그룹이름',
+                                memberCount: '2명 참여중',
+                                isSelected: false,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 하단 메뉴
+                        Divider(color: colors.borderSecondary, height: 1),
+                        const SizedBox(height: AppSpacing.s2),
+                        _DummyMenuItem(
+                          icon: 'assets/icons/ic_add.svg',
+                          label: '새 그룹 만들기',
+                        ),
+                        _DummyMenuItem(
+                          icon: 'assets/icons/ic_mail.svg',
+                          label: '그룹 참여하기',
+                        ),
+                        const SizedBox(height: AppSpacing.s2),
+                        Divider(color: colors.borderSecondary, height: 1),
+                        const SizedBox(height: AppSpacing.s2),
+                        _DummyMenuItem(
+                          icon: 'assets/icons/ic_logout.svg',
+                          label: '로그아웃',
+                        ),
+                        _DummyMenuItem(
+                          icon: 'assets/icons/ic_settings.svg',
+                          label: '설정',
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 드로어 위에 dim 오버레이
+                  Container(
+                    color: Colors.black.withOpacity(0.3),
+                  ),
+
+                  // 하이라이트 영역 (dim 제거 + 테두리)
+                  Positioned(
+                    left: AppSpacing.s4 - 8,
+                    top: groupItemTop - 8,
+                    right: AppSpacing.s4 - 8,
+                    child: Container(
+                      height: groupItemHeight + 16,
+                      decoration: BoxDecoration(
+                        color: colors.bgSecondary, // 흰색 배경으로 dim 제거
+                        border: Border.all(
+                          color: colors.bgAccent,
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+
+                  // 그룹 아이템 다시 그리기 (하이라이트 위에)
+                  Positioned(
+                    left: AppSpacing.s4,
+                    top: groupItemTop,
+                    right: AppSpacing.s4,
+                    child: _DummyGroupItem(
+                      name: '그룹이름',
+                      memberCount: '2명 참여중',
+                      isSelected: false,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 툴팁 (하이라이트 아래)
+            Positioned(
+              left: 16,
+              top: groupItemTop + groupItemHeight + 24,
+              child: const SubbyTooltip(
+                title: '그룹으로 함께 관리',
+                description: '그룹을 만들고 가족·친구와 공유하세요',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 더미 그룹 아이템
+class _DummyGroupItem extends StatelessWidget {
+  final String name;
+  final String memberCount;
+  final bool isSelected;
+
+  const _DummyGroupItem({
+    required this.name,
+    required this.memberCount,
+    required this.isSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    final renderBox =
-        targetKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return const SizedBox.shrink();
+    final colors = context.colors;
 
-    final targetPosition = renderBox.localToGlobal(Offset.zero);
-    final targetSize = renderBox.size;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // 툴팁 위치 계산
-    const tooltipWidth = 280.0;
-    double tooltipLeft;
-    double tooltipTop;
-
-    switch (position) {
-      case TooltipPosition.top:
-        tooltipLeft = (targetPosition.dx + targetSize.width / 2 - tooltipWidth / 2)
-            .clamp(16.0, screenWidth - tooltipWidth - 16);
-        tooltipTop = targetPosition.dy - 100;
-      case TooltipPosition.bottom:
-        tooltipLeft = (targetPosition.dx + targetSize.width / 2 - tooltipWidth / 2)
-            .clamp(16.0, screenWidth - tooltipWidth - 16);
-        tooltipTop = targetPosition.dy + targetSize.height + 16;
-      case TooltipPosition.left:
-        tooltipLeft = targetPosition.dx - tooltipWidth - 16;
-        tooltipTop = targetPosition.dy;
-      case TooltipPosition.right:
-        tooltipLeft = targetPosition.dx + targetSize.width + 16;
-        tooltipTop = targetPosition.dy;
-    }
-
-    return Stack(
-      children: [
-        // 하이라이트 영역 (구멍)
-        Positioned(
-          left: targetPosition.dx - 8,
-          top: targetPosition.dy - 8,
-          child: Container(
-            width: targetSize.width + 16,
-            height: targetSize.height + 16,
-            decoration: BoxDecoration(
-              color: highlightColor,
-              borderRadius: BorderRadius.circular(16),
+    return Container(
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
+      decoration: BoxDecoration(
+        color: isSelected ? colors.bgTertiary : Colors.transparent,
+        borderRadius: BorderRadius.circular(AppSpacing.s2),
+      ),
+      child: Row(
+        children: [
+          SvgPicture.asset(
+            'assets/icons/ic_group.svg',
+            width: 24,
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              colors.iconPrimary,
+              BlendMode.srcIn,
             ),
           ),
-        ),
-        // 타겟 위젯 다시 그리기 (하이라이트 위에)
-        Positioned(
-          left: targetPosition.dx,
-          top: targetPosition.dy,
-          width: targetSize.width,
-          height: targetSize.height,
-          child: IgnorePointer(
-            child: Material(
-              color: Colors.transparent,
-              child: Builder(
-                builder: (context) {
-                  // 타겟 위젯의 실제 내용을 복사할 수 없으므로
-                  // 하이라이트만 표시
-                  return const SizedBox.shrink();
-                },
+          const SizedBox(width: AppSpacing.s3),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: AppTypography.body.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                ),
+                Text(
+                  memberCount,
+                  style: AppTypography.caption.copyWith(
+                    color: colors.textTertiary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isSelected)
+            SvgPicture.asset(
+              'assets/icons/ic_check.svg',
+              width: 24,
+              height: 24,
+              colorFilter: ColorFilter.mode(
+                colors.iconPrimary,
+                BlendMode.srcIn,
               ),
             ),
+          const SizedBox(width: AppSpacing.s2),
+          SvgPicture.asset(
+            'assets/icons/ic_more_vert.svg',
+            width: 24,
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              colors.iconSecondary,
+              BlendMode.srcIn,
+            ),
           ),
-        ),
-        // 툴팁
-        Positioned(
-          left: tooltipLeft,
-          top: tooltipTop,
-          child: SubbyTooltip(
-            title: title,
-            description: description,
+        ],
+      ),
+    );
+  }
+}
+
+/// 더미 메뉴 아이템
+class _DummyMenuItem extends StatelessWidget {
+  final String icon;
+  final String label;
+
+  const _DummyMenuItem({
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          const SizedBox(width: AppSpacing.s3),
+          SvgPicture.asset(
+            icon,
+            width: 24,
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              colors.iconSecondary,
+              BlendMode.srcIn,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: AppSpacing.s3),
+          Text(
+            label,
+            style: AppTypography.body.copyWith(
+              color: colors.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 /// 더미 Summary Card
 class _DummySummaryCard extends StatelessWidget {
-  const _DummySummaryCard({super.key});
+  const _DummySummaryCard();
 
   @override
   Widget build(BuildContext context) {
@@ -454,18 +633,18 @@ class _DummySubscriptionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       child: Column(
         children: [
           _DummySubscriptionCard(name: 'Subby 구독', amount: '₩1,000'),
-          const SizedBox(height: AppSpacing.s3),
+          SizedBox(height: AppSpacing.s3),
           _DummySubscriptionCard(name: 'Claude', amount: '\$1.10'),
-          const SizedBox(height: AppSpacing.s3),
+          SizedBox(height: AppSpacing.s3),
           _DummySubscriptionCard(name: 'Youtube', amount: '₩14,500'),
-          const SizedBox(height: AppSpacing.s3),
+          SizedBox(height: AppSpacing.s3),
           _DummySubscriptionCard(name: 'Subby 구독', amount: '₩1,000'),
-          const SizedBox(height: AppSpacing.s3),
+          SizedBox(height: AppSpacing.s3),
           _DummySubscriptionCard(name: 'Subby 구독', amount: '₩1,000'),
         ],
       ),

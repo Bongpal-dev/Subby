@@ -23,9 +23,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final GlobalKey _fabKey = GlobalKey();
-  final GlobalKey _summaryCardKey = GlobalKey();
-  final GlobalKey _drawerKey = GlobalKey();
   bool _onboardingStarted = false;
 
   @override
@@ -40,23 +37,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (_onboardingStarted) return;
 
     final nicknameSet = ref.read(nicknameSetProvider);
-    final coachMarkCompleted = ref.read(coachMarkCompletedProvider);
     final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
+    final onboardingType = ref.read(onboardingTypeProvider);
 
-    // 온보딩 흐름이 아직 완료되지 않은 경우에만 실행
-    if (!nicknameSet || !coachMarkCompleted || !cloudSyncPrompted) {
+    // 신규 사용자이고 다이얼로그가 아직 표시 안 된 경우
+    final needsNicknameDialog = !nicknameSet;
+    final needsCloudDialog = !cloudSyncPrompted && onboardingType == OnboardingType.newUser;
+
+    if (needsNicknameDialog || needsCloudDialog) {
       _onboardingStarted = true;
 
       // 화면이 완전히 빌드된 후 약간의 딜레이 후 시작
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (mounted) {
         final handler = OnboardingFlowHandler(
           context: context,
           ref: ref,
-          fabKey: _fabKey,
-          summaryCardKey: _summaryCardKey,
-          drawerKey: _drawerKey,
         );
         await handler.startOnboardingFlow();
       }
@@ -74,7 +71,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: state.hasGroup ? state.currentGroupName : null,
         useAccentBackground: state.hasGroup,
         leading: Builder(
-          key: _drawerKey,
           builder: (ctx) => SubbyAppBarIconButton(
             icon: AppIconType.menu,
             color: state.hasGroup ? colors.iconOnAccent : colors.iconPrimary,
@@ -98,7 +94,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       drawer: const AppDrawer(),
       floatingActionButton: state.hasGroup
           ? SubbyFab(
-              key: _fabKey,
               onPressed: () => _navigateToAdd(context),
             )
           : null,
@@ -107,7 +102,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           : !state.hasGroup
               ? const _NoGroupState()
               : _HomeContent(
-                  summaryCardKey: _summaryCardKey,
                   state: state,
                   onCategorySelected: (category) {
                     ref.read(homeViewModelProvider.notifier).selectCategory(category);
@@ -166,14 +160,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 /// Figma HomeContent - 스크롤 가능한 메인 콘텐츠
 class _HomeContent extends StatelessWidget {
-  final GlobalKey? summaryCardKey;
   final HomeState state;
   final ValueChanged<String?> onCategorySelected;
   final ValueChanged<SubscriptionUiModel> onTap;
   final ValueChanged<SubscriptionUiModel> onDelete;
 
   const _HomeContent({
-    this.summaryCardKey,
     required this.state,
     required this.onCategorySelected,
     required this.onTap,
@@ -192,7 +184,6 @@ class _HomeContent extends StatelessWidget {
         children: [
           // SummarySection
           _HeaderCard(
-            key: summaryCardKey,
             formattedTotal: state.formattedTotal,
           ),
 

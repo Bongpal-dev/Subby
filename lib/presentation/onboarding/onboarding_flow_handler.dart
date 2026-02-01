@@ -9,37 +9,25 @@ import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/subby_dialog.dart';
 import 'package:subby/presentation/common/widgets/subby_text_input_dialog.dart';
-import 'package:subby/presentation/common/widgets/subby_tooltip.dart';
 
 /// 온보딩 흐름 핸들러
-/// 신규 사용자: 툴팁 → 닉네임 설정 → 클라우드 연동
-/// 기존 사용자: 닉네임 설정 (클라우드 연동은 이미 됨)
+/// 코치마크 완료 후 홈 화면에서 다이얼로그 표시
+/// 신규 사용자: 닉네임 설정 → 클라우드 연동
+/// 기존 사용자: (다이얼로그 없음 - 이미 로그인됨)
 class OnboardingFlowHandler {
   final BuildContext context;
   final WidgetRef ref;
-  final GlobalKey? fabKey;
-  final GlobalKey? summaryCardKey;
-  final GlobalKey? drawerKey;
 
   OnboardingFlowHandler({
     required this.context,
     required this.ref,
-    this.fabKey,
-    this.summaryCardKey,
-    this.drawerKey,
   });
 
-  /// 온보딩 흐름 시작
+  /// 온보딩 흐름 시작 (다이얼로그만)
   Future<void> startOnboardingFlow() async {
     final onboardingType = ref.read(onboardingTypeProvider);
-    final coachMarkCompleted = ref.read(coachMarkCompletedProvider);
     final nicknameSet = ref.read(nicknameSetProvider);
     final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
-
-    // 신규 사용자이고 코치마크 미완료 시 툴팁 표시
-    if (onboardingType == OnboardingType.newUser && !coachMarkCompleted) {
-      await _showCoachMarks();
-    }
 
     // 닉네임 미설정 시 다이얼로그 표시
     if (!nicknameSet) {
@@ -50,51 +38,6 @@ class OnboardingFlowHandler {
     if (!cloudSyncPrompted && onboardingType == OnboardingType.newUser) {
       await _showCloudSyncDialog();
     }
-  }
-
-  /// 코치마크(툴팁) 표시
-  Future<void> _showCoachMarks() async {
-    if (!context.mounted) return;
-
-    // 1. 구독 추가 툴팁 (FAB 버튼)
-    if (fabKey != null) {
-      await showCoachMark(
-        context: context,
-        title: '구독 추가하기',
-        description: '+버튼을 눌러 구독중인 서비스를 추가하세요',
-        targetKey: fabKey!,
-        tooltipPosition: TooltipPosition.top,
-      );
-    }
-
-    if (!context.mounted) return;
-
-    // 2. 예상 구독료 툴팁 (Summary Card)
-    if (summaryCardKey != null) {
-      await showCoachMark(
-        context: context,
-        title: '예상 구독료 확인하기',
-        description: '이번 달 총 예상 구독료를 확인하세요',
-        targetKey: summaryCardKey!,
-        tooltipPosition: TooltipPosition.bottom,
-      );
-    }
-
-    if (!context.mounted) return;
-
-    // 3. 그룹 관리 툴팁 (Drawer)
-    if (drawerKey != null) {
-      await showCoachMark(
-        context: context,
-        title: '그룹으로 함께 관리',
-        description: '그룹을 만들고 가족·친구와 공유하세요',
-        targetKey: drawerKey!,
-        tooltipPosition: TooltipPosition.right,
-      );
-    }
-
-    // 코치마크 완료 저장
-    await ref.read(coachMarkCompletedProvider.notifier).completeCoachMark();
   }
 
   /// 닉네임 설정 다이얼로그
