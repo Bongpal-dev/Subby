@@ -8,7 +8,6 @@ import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
@@ -21,60 +20,42 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
     final colors = context.colors;
-    final hasGroup = state.groups.isNotEmpty;
 
     return Scaffold(
-      // Figma: AppBar with bgAccent background
-      appBar: AppBar(
-        scrolledUnderElevation: 0,
-        backgroundColor: hasGroup ? colors.bgAccent : null,
-        foregroundColor: hasGroup ? colors.textOnAccent : null,
-        toolbarHeight: 56,
-        title: hasGroup
-            ? Text(
-                state.currentGroupName,
-                style: AppTypography.title.copyWith(color: colors.textOnAccent),
-              )
-            : null,
-        centerTitle: true,
+      backgroundColor: colors.bgPrimary,
+      appBar: SubbyAppBar(
+        title: state.hasGroup ? state.currentGroupName : null,
+        useAccentBackground: state.hasGroup,
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(
-              Icons.menu,
-              color: hasGroup ? colors.iconOnAccent : colors.iconPrimary,
-            ),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+          builder: (ctx) => SubbyAppBarIconButton(
+            icon: AppIconType.menu,
+            color: state.hasGroup ? colors.iconOnAccent : colors.iconPrimary,
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
-        actions: [
-          if (hasGroup)
-            IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/ic_share.svg',
-                width: 24,
-                height: 24,
-                colorFilter: ColorFilter.mode(
-                  colors.iconOnAccent,
-                  BlendMode.srcIn,
+        actions: state.hasGroup
+            ? [
+                SubbyAppBarIconButton(
+                  icon: AppIconType.share,
+                  color: colors.iconOnAccent,
+                  onPressed: () => _onInvite(
+                    context,
+                    state.currentGroupName,
+                    state.selectedGroupCode,
+                  ),
                 ),
-              ),
-              onPressed: () => _onInvite(
-                context,
-                state.currentGroupName,
-                state.selectedGroupCode,
-              ),
-            ),
-        ],
+              ]
+            : null,
       ),
       drawer: const AppDrawer(),
-      floatingActionButton: hasGroup
+      floatingActionButton: state.hasGroup
           ? SubbyFab(
               onPressed: () => _navigateToAdd(context, ref),
             )
           : null,
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : state.groups.isEmpty
+          : !state.hasGroup
               ? const _NoGroupState()
               : _HomeContent(
                   state: state,
@@ -105,7 +86,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _onDelete(BuildContext context, WidgetRef ref, UserSubscription sub) {
+  void _onDelete(BuildContext context, WidgetRef ref, SubscriptionUiModel sub) {
     final colors = context.colors;
 
     showSubbyDialog(
@@ -137,8 +118,8 @@ class HomeScreen extends ConsumerWidget {
 class _HomeContent extends StatelessWidget {
   final HomeState state;
   final ValueChanged<String?> onCategorySelected;
-  final ValueChanged<UserSubscription> onTap;
-  final ValueChanged<UserSubscription> onDelete;
+  final ValueChanged<SubscriptionUiModel> onTap;
+  final ValueChanged<SubscriptionUiModel> onDelete;
 
   const _HomeContent({
     required this.state,
@@ -177,7 +158,6 @@ class _HomeContent extends StatelessWidget {
           else
             _SubscriptionSection(
               subscriptions: state.subscriptions,
-              uiModels: state.subscriptionUiModels,
               onTap: onTap,
               onDelete: onDelete,
             ),
@@ -268,14 +248,12 @@ class _FilterSection extends StatelessWidget {
 
 /// Figma: SubscriptionSection - 카드 간격 12px
 class _SubscriptionSection extends StatelessWidget {
-  final List<UserSubscription> subscriptions;
-  final List<SubscriptionUiModel> uiModels;
-  final ValueChanged<UserSubscription> onTap;
-  final ValueChanged<UserSubscription> onDelete;
+  final List<SubscriptionUiModel> subscriptions;
+  final ValueChanged<SubscriptionUiModel> onTap;
+  final ValueChanged<SubscriptionUiModel> onDelete;
 
   const _SubscriptionSection({
     required this.subscriptions,
-    required this.uiModels,
     required this.onTap,
     required this.onDelete,
   });
@@ -286,11 +264,11 @@ class _SubscriptionSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       child: Column(
         children: [
-          for (int i = 0; i < uiModels.length; i++) ...[
+          for (int i = 0; i < subscriptions.length; i++) ...[
             if (i > 0) const SizedBox(height: AppSpacing.s3),
             _SubscriptionTile(
+              key: ValueKey(subscriptions[i].id),
               subscription: subscriptions[i],
-              uiModel: uiModels[i],
               onTap: () => onTap(subscriptions[i]),
               onDelete: () => onDelete(subscriptions[i]),
             ),
@@ -413,15 +391,13 @@ class _NoGroupState extends ConsumerWidget {
 
 /// Figma: SubscriptionCard with swipe-to-delete
 class _SubscriptionTile extends StatefulWidget {
-  final UserSubscription subscription;
-  final SubscriptionUiModel uiModel;
+  final SubscriptionUiModel subscription;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
   const _SubscriptionTile({
     super.key,
     required this.subscription,
-    required this.uiModel,
     required this.onTap,
     required this.onDelete,
   });
@@ -469,7 +445,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final uiModel = widget.uiModel;
+    final sub = widget.subscription;
 
     return GestureDetector(
       onHorizontalDragUpdate: _handleDragUpdate,
@@ -492,14 +468,10 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.s2),
-                  SvgPicture.asset(
-                    'assets/icons/ic_trash.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      colors.statusError,
-                      BlendMode.srcIn,
-                    ),
+                  AppIcon(
+                    AppIconType.trash,
+                    size: 24,
+                    color: colors.statusError,
                   ),
                 ],
               ),
@@ -541,21 +513,21 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: AppSpacing.s3),
                         // 서비스 정보
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.subscription.name,
+                                sub.name,
                                 style: AppTypography.bodySemi.copyWith(
                                   color: colors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: AppSpacing.s1),
                               Text(
-                                '매월 ${widget.subscription.billingDay}일 결제',
+                                '매월 ${sub.billingDay}일 결제',
                                 style: AppTypography.caption.copyWith(
                                   color: colors.textTertiary,
                                 ),
@@ -568,15 +540,15 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              uiModel.formattedAmount,
+                              sub.formattedAmount,
                               style: AppTypography.bodyLargeSemi.copyWith(
                                 color: colors.textPrimary,
                               ),
                             ),
-                            if (uiModel.convertedAmount != null) ...[
+                            if (sub.convertedAmount != null) ...[
                               const SizedBox(height: AppSpacing.s1),
                               Text(
-                                uiModel.convertedAmount!,
+                                sub.convertedAmount!,
                                 style: AppTypography.caption.copyWith(
                                   color: colors.textTertiary,
                                 ),
@@ -584,7 +556,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             ],
                             const SizedBox(height: AppSpacing.s1),
                             Text(
-                              uiModel.periodLabel,
+                              sub.periodLabel,
                               style: AppTypography.caption.copyWith(
                                 color: colors.textTertiary,
                               ),

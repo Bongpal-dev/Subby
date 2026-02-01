@@ -32,8 +32,7 @@ class SubscriptionUiModel {
 }
 
 class HomeState {
-  final List<UserSubscription> subscriptions;
-  final List<SubscriptionUiModel> subscriptionUiModels;
+  final List<SubscriptionUiModel> subscriptions;
   final List<SubscriptionGroup> groups;
   final String? selectedGroupCode;
   final String? selectedCategory;
@@ -42,13 +41,14 @@ class HomeState {
 
   const HomeState({
     this.subscriptions = const [],
-    this.subscriptionUiModels = const [],
     this.groups = const [],
     this.selectedGroupCode,
     this.selectedCategory,
     this.isLoading = true,
     this.formattedTotal = '',
   });
+
+  bool get hasGroup => groups.isNotEmpty;
 
   String get currentGroupName {
     if (selectedGroupCode == null) return '내 구독';
@@ -69,8 +69,7 @@ class HomeState {
   }
 
   HomeState copyWith({
-    List<UserSubscription>? subscriptions,
-    List<SubscriptionUiModel>? subscriptionUiModels,
+    List<SubscriptionUiModel>? subscriptions,
     List<SubscriptionGroup>? groups,
     String? selectedGroupCode,
     bool clearSelectedGroup = false,
@@ -81,7 +80,6 @@ class HomeState {
   }) {
     return HomeState(
       subscriptions: subscriptions ?? this.subscriptions,
-      subscriptionUiModels: subscriptionUiModels ?? this.subscriptionUiModels,
       groups: groups ?? this.groups,
       selectedGroupCode: clearSelectedGroup ? null : (selectedGroupCode ?? this.selectedGroupCode),
       selectedCategory: clearSelectedCategory ? null : (selectedCategory ?? this.selectedCategory),
@@ -174,8 +172,7 @@ class HomeViewModel extends Notifier<HomeState> {
     final formattedTotal = _calculateFormattedTotal(categoryFiltered);
 
     state = state.copyWith(
-      subscriptions: groupFiltered,
-      subscriptionUiModels: uiModels,
+      subscriptions: uiModels,
       isLoading: false,
       formattedTotal: formattedTotal,
     );

@@ -9,14 +9,100 @@ import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/core/util/currency_formatter.dart';
-import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 
+/// 구독 상세 UI 모델
+class SubscriptionDetailUiModel {
+  final String id;
+  final String name;
+  final String? category;
+  final String formattedAmount;
+  final String periodLabel;
+  final String billingDayLabel;
+  final String nextBillingDate;
+  final String? memo;
+
+  const SubscriptionDetailUiModel({
+    required this.id,
+    required this.name,
+    this.category,
+    required this.formattedAmount,
+    required this.periodLabel,
+    required this.billingDayLabel,
+    required this.nextBillingDate,
+    this.memo,
+  });
+}
+
 /// 구독 상세 조회 Provider (autoDispose로 화면 닫힐 때 캐시 해제)
-final subscriptionDetailProvider = FutureProvider.autoDispose.family<UserSubscription?, String>((ref, id) async {
+final subscriptionDetailProvider = FutureProvider.autoDispose.family<SubscriptionDetailUiModel?, String>((ref, id) async {
   final useCase = ref.watch(getSubscriptionByIdUseCaseProvider);
-  return useCase(id);
+  final subscription = await useCase(id);
+
+  if (subscription == null) return null;
+
+  // 금액 포맷
+  String formattedAmount;
+  String symbol;
+  switch (subscription.currency) {
+    case 'USD':
+      symbol = '\$';
+      formattedAmount = '$symbol${subscription.amount.toStringAsFixed(2)}';
+      break;
+    case 'EUR':
+      symbol = '€';
+      formattedAmount = '$symbol${subscription.amount.toStringAsFixed(2)}';
+      break;
+    case 'JPY':
+      symbol = '¥';
+      formattedAmount = '$symbol${subscription.amount.toInt()}';
+      break;
+    default:
+      symbol = '₩';
+      formattedAmount = '$symbol${CurrencyFormatter.formatKrw(subscription.amount.toInt())}';
+  }
+
+  // 결제 주기
+  String periodLabel;
+  switch (subscription.period.toUpperCase()) {
+    case 'YEARLY':
+      periodLabel = '매년';
+      break;
+    case 'WEEKLY':
+      periodLabel = '매주';
+      break;
+    default:
+      periodLabel = '매월';
+  }
+
+  // 다음 결제일 계산
+  final now = DateTime.now();
+  int year = now.year;
+  int month = now.month;
+  if (now.day > subscription.billingDay) {
+    month++;
+    if (month > 12) {
+      month = 1;
+      year++;
+    }
+  }
+  final lastDayOfMonth = DateTime(year, month + 1, 0).day;
+  final billingDay = subscription.billingDay > lastDayOfMonth
+      ? lastDayOfMonth
+      : subscription.billingDay;
+  final nextBillingDate = '$year.${month.toString().padLeft(2, '0')}.${billingDay.toString().padLeft(2, '0')}';
+
+  return SubscriptionDetailUiModel(
+    id: subscription.id,
+    name: subscription.name,
+    category: subscription.category,
+    formattedAmount: '$formattedAmount / $periodLabel',
+    periodLabel: periodLabel,
+    billingDayLabel: '매월 ${subscription.billingDay}일',
+    nextBillingDate: nextBillingDate,
+    memo: subscription.memo,
+  );
 });
 
 class SubscriptionDetailScreen extends ConsumerWidget {
@@ -92,7 +178,7 @@ class SubscriptionDetailScreen extends ConsumerWidget {
     }
   }
 
-  void _showDeleteDialog(BuildContext context, WidgetRef ref, UserSubscription subscription) {
+  void _showDeleteDialog(BuildContext context, WidgetRef ref, SubscriptionDetailUiModel subscription) {
     final colors = context.colors;
 
     showSubbyDialog(
@@ -125,7 +211,7 @@ class SubscriptionDetailScreen extends ConsumerWidget {
 
 /// Figma: HeaderSection
 class _HeaderSection extends StatelessWidget {
-  final UserSubscription subscription;
+  final SubscriptionDetailUiModel subscription;
 
   const _HeaderSection({required this.subscription});
 
@@ -180,36 +266,32 @@ class _HeaderSection extends StatelessWidget {
 
 /// Figma: InfoSection
 class _InfoSection extends StatelessWidget {
-  final UserSubscription subscription;
+  final SubscriptionDetailUiModel subscription;
 
   const _InfoSection({required this.subscription});
 
   @override
   Widget build(BuildContext context) {
-    final formattedAmount = _formatAmount();
-    final periodLabel = _getPeriodLabel();
-    final nextBillingDate = _getNextBillingDate();
-
     return Column(
       children: [
         // 금액
         _InfoRow(
           label: '금액',
-          value: '$formattedAmount / $periodLabel',
+          value: subscription.formattedAmount,
         ),
         const SizedBox(height: AppSpacing.s4),
 
         // 결제일
         _InfoRow(
           label: '결제일',
-          value: '매월 ${subscription.billingDay}일',
+          value: subscription.billingDayLabel,
         ),
         const SizedBox(height: AppSpacing.s4),
 
         // 다음 결제일
         _InfoRow(
           label: '다음 결제일',
-          value: nextBillingDate,
+          value: subscription.nextBillingDate,
         ),
 
         // 메모 (있을 때만)
@@ -222,61 +304,6 @@ class _InfoSection extends StatelessWidget {
         ],
       ],
     );
-  }
-
-  String _formatAmount() {
-    final symbol = _getCurrencySymbol();
-    if (subscription.currency == 'KRW') {
-      return '$symbol${CurrencyFormatter.formatKrw(subscription.amount.toInt())}';
-    }
-    return '$symbol${subscription.amount.toStringAsFixed(2)}';
-  }
-
-  String _getCurrencySymbol() {
-    switch (subscription.currency) {
-      case 'USD':
-        return '\$';
-      case 'EUR':
-        return '€';
-      case 'JPY':
-        return '¥';
-      default:
-        return '₩';
-    }
-  }
-
-  String _getPeriodLabel() {
-    switch (subscription.period.toUpperCase()) {
-      case 'YEARLY':
-        return '매년';
-      case 'WEEKLY':
-        return '매주';
-      default:
-        return '매월';
-    }
-  }
-
-  String _getNextBillingDate() {
-    final now = DateTime.now();
-    int year = now.year;
-    int month = now.month;
-
-    // 이번 달 결제일이 지났으면 다음 달
-    if (now.day > subscription.billingDay) {
-      month++;
-      if (month > 12) {
-        month = 1;
-        year++;
-      }
-    }
-
-    // 월말 처리 (31일이 없는 달 등)
-    final lastDayOfMonth = DateTime(year, month + 1, 0).day;
-    final billingDay = subscription.billingDay > lastDayOfMonth
-        ? lastDayOfMonth
-        : subscription.billingDay;
-
-    return '$year.${month.toString().padLeft(2, '0')}.${billingDay.toString().padLeft(2, '0')}';
   }
 }
 

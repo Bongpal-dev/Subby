@@ -19,6 +19,7 @@ enum AppIconType {
   plusSmall('ic_plus_small'),
   search('ic_search'),
   setting('ic_setting'),
+  share('ic_share'),
   static_('ic_static'),
   trash('ic_trash'),
   xSmall('ic_x_small'),
