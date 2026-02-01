@@ -29,6 +29,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       final authRepository = ref.read(authRepositoryProvider);
       await authRepository.signInAnonymously();
+
+      // 온보딩 타입 저장 (신규 사용자 - 툴팁 표시 필요)
+      await ref
+          .read(onboardingTypeProvider.notifier)
+          .setOnboardingType(OnboardingType.newUser);
       await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
     } catch (e) {
       if (mounted) {
@@ -56,6 +61,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
       switch (result) {
         case GoogleSignInSuccess():
+          // 온보딩 타입 저장 (기존 사용자 - 툴팁 스킵)
+          await ref
+              .read(onboardingTypeProvider.notifier)
+              .setOnboardingType(OnboardingType.returningUser);
+          // Google 로그인 = 이미 클라우드 연동됨
+          await ref
+              .read(cloudSyncPromptedProvider.notifier)
+              .completeCloudSyncPrompt();
           await ref
               .read(onboardingCompletedProvider.notifier)
               .completeOnboarding();

@@ -21,6 +21,13 @@ final authStateProvider = StreamProvider<String?>((ref) {
 
 /// 온보딩 완료 여부 Provider
 const _onboardingCompletedKey = 'onboarding_completed';
+const _onboardingTypeKey = 'onboarding_type';
+const _coachMarkCompletedKey = 'coach_mark_completed';
+const _nicknameSetKey = 'nickname_set';
+const _cloudSyncPromptedKey = 'cloud_sync_prompted';
+
+/// 온보딩 타입 (처음이에요 vs 써본 적 있어요)
+enum OnboardingType { newUser, returningUser }
 
 final onboardingCompletedProvider =
     NotifierProvider<OnboardingCompletedNotifier, bool>(
@@ -42,6 +49,107 @@ class OnboardingCompletedNotifier extends Notifier<bool> {
     state = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_onboardingCompletedKey, true);
+  }
+}
+
+/// 온보딩 타입 Provider
+final onboardingTypeProvider =
+    NotifierProvider<OnboardingTypeNotifier, OnboardingType?>(
+        OnboardingTypeNotifier.new);
+
+class OnboardingTypeNotifier extends Notifier<OnboardingType?> {
+  @override
+  OnboardingType? build() {
+    _loadOnboardingType();
+    return null;
+  }
+
+  Future<void> _loadOnboardingType() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_onboardingTypeKey);
+    if (value != null) {
+      state = value == 'new' ? OnboardingType.newUser : OnboardingType.returningUser;
+    }
+  }
+
+  Future<void> setOnboardingType(OnboardingType type) async {
+    state = type;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _onboardingTypeKey,
+      type == OnboardingType.newUser ? 'new' : 'returning',
+    );
+  }
+}
+
+/// 코치마크(툴팁) 완료 여부 Provider
+final coachMarkCompletedProvider =
+    NotifierProvider<CoachMarkCompletedNotifier, bool>(
+        CoachMarkCompletedNotifier.new);
+
+class CoachMarkCompletedNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _loadCoachMarkCompleted();
+    return false;
+  }
+
+  Future<void> _loadCoachMarkCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool(_coachMarkCompletedKey) ?? false;
+  }
+
+  Future<void> completeCoachMark() async {
+    state = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_coachMarkCompletedKey, true);
+  }
+}
+
+/// 닉네임 설정 완료 여부 Provider
+final nicknameSetProvider =
+    NotifierProvider<NicknameSetNotifier, bool>(NicknameSetNotifier.new);
+
+class NicknameSetNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _loadNicknameSet();
+    return false;
+  }
+
+  Future<void> _loadNicknameSet() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool(_nicknameSetKey) ?? false;
+  }
+
+  Future<void> completeNicknameSet() async {
+    state = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_nicknameSetKey, true);
+  }
+}
+
+/// 클라우드 연동 제안 완료 여부 Provider
+final cloudSyncPromptedProvider =
+    NotifierProvider<CloudSyncPromptedNotifier, bool>(
+        CloudSyncPromptedNotifier.new);
+
+class CloudSyncPromptedNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _loadCloudSyncPrompted();
+    return false;
+  }
+
+  Future<void> _loadCloudSyncPrompted() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool(_cloudSyncPromptedKey) ?? false;
+  }
+
+  Future<void> completeCloudSyncPrompt() async {
+    state = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_cloudSyncPromptedKey, true);
   }
 }
 

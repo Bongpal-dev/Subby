@@ -10,14 +10,61 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
+import 'package:subby/presentation/onboarding/onboarding_flow_handler.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final GlobalKey _fabKey = GlobalKey();
+  final GlobalKey _summaryCardKey = GlobalKey();
+  final GlobalKey _drawerKey = GlobalKey();
+  bool _onboardingStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startOnboardingIfNeeded();
+    });
+  }
+
+  Future<void> _startOnboardingIfNeeded() async {
+    if (_onboardingStarted) return;
+
+    final nicknameSet = ref.read(nicknameSetProvider);
+    final coachMarkCompleted = ref.read(coachMarkCompletedProvider);
+    final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
+
+    // 온보딩 흐름이 아직 완료되지 않은 경우에만 실행
+    if (!nicknameSet || !coachMarkCompleted || !cloudSyncPrompted) {
+      _onboardingStarted = true;
+
+      // 화면이 완전히 빌드된 후 약간의 딜레이 후 시작
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (mounted) {
+        final handler = OnboardingFlowHandler(
+          context: context,
+          ref: ref,
+          fabKey: _fabKey,
+          summaryCardKey: _summaryCardKey,
+          drawerKey: _drawerKey,
+        );
+        await handler.startOnboardingFlow();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(homeViewModelProvider);
     final colors = context.colors;
 
@@ -27,6 +74,7 @@ class HomeScreen extends ConsumerWidget {
         title: state.hasGroup ? state.currentGroupName : null,
         useAccentBackground: state.hasGroup,
         leading: Builder(
+          key: _drawerKey,
           builder: (ctx) => SubbyAppBarIconButton(
             icon: AppIconType.menu,
             color: state.hasGroup ? colors.iconOnAccent : colors.iconPrimary,
@@ -50,7 +98,8 @@ class HomeScreen extends ConsumerWidget {
       drawer: const AppDrawer(),
       floatingActionButton: state.hasGroup
           ? SubbyFab(
-              onPressed: () => _navigateToAdd(context, ref),
+              key: _fabKey,
+              onPressed: () => _navigateToAdd(context),
             )
           : null,
       body: state.isLoading
@@ -58,17 +107,18 @@ class HomeScreen extends ConsumerWidget {
           : !state.hasGroup
               ? const _NoGroupState()
               : _HomeContent(
+                  summaryCardKey: _summaryCardKey,
                   state: state,
                   onCategorySelected: (category) {
                     ref.read(homeViewModelProvider.notifier).selectCategory(category);
                   },
                   onTap: (sub) => _navigateToDetail(context, sub.id),
-                  onDelete: (sub) => _onDelete(context, ref, sub),
+                  onDelete: (sub) => _onDelete(context, sub),
                 ),
     );
   }
 
-  void _navigateToAdd(BuildContext context, WidgetRef ref) {
+  void _navigateToAdd(BuildContext context) {
     context.push(AppRoutes.subscriptionAdd);
   }
 
@@ -86,7 +136,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _onDelete(BuildContext context, WidgetRef ref, SubscriptionUiModel sub) {
+  void _onDelete(BuildContext context, SubscriptionUiModel sub) {
     final colors = context.colors;
 
     showSubbyDialog(
@@ -116,12 +166,14 @@ class HomeScreen extends ConsumerWidget {
 
 /// Figma HomeContent - 스크롤 가능한 메인 콘텐츠
 class _HomeContent extends StatelessWidget {
+  final GlobalKey? summaryCardKey;
   final HomeState state;
   final ValueChanged<String?> onCategorySelected;
   final ValueChanged<SubscriptionUiModel> onTap;
   final ValueChanged<SubscriptionUiModel> onDelete;
 
   const _HomeContent({
+    this.summaryCardKey,
     required this.state,
     required this.onCategorySelected,
     required this.onTap,
@@ -139,7 +191,10 @@ class _HomeContent extends StatelessWidget {
       child: Column(
         children: [
           // SummarySection
-          _HeaderCard(formattedTotal: state.formattedTotal),
+          _HeaderCard(
+            key: summaryCardKey,
+            formattedTotal: state.formattedTotal,
+          ),
 
           // FilterSection (구독이 있을 때만)
           if (state.subscriptions.isNotEmpty && state.categories.isNotEmpty) ...[
@@ -170,7 +225,7 @@ class _HomeContent extends StatelessWidget {
 class _HeaderCard extends StatelessWidget {
   final String formattedTotal;
 
-  const _HeaderCard({required this.formattedTotal});
+  const _HeaderCard({super.key, required this.formattedTotal});
 
   @override
   Widget build(BuildContext context) {

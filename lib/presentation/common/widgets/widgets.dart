@@ -9,6 +9,7 @@ export 'subby_dropdown.dart';
 export 'subby_fab.dart';
 export 'subby_text_field.dart';
 export 'subby_toggle.dart';
+export 'subby_tooltip.dart';
 
 // App-specific Widgets
 export 'amount_adder.dart';
