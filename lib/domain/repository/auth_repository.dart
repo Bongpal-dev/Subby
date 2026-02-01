@@ -1,3 +1,5 @@
+import 'package:subby/data/datasource/firebase_auth_datasource.dart';
+
 /// 인증 저장소 인터페이스
 abstract class AuthRepository {
   /// 현재 사용자 ID (null이면 미인증)
@@ -8,6 +10,9 @@ abstract class AuthRepository {
 
   /// 익명 로그인
   Future<String> signInAnonymously();
+
+  /// Google 로그인
+  Future<GoogleSignInResult> signInWithGoogle();
 
   /// 로그아웃
   Future<void> signOut();

@@ -23,5 +23,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<GoogleSignInResult> signInWithGoogle() =>
+      _dataSource.signInWithGoogle();
+
+  @override
   Future<void> signOut() => _dataSource.signOut();
 }

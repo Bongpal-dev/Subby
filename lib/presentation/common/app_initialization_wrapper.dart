@@ -5,6 +5,7 @@ import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/providers/deep_link_provider.dart';
+import 'package:subby/presentation/onboarding/onboarding_screen.dart';
 
 class AppInitializationWrapper extends ConsumerStatefulWidget {
   final Widget child;
@@ -56,9 +57,15 @@ class _AppInitializationWrapperState
   @override
   Widget build(BuildContext context) {
     final appInit = ref.watch(appInitializedProvider);
+    final onboardingCompleted = ref.watch(onboardingCompletedProvider);
 
     return appInit.when(
       data: (_) {
+        // 온보딩 미완료 시 온보딩 화면 표시
+        if (!onboardingCompleted) {
+          return const OnboardingScreen();
+        }
+
         ref.watch(realtimeSyncProvider);
         ref.watch(pendingSyncProvider);
         ref.watch(fcmInitializedProvider);

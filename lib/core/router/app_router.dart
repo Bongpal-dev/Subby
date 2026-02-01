@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subby/presentation/home/home_screen.dart';
+import 'package:subby/presentation/onboarding/onboarding_screen.dart';
 import 'package:subby/presentation/settings/settings_screen.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
 import 'package:subby/presentation/subscription/subscription_detail_screen.dart';
@@ -9,6 +10,7 @@ import 'package:subby/presentation/webview/webview_screen.dart';
 
 abstract class AppRoutes {
   static const home = '/';
+  static const onboarding = '/onboarding';
   static const settings = '/settings';
   static const subscriptionAdd = '/subscription/add';
   static const subscriptionDetail = '/subscription/:id';
@@ -25,6 +27,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.onboarding,
+      builder: (context, state) => const OnboardingScreen(),
     ),
     GoRoute(
       path: AppRoutes.settings,

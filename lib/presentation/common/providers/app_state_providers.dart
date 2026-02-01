@@ -19,6 +19,32 @@ final authStateProvider = StreamProvider<String?>((ref) {
   return authRepository.authStateChanges;
 });
 
+/// 온보딩 완료 여부 Provider
+const _onboardingCompletedKey = 'onboarding_completed';
+
+final onboardingCompletedProvider =
+    NotifierProvider<OnboardingCompletedNotifier, bool>(
+        OnboardingCompletedNotifier.new);
+
+class OnboardingCompletedNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _loadOnboardingCompleted();
+    return false;
+  }
+
+  Future<void> _loadOnboardingCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool(_onboardingCompletedKey) ?? false;
+  }
+
+  Future<void> completeOnboarding() async {
+    state = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardingCompletedKey, true);
+  }
+}
+
 final currentUserIdProvider = Provider<String?>((ref) {
   final authState = ref.watch(authStateProvider);
 
@@ -26,8 +52,7 @@ final currentUserIdProvider = Provider<String?>((ref) {
 });
 
 final appInitializedProvider = FutureProvider<void>((ref) async {
-  final authRepository = ref.watch(authRepositoryProvider);
-  await authRepository.signInAnonymously();
+  // 이미 로그인된 사용자는 유지, 새 사용자는 온보딩에서 처리
 });
 
 final currentGroupCodeProvider = StateProvider<String?>((ref) => null);
