@@ -4,6 +4,7 @@ import 'package:subby/presentation/home/home_screen.dart';
 import 'package:subby/presentation/onboarding/onboarding_screen.dart';
 import 'package:subby/presentation/onboarding/onboarding_tutorial_screen.dart';
 import 'package:subby/presentation/settings/settings_screen.dart';
+import 'package:subby/presentation/setup/setup_screen.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
 import 'package:subby/presentation/subscription/subscription_detail_screen.dart';
 import 'package:subby/presentation/subscription/subscription_edit_screen.dart';
@@ -13,6 +14,7 @@ abstract class AppRoutes {
   static const home = '/';
   static const onboarding = '/onboarding';
   static const onboardingTutorial = '/onboarding/tutorial';
+  static const setup = '/setup';
   static const settings = '/settings';
   static const subscriptionAdd = '/subscription/add';
   static const subscriptionDetail = '/subscription/:id';
@@ -37,6 +39,10 @@ GoRouter createRouter(String initialLocation) => GoRouter(
     GoRoute(
       path: AppRoutes.onboardingTutorial,
       builder: (context, state) => const OnboardingTutorialScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.setup,
+      builder: (context, state) => const SetupScreen(),
     ),
     GoRoute(
       path: AppRoutes.settings,

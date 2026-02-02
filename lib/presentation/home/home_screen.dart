@@ -3,21 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:subby/core/di/data/datasource_providers.dart';
-import 'package:subby/core/di/domain/repository_providers.dart';
-import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/core/utils/nickname_generator.dart';
-import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
-import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/subby_dialog.dart';
-import 'package:subby/presentation/common/widgets/subby_text_input_dialog.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 
@@ -29,153 +22,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _dialogsShown = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showOnboardingDialogsIfNeeded();
-    });
-  }
-
-  Future<void> _showOnboardingDialogsIfNeeded() async {
-    if (_dialogsShown) return;
-    _dialogsShown = true;
-
-    final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
-    bool didGoogleLogin = false;
-
-    // 1. 클라우드 연동 미안내 시 (최초 1회)
-    if (!cloudSyncPrompted) {
-      didGoogleLogin = await _showCloudSyncDialog();
-    }
-
-    // 2. Google 로그인한 경우에만 기존 닉네임 확인
-    if (!mounted) return;
-    if (didGoogleLogin) {
-      ref.invalidate(currentNicknameProvider);
-      final existingNickname = await ref.read(currentNicknameProvider.future);
-      if (existingNickname != null && existingNickname.isNotEmpty) {
-        await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
-      } else {
-        await _showNicknameDialogIfNeeded();
-      }
-    } else {
-      // 익명 로그인은 바로 닉네임 다이얼로그
-      await _showNicknameDialogIfNeeded();
-    }
-
-    // 3. 온보딩 완료 후 FCM 초기화 (알림 권한 요청)
-    if (mounted) {
-      final authDataSource = ref.read(firebaseAuthDataSourceProvider);
-      final userId = authDataSource.currentUserId;
-      if (userId != null) {
-        final fcmService = ref.read(fcmServiceProvider);
-        await fcmService.initialize(userId);
-      }
-    }
-  }
-
-  Future<void> _showNicknameDialogIfNeeded() async {
-    final nicknameSet = ref.read(nicknameSetProvider);
-    if (!nicknameSet && mounted) {
-      await _showNicknameDialog();
-    }
-  }
-
-  void _showLoadingDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
-  Future<void> _showNicknameDialog() async {
-    if (!mounted) return;
-
-    final colors = context.colors;
-
-    final nickname = await showSubbyTextInputDialog(
-      context: context,
-      title: '닉네임 설정',
-      description: '다른 사람에게 보일 이름을\n입력해 주세요',
-      hint: '닉네임을 입력하세요',
-      initialValue: NicknameGenerator.generate(),
-      confirmLabel: '확인하기',
-      barrierDismissible: false,
-      showCancelButton: false,
-      suffixIcon: SvgPicture.asset(
-        'assets/icons/ic_refresh_small.svg',
-        width: 24,
-        height: 24,
-        colorFilter: ColorFilter.mode(
-          colors.iconSecondary,
-          BlendMode.srcIn,
-        ),
-      ),
-      onGenerateValue: NicknameGenerator.generate,
-    );
-
-    if (nickname != null && nickname.isNotEmpty) {
-      // 로컬에 닉네임 저장 (로그인 전이라도 저장 가능)
-      final nicknameLocalDataSource = ref.read(nicknameLocalDataSourceProvider);
-      await nicknameLocalDataSource.saveNickname(nickname);
-      ref.invalidate(currentNicknameProvider);
-    }
-    await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
-  }
-
-  /// 클라우드 연동 다이얼로그. Google 로그인 성공 시 true 반환
-  Future<bool> _showCloudSyncDialog() async {
-    if (!mounted) return false;
-
-    final colors = context.colors;
-
-    // 다이얼로그에서 로그인 선택 여부만 반환
-    final wantsLogin = await showSubbyDialog<bool>(
-      context: context,
-      iconType: AppIconType.download,
-      iconColor: colors.statusInfo,
-      title: '클라우드에 연동할까요?',
-      description: '로그인하면 데이터가 안전하게 저장되고,\n다른 기기에서도 사용할 수 있어요',
-      barrierDismissible: false,
-      actions: [
-        SubbyDialogAction(
-          label: '나중에',
-          onPressed: () => Navigator.pop(context, false),
-        ),
-        SubbyDialogAction(
-          label: '로그인',
-          isPrimary: true,
-          onPressed: () => Navigator.pop(context, true),
-        ),
-      ],
-    );
-
-    bool didGoogleLogin = false;
-    if (wantsLogin == true && mounted) {
-      // 로그인 다이얼로그 표시 (동기화 로직 포함)
-      await showLoginDialog(context: context, ref: ref);
-      // 로그인 성공 여부 확인
-      final isAnonymous = ref.read(isAnonymousProvider).valueOrNull ?? true;
-      didGoogleLogin = !isAnonymous;
-    } else if (mounted) {
-      // 익명 로그인 (로딩 표시)
-      _showLoadingDialog();
-      final authRepository = ref.read(authRepositoryProvider);
-      await authRepository.signInAnonymously();
-      if (mounted) Navigator.pop(context);
-    }
-
-    await ref.read(cloudSyncPromptedProvider.notifier).completeCloudSyncPrompt();
-    return didGoogleLogin;
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(homeViewModelProvider);

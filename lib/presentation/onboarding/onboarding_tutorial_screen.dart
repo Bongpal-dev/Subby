@@ -60,7 +60,7 @@ class _OnboardingTutorialScreenState
     await ref.read(tutorialCompletedProvider.notifier).completeTutorial();
 
     if (mounted) {
-      context.go(AppRoutes.home);
+      context.go(AppRoutes.setup);
     }
   }
 

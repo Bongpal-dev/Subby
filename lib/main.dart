@@ -22,10 +22,19 @@ Future<void> main() async {
   // FCM 백그라운드 메시지 핸들러 등록
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  // 온보딩 상태 체크
+  // 온보딩/셋업 상태 체크
   final prefs = await SharedPreferences.getInstance();
   final onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
-  final initialRoute = onboardingCompleted ? AppRoutes.home : AppRoutes.onboarding;
+  final setupCompleted = prefs.getBool('setup_completed') ?? false;
+
+  String initialRoute;
+  if (!onboardingCompleted) {
+    initialRoute = AppRoutes.onboarding;
+  } else if (!setupCompleted) {
+    initialRoute = AppRoutes.setup;
+  } else {
+    initialRoute = AppRoutes.home;
+  }
 
   runApp(ProviderScope(child: SubbyApp(initialRoute: initialRoute)));
 }

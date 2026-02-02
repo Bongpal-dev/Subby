@@ -55,13 +55,13 @@ class _OnboardingCoachMarkScreenState
   }
 
   Future<void> _completeCoachMark() async {
-    // 코치마크 완료 처리 → 홈 화면으로 이동 후 다이얼로그 표시
-    await ref.read(coachMarkCompletedProvider.notifier).completeCoachMark();
+    // 튜토리얼 완료 처리 → 홈 화면으로 이동 후 다이얼로그 표시
+    await ref.read(tutorialCompletedProvider.notifier).completeTutorial();
   }
 
   @override
   Widget build(BuildContext context) {
-    final coachMarkCompleted = ref.watch(coachMarkCompletedProvider);
+    final coachMarkCompleted = ref.watch(tutorialCompletedProvider);
 
     // 코치마크 완료되면 빈 화면 (AppInitializationWrapper가 HomeScreen으로 전환)
     if (coachMarkCompleted) {

@@ -38,7 +38,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
 
     if (mounted) {
-      context.go(AppRoutes.home);
+      context.go(AppRoutes.setup);
     }
   }
 

@@ -100,6 +100,9 @@ class HomeViewModel extends Notifier<HomeState> {
     ref.watch(defaultCurrencyProvider);
     ref.watch(currencyConverterProvider);
 
+    // FCM 초기화
+    ref.watch(fcmInitializedProvider);
+
     _watchGroups();
     _watchSubscriptions();
     _watchRemoteGroups();
