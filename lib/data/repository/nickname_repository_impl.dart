@@ -45,4 +45,24 @@ class NicknameRepositoryImpl implements NicknameRepository {
   Future<void> clearLocalNickname() async {
     await _localDataSource.clearNickname();
   }
+
+  @override
+  Future<String?> getRemoteNickname(String userId) async {
+    return await _remoteDataSource.getNickname(userId);
+  }
+
+  @override
+  Future<String?> getLocalNickname() async {
+    return await _localDataSource.getNickname();
+  }
+
+  @override
+  Future<void> saveToRemote(String userId, String nickname) async {
+    await _remoteDataSource.saveNickname(userId, nickname);
+  }
+
+  @override
+  Future<void> saveToLocal(String nickname) async {
+    await _localDataSource.saveNickname(nickname);
+  }
 }

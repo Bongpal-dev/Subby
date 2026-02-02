@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
@@ -813,6 +814,7 @@ class _LoginDialogState extends State<LoginDialog> {
   }
 
   Future<void> _signInWithGoogle() async {
+    print('[Setup] _signInWithGoogle started');
     setState(() => _isLoading = true);
 
     try {
@@ -821,19 +823,24 @@ class _LoginDialogState extends State<LoginDialog> {
 
       final authDataSource = widget.ref.read(firebaseAuthDataSourceProvider);
       final result = await authDataSource.signInWithGoogle();
+      print('[Setup] signInWithGoogle result: $result');
 
       if (!mounted) return;
 
       switch (result) {
         case GoogleSignInSuccess(:final isNewUser):
+          print('[Setup] GoogleSignInSuccess, isNewUser: $isNewUser');
           await _loadUserGroups(isNewUser, previousUserId);
         case GoogleSignInCancelled():
+          print('[Setup] GoogleSignInCancelled');
           setState(() => _isLoading = false);
         case GoogleSignInError(:final message):
+          print('[Setup] GoogleSignInError: $message');
           setState(() => _isLoading = false);
           _showErrorSnackBar(message);
       }
     } catch (e) {
+      print('[Setup] Exception: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         _showErrorSnackBar(e.toString());
@@ -880,8 +887,14 @@ class _LoginDialogState extends State<LoginDialog> {
       }
     }
 
+    // 3. 닉네임 동기화
+    final syncNicknameUseCase = widget.ref.read(syncNicknameAfterLoginUseCaseProvider);
+    await syncNicknameUseCase();
+    widget.ref.invalidate(currentNicknameProvider);
+
     if (!mounted) return;
 
+    print('[Setup] Login complete, popping dialog');
     Navigator.pop(context); // 다이얼로그 닫기
 
     // 결과 메시지 표시

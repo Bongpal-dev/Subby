@@ -124,13 +124,16 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
     if (!mounted) return;
 
+    print('[Setup] wantsLogin: $wantsLogin');
     if (wantsLogin == true) {
       await showLoginDialog(context: context, ref: ref);
+      print('[Setup] showLoginDialog returned, mounted: $mounted');
       if (!mounted) return;
+      print('[Setup] calling handleAfterLoginDialog');
       await vm.handleAfterLoginDialog();
+      print('[Setup] handleAfterLoginDialog completed');
     } else {
       await vm.signInAnonymously();
-      await vm.handleCloudSyncResult(false);
     }
   }
 

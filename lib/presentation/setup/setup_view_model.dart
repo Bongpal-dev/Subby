@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/data/datasource_providers.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
+import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
 /// 셋업 화면 단계
@@ -42,53 +43,49 @@ class SetupViewModel extends Notifier<SetupState> {
 
   /// 로그인 다이얼로그 후 처리 (Google 로그인 여부 확인 후 다음 단계 결정)
   Future<void> handleAfterLoginDialog() async {
-    final isAnonymous = await ref.read(isAnonymousProvider.future);
-    final didGoogleLogin = !isAnonymous;
-    await handleCloudSyncResult(didGoogleLogin);
-  }
+    print('[Setup] handleAfterLoginDialog called');
+    // 동기적으로 현재 인증 상태 확인 (StreamProvider 타이밍 이슈 방지)
+    final authDataSource = ref.read(firebaseAuthDataSourceProvider);
+    final isAnonymous = authDataSource.isAnonymous;
+    final userId = authDataSource.currentUserId;
+    print('[Setup] isAnonymous: $isAnonymous, userId: $userId');
 
-  /// 클라우드 연동 선택 처리 (로그인 or 익명)
-  /// [didGoogleLogin] Google 로그인 성공 여부
-  Future<void> handleCloudSyncResult(bool didGoogleLogin) async {
-    if (!didGoogleLogin) {
-      // 익명 로그인 → 닉네임 설정 필요
+    if (isAnonymous) {
       state = state.copyWith(step: SetupStep.nickname);
       return;
     }
 
-    // Google 로그인 → 기존 닉네임 확인
+    // Google 로그인 → 닉네임 동기화
     state = state.copyWith(isProcessing: true);
 
-    ref.invalidate(currentNicknameProvider);
-    final existingNickname = await ref.read(currentNicknameProvider.future);
-    final hasNickname = existingNickname != null && existingNickname.isNotEmpty;
+    final syncNicknameUseCase = ref.read(syncNicknameAfterLoginUseCaseProvider);
+    final hasNickname = await syncNicknameUseCase();
+    print('[Setup] hasNickname: $hasNickname');
 
     if (hasNickname) {
-      // 닉네임 있음 → 스킵
+      ref.invalidate(currentNicknameProvider);
       await _completeSetup();
     } else {
-      // 닉네임 없음 → 설정 필요
       state = state.copyWith(step: SetupStep.nickname, isProcessing: false);
     }
   }
 
-  /// 익명 로그인 수행
+  /// 익명 로그인 수행 → 닉네임 단계로 이동
   Future<void> signInAnonymously() async {
     state = state.copyWith(isProcessing: true);
     final authRepository = ref.read(authRepositoryProvider);
     await authRepository.signInAnonymously();
-    state = state.copyWith(isProcessing: false);
+    state = state.copyWith(step: SetupStep.nickname, isProcessing: false);
   }
 
   /// 닉네임 설정 완료
   Future<void> handleNicknameSet(String nickname) async {
     state = state.copyWith(isProcessing: true);
 
-    // 닉네임 저장
-    final nicknameLocalDataSource = ref.read(nicknameLocalDataSourceProvider);
-    await nicknameLocalDataSource.saveNickname(nickname);
-    ref.invalidate(currentNicknameProvider);
+    final saveNicknameUseCase = ref.read(saveNicknameUseCaseProvider);
+    await saveNicknameUseCase(nickname);
 
+    ref.invalidate(currentNicknameProvider);
     await _completeSetup();
   }
 

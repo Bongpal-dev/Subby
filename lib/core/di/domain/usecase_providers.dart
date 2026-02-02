@@ -9,6 +9,8 @@ import 'package:subby/domain/usecase/join_group_usecase.dart';
 import 'package:subby/domain/usecase/leave_group_usecase.dart';
 import 'package:subby/domain/usecase/detect_subscription_conflict_usecase.dart';
 import 'package:subby/domain/usecase/process_pending_changes_usecase.dart';
+import 'package:subby/domain/usecase/save_nickname_usecase.dart';
+import 'package:subby/domain/usecase/sync_nickname_after_login_usecase.dart';
 import 'package:subby/domain/usecase/update_subscription_usecase.dart';
 import 'package:subby/domain/usecase/watch_subscriptions_usecase.dart';
 
@@ -110,5 +112,28 @@ final processPendingChangesUseCaseProvider =
     subscriptionRepository,
     authRepository,
     detectConflict,
+  );
+});
+
+final syncNicknameAfterLoginUseCaseProvider =
+    Provider<SyncNicknameAfterLoginUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final nicknameRepository = ref.watch(nicknameRepositoryProvider);
+
+  return SyncNicknameAfterLoginUseCase(
+    authRepository: authRepository,
+    nicknameRepository: nicknameRepository,
+  );
+});
+
+final saveNicknameUseCaseProvider = Provider<SaveNicknameUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final nicknameRepository = ref.watch(nicknameRepositoryProvider);
+  final groupRepository = ref.watch(groupRepositoryProvider);
+
+  return SaveNicknameUseCase(
+    authRepository: authRepository,
+    nicknameRepository: nicknameRepository,
+    groupRepository: groupRepository,
   );
 });
