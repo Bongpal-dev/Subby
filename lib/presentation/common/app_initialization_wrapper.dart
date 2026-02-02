@@ -5,9 +5,6 @@ import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/providers/deep_link_provider.dart';
-import 'package:subby/presentation/onboarding/onboarding_coach_mark_screen.dart';
-import 'package:subby/presentation/onboarding/onboarding_screen.dart';
-import 'package:subby/presentation/onboarding/onboarding_setup_screen.dart';
 
 class AppInitializationWrapper extends ConsumerStatefulWidget {
   final Widget child;
@@ -58,53 +55,25 @@ class _AppInitializationWrapperState
 
   @override
   Widget build(BuildContext context) {
-    final appInit = ref.watch(appInitializedProvider);
-    final onboardingCompleted = ref.watch(onboardingCompletedProvider);
-    final coachMarkCompleted = ref.watch(coachMarkCompletedProvider);
-    final onboardingType = ref.watch(onboardingTypeProvider);
-    final nicknameSet = ref.watch(nicknameSetProvider);
-    final cloudSyncPrompted = ref.watch(cloudSyncPromptedProvider);
+    // sync, FCM, 딥링크 활성화
+    ref.watch(realtimeSyncProvider);
+    ref.watch(pendingSyncProvider);
+    ref.watch(fcmInitializedProvider);
 
-    return appInit.when(
-      data: (_) {
-        // 1. 온보딩 미완료 시 온보딩 화면 (로그인 선택)
-        if (!onboardingCompleted) {
-          return const OnboardingScreen();
-        }
-
-        // 2. 신규 사용자이고 코치마크 미완료 시 코치마크 화면
-        if (onboardingType == OnboardingType.newUser && !coachMarkCompleted) {
-          return const OnboardingCoachMarkScreen();
-        }
-
-        // 3. 신규 사용자이고 설정 미완료 시 설정 화면 (닉네임, 클라우드 연동)
-        if (onboardingType == OnboardingType.newUser &&
-            (!nicknameSet || !cloudSyncPrompted)) {
-          return const OnboardingSetupScreen();
-        }
-
-        ref.watch(realtimeSyncProvider);
-        ref.watch(pendingSyncProvider);
-        ref.watch(fcmInitializedProvider);
-
-        if (!_initialLinkHandled) {
-          _initialLinkHandled = true;
-          ref.listen(initialDeepLinkProvider, (prev, next) {
-            next.whenData((uri) {
-              if (uri != null) _handleDeepLink(uri);
-            });
-          });
-        }
-
-        ref.listen(deepLinkStreamProvider, (prev, next) {
-          next.whenData((uri) => _handleDeepLink(uri));
+    if (!_initialLinkHandled) {
+      _initialLinkHandled = true;
+      ref.listen(initialDeepLinkProvider, (prev, next) {
+        next.whenData((uri) {
+          if (uri != null) _handleDeepLink(uri);
         });
+      });
+    }
 
-        return widget.child;
-      },
-      loading: () => const _LoadingScreen(),
-      error: (error, stack) => _ErrorScreen(error: error),
-    );
+    ref.listen(deepLinkStreamProvider, (prev, next) {
+      next.whenData((uri) => _handleDeepLink(uri));
+    });
+
+    return widget.child;
   }
 
   Future<void> _handleDeepLink(Uri uri) async {
@@ -116,64 +85,6 @@ class _AppInitializationWrapperState
       context: context,
       ref: ref,
       groupCode: groupCode,
-    );
-  }
-}
-
-class _LoadingScreen extends StatelessWidget {
-  const _LoadingScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('로딩 중...'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorScreen extends ConsumerWidget {
-  final Object error;
-
-  const _ErrorScreen({required this.error});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text('앱 초기화 실패'),
-              const SizedBox(height: 8),
-              Text(
-                error.toString(),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  ref.invalidate(appInitializedProvider);
-                },
-                child: const Text('다시 시도'),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

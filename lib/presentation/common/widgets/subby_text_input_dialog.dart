@@ -14,11 +14,12 @@ class SubbyTextInputDialog extends StatefulWidget {
   final String? hint;
   final String? initialValue;
   final int? maxLength;
-  final String cancelLabel;
+  final String? cancelLabel;
   final String confirmLabel;
   final FormFieldValidator<String>? validator;
   final Widget? suffixIcon;
   final String Function()? onGenerateValue;
+  final bool showCancelButton;
 
   const SubbyTextInputDialog({
     super.key,
@@ -32,6 +33,7 @@ class SubbyTextInputDialog extends StatefulWidget {
     this.validator,
     this.suffixIcon,
     this.onGenerateValue,
+    this.showCancelButton = true,
   });
 
   @override
@@ -238,18 +240,20 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
               // ButtonRow
               Row(
                 children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 44,
-                      child: SubbyButton(
-                        label: widget.cancelLabel,
-                        type: SubbyButtonType.outline,
-                        onPressed: () => Navigator.pop(context),
-                        isExpanded: true,
+                  if (widget.showCancelButton) ...[
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: SubbyButton(
+                          label: widget.cancelLabel ?? '취소',
+                          type: SubbyButtonType.outline,
+                          onPressed: () => Navigator.pop(context),
+                          isExpanded: true,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
+                    const SizedBox(width: AppSpacing.s3),
+                  ],
                   Expanded(
                     child: SizedBox(
                       height: 44,
@@ -279,12 +283,13 @@ Future<String?> showSubbyTextInputDialog({
   String? hint,
   String? initialValue,
   int? maxLength,
-  String cancelLabel = '취소',
+  String? cancelLabel = '취소',
   String confirmLabel = '확인',
   FormFieldValidator<String>? validator,
   Widget? suffixIcon,
   String Function()? onGenerateValue,
   bool barrierDismissible = true,
+  bool showCancelButton = true,
 }) {
   return showGeneralDialog<String>(
     context: context,
@@ -304,6 +309,7 @@ Future<String?> showSubbyTextInputDialog({
         validator: validator,
         suffixIcon: suffixIcon,
         onGenerateValue: onGenerateValue,
+        showCancelButton: showCancelButton,
       );
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {

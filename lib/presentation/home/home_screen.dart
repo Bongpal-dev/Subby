@@ -3,21 +3,146 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subby/core/di/data/datasource_providers.dart';
+import 'package:subby/core/di/domain/repository_providers.dart';
+import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/core/utils/nickname_generator.dart';
+import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
+import 'package:subby/presentation/common/widgets/subby_dialog.dart';
+import 'package:subby/presentation/common/widgets/subby_text_input_dialog.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _dialogsShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showOnboardingDialogsIfNeeded();
+    });
+  }
+
+  Future<void> _showOnboardingDialogsIfNeeded() async {
+    if (_dialogsShown) return;
+    _dialogsShown = true;
+
+    final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
+
+    // 1. 클라우드 연동 미안내 시 (최초 1회) - 로그인하면 닉네임 불러올 수 있음
+    if (!cloudSyncPrompted) {
+      await _showCloudSyncDialog();
+    }
+
+    // 2. 로그인 후 기존 닉네임이 있는지 확인
+    if (!mounted) return;
+    final existingNickname = await ref.read(currentNicknameProvider.future);
+    if (existingNickname != null && existingNickname.isNotEmpty) {
+      // 기존 닉네임 있으면 설정 완료 처리
+      await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
+      return;
+    }
+
+    // 3. 닉네임 미설정 시
+    final nicknameSet = ref.read(nicknameSetProvider);
+    if (!nicknameSet && mounted) {
+      await _showNicknameDialog();
+    }
+  }
+
+  Future<void> _showNicknameDialog() async {
+    if (!mounted) return;
+
+    final colors = context.colors;
+
+    final nickname = await showSubbyTextInputDialog(
+      context: context,
+      title: '닉네임 설정',
+      description: '다른 사람에게 보일 이름을\n입력해 주세요',
+      hint: '닉네임을 입력하세요',
+      initialValue: NicknameGenerator.generate(),
+      confirmLabel: '확인하기',
+      barrierDismissible: false,
+      showCancelButton: false,
+      suffixIcon: SvgPicture.asset(
+        'assets/icons/ic_refresh_small.svg',
+        width: 24,
+        height: 24,
+        colorFilter: ColorFilter.mode(
+          colors.iconSecondary,
+          BlendMode.srcIn,
+        ),
+      ),
+      onGenerateValue: NicknameGenerator.generate,
+    );
+
+    if (nickname != null && nickname.isNotEmpty) {
+      // 로컬에 닉네임 저장 (로그인 전이라도 저장 가능)
+      final nicknameLocalDataSource = ref.read(nicknameLocalDataSourceProvider);
+      await nicknameLocalDataSource.saveNickname(nickname);
+      ref.invalidate(currentNicknameProvider);
+    }
+    await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
+  }
+
+  Future<void> _showCloudSyncDialog() async {
+    if (!mounted) return;
+
+    final colors = context.colors;
+
+    // 다이얼로그에서 로그인 선택 여부만 반환
+    final wantsLogin = await showSubbyDialog<bool>(
+      context: context,
+      iconType: AppIconType.download,
+      iconColor: colors.statusInfo,
+      title: '클라우드에 연동할까요?',
+      description: '로그인하면 데이터가 안전하게 저장되고,\n다른 기기에서도 사용할 수 있어요',
+      barrierDismissible: false,
+      actions: [
+        SubbyDialogAction(
+          label: '나중에',
+          onPressed: () => Navigator.pop(context, false),
+        ),
+        SubbyDialogAction(
+          label: '로그인',
+          isPrimary: true,
+          onPressed: () => Navigator.pop(context, true),
+        ),
+      ],
+    );
+
+    // 로그인 처리 (다이얼로그 닫힌 후)
+    final authRepository = ref.read(authRepositoryProvider);
+    if (wantsLogin == true) {
+      final result = await authRepository.signInWithGoogle();
+      if (result is! GoogleSignInSuccess) {
+        await authRepository.signInAnonymously();
+      }
+    } else {
+      await authRepository.signInAnonymously();
+    }
+
+    await ref.read(cloudSyncPromptedProvider.notifier).completeCloudSyncPrompt();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(homeViewModelProvider);
     final colors = context.colors;
 
@@ -39,7 +164,6 @@ class HomeScreen extends ConsumerWidget {
                   icon: AppIconType.share,
                   color: colors.iconOnAccent,
                   onPressed: () => _onInvite(
-                    context,
                     state.currentGroupName,
                     state.selectedGroupCode,
                   ),
@@ -50,7 +174,7 @@ class HomeScreen extends ConsumerWidget {
       drawer: const AppDrawer(),
       floatingActionButton: state.hasGroup
           ? SubbyFab(
-              onPressed: () => _navigateToAdd(context),
+              onPressed: _navigateToAdd,
             )
           : null,
       body: state.isLoading
@@ -62,21 +186,21 @@ class HomeScreen extends ConsumerWidget {
                   onCategorySelected: (category) {
                     ref.read(homeViewModelProvider.notifier).selectCategory(category);
                   },
-                  onTap: (sub) => _navigateToDetail(context, sub.id),
-                  onDelete: (sub) => _onDelete(context, ref, sub),
+                  onTap: (sub) => _navigateToDetail(sub.id),
+                  onDelete: (sub) => _onDelete(sub),
                 ),
     );
   }
 
-  void _navigateToAdd(BuildContext context) {
+  void _navigateToAdd() {
     context.push(AppRoutes.subscriptionAdd);
   }
 
-  void _navigateToDetail(BuildContext context, String subscriptionId) {
+  void _navigateToDetail(String subscriptionId) {
     context.push(AppRoutes.subscriptionDetailPath(subscriptionId));
   }
 
-  void _onInvite(BuildContext context, String groupName, String? groupCode) {
+  void _onInvite(String groupName, String? groupCode) {
     if (groupCode == null) return;
 
     showInviteDialog(
@@ -86,7 +210,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _onDelete(BuildContext context, WidgetRef ref, SubscriptionUiModel sub) {
+  void _onDelete(SubscriptionUiModel sub) {
     final colors = context.colors;
 
     showSubbyDialog(

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:subby/core/di/domain/repository_providers.dart';
+import 'package:go_router/go_router.dart';
+import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/data/datasource/firebase_auth_datasource.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/subby_button.dart';
 
@@ -19,63 +18,27 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  bool _isLoading = false;
-
   Future<void> _handleNewUser() async {
-    // 온보딩 타입 저장 (신규 사용자 - 코치마크 표시 필요)
-    // 로그인은 클라우드 연동 다이얼로그에서 처리
+    // 온보딩 타입 저장 (신규 사용자 - 튜토리얼 표시)
     await ref
         .read(onboardingTypeProvider.notifier)
         .setOnboardingType(OnboardingType.newUser);
     await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
+
+    if (mounted) {
+      context.go(AppRoutes.onboardingTutorial);
+    }
   }
 
-  Future<void> _handleGoogleLogin() async {
-    if (_isLoading) return;
+  Future<void> _handleReturningUser() async {
+    // 온보딩 타입 저장 (기존 사용자 - 튜토리얼 스킵)
+    await ref
+        .read(onboardingTypeProvider.notifier)
+        .setOnboardingType(OnboardingType.returningUser);
+    await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
 
-    setState(() => _isLoading = true);
-
-    try {
-      final authRepository = ref.read(authRepositoryProvider);
-      final result = await authRepository.signInWithGoogle();
-
-      switch (result) {
-        case GoogleSignInSuccess():
-          // 온보딩 타입 저장 (기존 사용자 - 툴팁 스킵)
-          await ref
-              .read(onboardingTypeProvider.notifier)
-              .setOnboardingType(OnboardingType.returningUser);
-          // Google 로그인 = 이미 클라우드 연동됨
-          await ref
-              .read(cloudSyncPromptedProvider.notifier)
-              .completeCloudSyncPrompt();
-          await ref
-              .read(onboardingCompletedProvider.notifier)
-              .completeOnboarding();
-        case GoogleSignInCancelled():
-          // 사용자가 취소함 - 온보딩 화면 유지
-          break;
-        case GoogleSignInError():
-          if (mounted) {
-            Fluttertoast.showToast(
-              msg: 'Google 로그인에 실패했습니다. 다시 시도해주세요.',
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-            );
-          }
-      }
-    } catch (e) {
-      if (mounted) {
-        Fluttertoast.showToast(
-          msg: 'Google 로그인에 실패했습니다. 다시 시도해주세요.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (mounted) {
+      context.go(AppRoutes.home);
     }
   }
 
@@ -147,17 +110,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     label: '처음이에요',
                     type: SubbyButtonType.primary,
                     isExpanded: true,
-                    isEnabled: !_isLoading,
                     onPressed: _handleNewUser,
                   ),
                   const SizedBox(height: AppSpacing.s4),
-                  // 써본 적 있어요 버튼 (Google 로그인)
+                  // 써본 적 있어요 버튼 (기존 사용자)
                   SubbyButton(
                     label: '써본 적 있어요',
                     type: SubbyButtonType.text,
                     isExpanded: true,
-                    isEnabled: !_isLoading,
-                    onPressed: _handleGoogleLogin,
+                    onPressed: _handleReturningUser,
                   ),
                 ],
               ),

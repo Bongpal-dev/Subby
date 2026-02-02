@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subby/core/router/app_router.dart';
 import 'package:subby/firebase_options.dart';
 import 'package:subby/core/theme/app_theme.dart';
@@ -21,11 +22,18 @@ Future<void> main() async {
   // FCM 백그라운드 메시지 핸들러 등록
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  runApp(const ProviderScope(child: SubbyApp()));
+  // 온보딩 상태 체크
+  final prefs = await SharedPreferences.getInstance();
+  final onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+  final initialRoute = onboardingCompleted ? AppRoutes.home : AppRoutes.onboarding;
+
+  runApp(ProviderScope(child: SubbyApp(initialRoute: initialRoute)));
 }
 
 class SubbyApp extends ConsumerWidget {
-  const SubbyApp({super.key});
+  final String initialRoute;
+
+  const SubbyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,7 +53,7 @@ class SubbyApp extends ConsumerWidget {
         Locale('ko', 'KR'),
         Locale('en', 'US'),
       ],
-      routerConfig: appRouter,
+      routerConfig: createRouter(initialRoute),
       builder: (context, child) {
         return AppInitializationWrapper(
           child: ConflictListener(
