@@ -111,10 +111,23 @@ class HomeViewModel extends Notifier<HomeState> {
 
   void _watchGroups() {
     final watchGroupsUseCase = ref.read(watchGroupsUseCaseProvider);
+    final savedGroupCode = ref.read(lastSelectedGroupCodeProvider);
+
     watchGroupsUseCase().listen((groups) {
-      // 선택된 그룹이 삭제되었으면 다른 그룹으로 전환
-      final selectedExists = groups.any((g) => g.code == state.selectedGroupCode);
-      final newGroupCode = selectedExists ? state.selectedGroupCode : groups.firstOrNull?.code;
+      String? newGroupCode;
+
+      if (state.selectedGroupCode != null) {
+        // 이미 선택된 그룹이 있으면 유지 (삭제된 경우 제외)
+        final selectedExists = groups.any((g) => g.code == state.selectedGroupCode);
+        newGroupCode = selectedExists ? state.selectedGroupCode : groups.firstOrNull?.code;
+      } else if (savedGroupCode != null) {
+        // 저장된 그룹 코드가 있으면 복원
+        final savedExists = groups.any((g) => g.code == savedGroupCode);
+        newGroupCode = savedExists ? savedGroupCode : groups.firstOrNull?.code;
+      } else {
+        // 처음이면 첫 번째 그룹 선택
+        newGroupCode = groups.firstOrNull?.code;
+      }
 
       state = state.copyWith(
         groups: groups,
@@ -185,6 +198,9 @@ class HomeViewModel extends Notifier<HomeState> {
 
     // currentGroupCodeProvider 동기화
     ref.read(currentGroupCodeProvider.notifier).state = groupCode;
+
+    // 마지막 선택 그룹 저장
+    ref.read(lastSelectedGroupCodeProvider.notifier).setGroupCode(groupCode);
 
     _watchSubscriptions();
   }

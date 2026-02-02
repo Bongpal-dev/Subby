@@ -139,6 +139,40 @@ final appInitializedProvider = FutureProvider<void>((ref) async {
   // 비어있음 - onboardingCompletedProvider가 SharedPreferences 체크
 });
 
+/// 마지막 선택 그룹 코드 Provider (영구 저장)
+const _lastSelectedGroupCodeKey = 'last_selected_group_code';
+
+final lastSelectedGroupCodeProvider =
+    NotifierProvider<LastSelectedGroupCodeNotifier, String?>(
+        LastSelectedGroupCodeNotifier.new);
+
+class LastSelectedGroupCodeNotifier extends Notifier<String?> {
+  @override
+  String? build() {
+    _loadLastSelectedGroupCode();
+    return null;
+  }
+
+  Future<void> _loadLastSelectedGroupCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final code = prefs.getString(_lastSelectedGroupCodeKey);
+    if (code != null) {
+      state = code;
+    }
+  }
+
+  Future<void> setGroupCode(String? code) async {
+    state = code;
+    final prefs = await SharedPreferences.getInstance();
+    if (code != null) {
+      await prefs.setString(_lastSelectedGroupCodeKey, code);
+    } else {
+      await prefs.remove(_lastSelectedGroupCodeKey);
+    }
+  }
+}
+
+/// 현재 선택된 그룹 코드 (런타임 상태)
 final currentGroupCodeProvider = StateProvider<String?>((ref) => null);
 
 final currentGroupProvider = StreamProvider((ref) {
