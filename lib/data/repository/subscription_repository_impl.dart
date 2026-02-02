@@ -72,4 +72,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     return dtos.map((e) => e.toDomain()).toList();
   }
+
+  @override
+  Future<void> clearLocalData() async {
+    await _localDataSource.deleteAll();
+  }
 }

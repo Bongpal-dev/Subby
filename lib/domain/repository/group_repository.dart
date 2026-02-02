@@ -31,4 +31,7 @@ abstract class GroupRepository {
 
   /// 사용자가 속한 모든 그룹 실시간 감시 (원격)
   Stream<List<SubscriptionGroup>> watchRemoteGroupsByUserId(String userId);
+
+  /// 로컬 데이터 전체 삭제 (로그아웃 시)
+  Future<void> clearLocalData();
 }

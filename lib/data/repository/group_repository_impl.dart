@@ -113,4 +113,9 @@ class GroupRepositoryImpl implements GroupRepository {
           (dtos) => dtos.map((dto) => dto.toDomain()).toList(),
         );
   }
+
+  @override
+  Future<void> clearLocalData() async {
+    await _localDataSource.deleteAll();
+  }
 }

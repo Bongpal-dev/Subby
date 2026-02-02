@@ -45,4 +45,8 @@ class SubscriptionLocalDataSource {
           (rows) => rows.map((e) => e.toDto()).toList(),
         );
   }
+
+  Future<void> deleteAll() async {
+    await _db.delete(_db.userSubscriptions).go();
+  }
 }

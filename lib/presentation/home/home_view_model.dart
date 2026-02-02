@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/utils/currency_converter.dart';
 import 'package:subby/domain/model/currency.dart';
 import 'package:subby/domain/model/subscription_group.dart';
@@ -110,8 +110,8 @@ class HomeViewModel extends Notifier<HomeState> {
   }
 
   void _watchGroups() {
-    final groupRepository = ref.read(groupRepositoryProvider);
-    groupRepository.watchAll().listen((groups) {
+    final watchGroupsUseCase = ref.read(watchGroupsUseCaseProvider);
+    watchGroupsUseCase().listen((groups) {
       // 선택된 그룹이 삭제되었으면 다른 그룹으로 전환
       final selectedExists = groups.any((g) => g.code == state.selectedGroupCode);
       final newGroupCode = selectedExists ? state.selectedGroupCode : groups.firstOrNull?.code;
@@ -132,31 +132,14 @@ class HomeViewModel extends Notifier<HomeState> {
 
   /// Firestore 실시간 감시 - 그룹 멤버 변경 등 반영
   void _watchRemoteGroups() {
-    final authDataSource = ref.read(firebaseAuthDataSourceProvider);
-    final userId = authDataSource.currentUserId;
-    if (userId == null) return;
-
-    final groupRepository = ref.read(groupRepositoryProvider);
+    final syncRemoteGroupsUseCase = ref.read(syncRemoteGroupsUseCaseProvider);
 
     _remoteGroupsSubscription?.cancel();
-    _remoteGroupsSubscription = groupRepository
-        .watchRemoteGroupsByUserId(userId)
-        .listen((remoteGroups) async {
-      // 원격 그룹 변경 시 로컬 DB 업데이트
-      final localGroups = await groupRepository.getAll();
-
-      for (final remoteGroup in remoteGroups) {
-        final localGroup = localGroups.where((g) => g.code == remoteGroup.code).firstOrNull;
-
-        if (localGroup != null) {
-          // displayName은 로컬 값 유지, 나머지는 원격 값으로 업데이트
-          final updatedGroup = remoteGroup.copyWith(
-            displayName: localGroup.displayName,
-          );
-          await groupRepository.update(updatedGroup);
-        }
-      }
-    });
+    _remoteGroupsSubscription = syncRemoteGroupsUseCase(
+      onRemoteGroupsChanged: (remoteGroups) async {
+        // UseCase 내부에서 이미 동기화 처리됨
+      },
+    );
   }
 
   void _watchSubscriptions() {

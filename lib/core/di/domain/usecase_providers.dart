@@ -10,8 +10,16 @@ import 'package:subby/domain/usecase/leave_group_usecase.dart';
 import 'package:subby/domain/usecase/detect_subscription_conflict_usecase.dart';
 import 'package:subby/domain/usecase/process_pending_changes_usecase.dart';
 import 'package:subby/domain/usecase/save_nickname_usecase.dart';
+import 'package:subby/domain/usecase/check_auth_state_usecase.dart';
+import 'package:subby/domain/usecase/sign_in_anonymously_usecase.dart';
+import 'package:subby/domain/usecase/sign_in_with_google_usecase.dart';
+import 'package:subby/domain/usecase/sign_out_usecase.dart';
 import 'package:subby/domain/usecase/sync_nickname_after_login_usecase.dart';
+import 'package:subby/domain/usecase/sync_remote_groups_usecase.dart';
+import 'package:subby/domain/usecase/sync_user_data_after_login_usecase.dart';
+import 'package:subby/domain/usecase/update_group_display_name_usecase.dart';
 import 'package:subby/domain/usecase/update_subscription_usecase.dart';
+import 'package:subby/domain/usecase/watch_groups_usecase.dart';
 import 'package:subby/domain/usecase/watch_subscriptions_usecase.dart';
 
 final createGroupUseCaseProvider = Provider<CreateGroupUseCase>((ref) {
@@ -136,4 +144,77 @@ final saveNicknameUseCaseProvider = Provider<SaveNicknameUseCase>((ref) {
     nicknameRepository: nicknameRepository,
     groupRepository: groupRepository,
   );
+});
+
+final checkAuthStateUseCaseProvider = Provider<CheckAuthStateUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+
+  return CheckAuthStateUseCase(authRepository: authRepository);
+});
+
+final signInAnonymouslyUseCaseProvider =
+    Provider<SignInAnonymouslyUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+
+  return SignInAnonymouslyUseCase(authRepository: authRepository);
+});
+
+final signOutUseCaseProvider = Provider<SignOutUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final nicknameRepository = ref.watch(nicknameRepositoryProvider);
+  final groupRepository = ref.watch(groupRepositoryProvider);
+  final subscriptionRepository = ref.watch(subscriptionRepositoryProvider);
+  final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
+
+  return SignOutUseCase(
+    authRepository: authRepository,
+    nicknameRepository: nicknameRepository,
+    groupRepository: groupRepository,
+    subscriptionRepository: subscriptionRepository,
+    pendingChangeRepository: pendingChangeRepository,
+  );
+});
+
+final updateGroupDisplayNameUseCaseProvider =
+    Provider<UpdateGroupDisplayNameUseCase>((ref) {
+  final groupRepository = ref.watch(groupRepositoryProvider);
+
+  return UpdateGroupDisplayNameUseCase(groupRepository: groupRepository);
+});
+
+final watchGroupsUseCaseProvider = Provider<WatchGroupsUseCase>((ref) {
+  final groupRepository = ref.watch(groupRepositoryProvider);
+
+  return WatchGroupsUseCase(groupRepository: groupRepository);
+});
+
+final syncRemoteGroupsUseCaseProvider =
+    Provider<SyncRemoteGroupsUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final groupRepository = ref.watch(groupRepositoryProvider);
+
+  return SyncRemoteGroupsUseCase(
+    authRepository: authRepository,
+    groupRepository: groupRepository,
+  );
+});
+
+final syncUserDataAfterLoginUseCaseProvider =
+    Provider<SyncUserDataAfterLoginUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final groupRepository = ref.watch(groupRepositoryProvider);
+  final nicknameRepository = ref.watch(nicknameRepositoryProvider);
+
+  return SyncUserDataAfterLoginUseCase(
+    authRepository: authRepository,
+    groupRepository: groupRepository,
+    nicknameRepository: nicknameRepository,
+  );
+});
+
+final signInWithGoogleUseCaseProvider =
+    Provider<SignInWithGoogleUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+
+  return SignInWithGoogleUseCase(authRepository: authRepository);
 });

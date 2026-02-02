@@ -5,6 +5,9 @@ abstract class AuthRepository {
   /// 현재 사용자 ID (null이면 미인증)
   String? get currentUserId;
 
+  /// 현재 사용자가 익명인지 여부
+  bool get isAnonymous;
+
   /// 인증 상태 변화 스트림
   Stream<String?> get authStateChanges;
 

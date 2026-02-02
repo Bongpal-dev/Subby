@@ -15,4 +15,7 @@ abstract class SubscriptionRepository {
 
   /// 서버에서 그룹의 모든 구독 조회 (충돌 감지용)
   Future<List<UserSubscription>> fetchRemoteByGroupCode(String groupCode);
+
+  /// 로컬 데이터 전체 삭제 (로그아웃 시)
+  Future<void> clearLocalData();
 }

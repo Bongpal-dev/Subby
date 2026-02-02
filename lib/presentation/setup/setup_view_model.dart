@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/data/datasource_providers.dart';
-import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
@@ -44,13 +43,12 @@ class SetupViewModel extends Notifier<SetupState> {
   /// 로그인 다이얼로그 후 처리 (Google 로그인 여부 확인 후 다음 단계 결정)
   Future<void> handleAfterLoginDialog() async {
     print('[Setup] handleAfterLoginDialog called');
-    // 동기적으로 현재 인증 상태 확인 (StreamProvider 타이밍 이슈 방지)
-    final authDataSource = ref.read(firebaseAuthDataSourceProvider);
-    final isAnonymous = authDataSource.isAnonymous;
-    final userId = authDataSource.currentUserId;
-    print('[Setup] isAnonymous: $isAnonymous, userId: $userId');
+    // UseCase를 통해 현재 인증 상태 확인
+    final checkAuthState = ref.read(checkAuthStateUseCaseProvider);
+    final authState = checkAuthState();
+    print('[Setup] isAnonymous: ${authState.isAnonymous}, userId: ${authState.userId}');
 
-    if (isAnonymous) {
+    if (authState.isAnonymous) {
       state = state.copyWith(step: SetupStep.nickname);
       return;
     }
@@ -73,8 +71,8 @@ class SetupViewModel extends Notifier<SetupState> {
   /// 익명 로그인 수행 → 닉네임 단계로 이동
   Future<void> signInAnonymously() async {
     state = state.copyWith(isProcessing: true);
-    final authRepository = ref.read(authRepositoryProvider);
-    await authRepository.signInAnonymously();
+    final signInAnonymouslyUseCase = ref.read(signInAnonymouslyUseCaseProvider);
+    await signInAnonymouslyUseCase();
     state = state.copyWith(step: SetupStep.nickname, isProcessing: false);
   }
 

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,7 +10,7 @@ import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
-import 'package:subby/data/datasource/firebase_auth_datasource.dart';
+import 'package:subby/data/datasource/firebase_auth_datasource.dart' show GoogleSignInSuccess, GoogleSignInCancelled, GoogleSignInError;
 import 'package:subby/presentation/home/home_view_model.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/core/utils/nickname_generator.dart';
@@ -139,13 +138,6 @@ class AppDrawer extends ConsumerWidget {
 
   Future<void> _showEditNicknameDialog(BuildContext context, WidgetRef ref) async {
     final currentNickname = ref.read(currentNicknameProvider).valueOrNull;
-    final nicknameRepository = ref.read(nicknameRepositoryProvider);
-    final authDataSource = ref.read(firebaseAuthDataSourceProvider);
-    final userId = authDataSource.currentUserId;
-    final groups = ref.read(homeViewModelProvider).groups;
-
-    if (userId == null) return;
-
     final colors = context.colors;
 
     final newNickname = await showSubbyTextInputDialog(
@@ -174,8 +166,8 @@ class AppDrawer extends ConsumerWidget {
     );
 
     if (newNickname != null && context.mounted) {
-      final groupCodes = groups.map((g) => g.code).toList();
-      await nicknameRepository.saveNickname(userId, newNickname, groupCodes);
+      final saveNicknameUseCase = ref.read(saveNicknameUseCaseProvider);
+      await saveNicknameUseCase(newNickname);
       ref.invalidate(currentNicknameProvider);
     }
   }
@@ -206,8 +198,8 @@ class AppDrawer extends ConsumerWidget {
     );
 
     if (newName != null && context.mounted) {
-      final groupRepository = ref.read(groupRepositoryProvider);
-      await groupRepository.updateDisplayName(groupCode, newName);
+      final updateGroupDisplayNameUseCase = ref.read(updateGroupDisplayNameUseCaseProvider);
+      await updateGroupDisplayNameUseCase(groupCode, newName);
     }
   }
 
@@ -261,14 +253,9 @@ class AppDrawer extends ConsumerWidget {
             Navigator.pop(context); // 다이얼로그 닫기
             Navigator.pop(context); // Drawer 닫기
 
-            // 로컬 데이터 삭제
-            final db = ref.read(databaseProvider);
-            await db.clearUserData();
-
-            // 로그아웃 및 익명 로그인
-            final authDataSource = ref.read(firebaseAuthDataSourceProvider);
-            await authDataSource.signOut();
-            await authDataSource.signInAnonymously();
+            // UseCase를 통해 로그아웃 처리
+            final signOutUseCase = ref.read(signOutUseCaseProvider);
+            await signOutUseCase();
 
             // 홈 화면 새로고침
             ref.invalidate(homeViewModelProvider);
@@ -819,10 +806,12 @@ class _LoginDialogState extends State<LoginDialog> {
 
     try {
       // 로그인 전 익명 사용자 ID 저장 (그룹 멤버 교체용)
-      final previousUserId = FirebaseAuth.instance.currentUser?.uid;
+      final checkAuthStateUseCase = widget.ref.read(checkAuthStateUseCaseProvider);
+      final authState = checkAuthStateUseCase();
+      final previousUserId = authState.userId;
 
-      final authDataSource = widget.ref.read(firebaseAuthDataSourceProvider);
-      final result = await authDataSource.signInWithGoogle();
+      final signInWithGoogleUseCase = widget.ref.read(signInWithGoogleUseCaseProvider);
+      final result = await signInWithGoogleUseCase();
       print('[Setup] signInWithGoogle result: $result');
 
       if (!mounted) return;
@@ -830,7 +819,7 @@ class _LoginDialogState extends State<LoginDialog> {
       switch (result) {
         case GoogleSignInSuccess(:final isNewUser):
           print('[Setup] GoogleSignInSuccess, isNewUser: $isNewUser');
-          await _loadUserGroups(isNewUser, previousUserId);
+          await _syncUserDataAfterLogin(previousUserId);
         case GoogleSignInCancelled():
           print('[Setup] GoogleSignInCancelled');
           setState(() => _isLoading = false);
@@ -848,48 +837,11 @@ class _LoginDialogState extends State<LoginDialog> {
     }
   }
 
-  Future<void> _loadUserGroups(bool isNewUser, String? previousUserId) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+  Future<void> _syncUserDataAfterLogin(String? previousUserId) async {
+    // UseCase를 통해 사용자 데이터 동기화
+    final syncUserDataUseCase = widget.ref.read(syncUserDataAfterLoginUseCaseProvider);
+    final result = await syncUserDataUseCase(previousUserId);
 
-    final groupRepository = widget.ref.read(groupRepositoryProvider);
-
-    // 1. 로컬에 있던 그룹들의 익명 ID를 새 ID로 교체
-    final localGroups = await groupRepository.getAll();
-    int linkedCount = 0;
-
-    for (final group in localGroups) {
-      // 기존 익명 ID 제거하고 새 ID 추가
-      final updatedMembers = group.members
-          .where((id) => id != previousUserId)
-          .toList();
-
-      if (!updatedMembers.contains(user.uid)) {
-        updatedMembers.add(user.uid);
-      }
-
-      final updatedGroup = group.copyWith(members: updatedMembers);
-      await groupRepository.update(updatedGroup);
-      await groupRepository.syncUpdate(updatedGroup);
-      linkedCount++;
-    }
-
-    // 2. 원격에서 사용자 그룹 가져오기 (다른 기기에서 만든 그룹)
-    final remoteGroups = await groupRepository.fetchRemoteGroupsByUserId(user.uid);
-    int restoredCount = 0;
-
-    for (final remoteGroup in remoteGroups) {
-      // 이미 로컬에 있는지 확인
-      final existsLocally = localGroups.any((g) => g.code == remoteGroup.code);
-      if (!existsLocally) {
-        await groupRepository.saveToLocal(remoteGroup);
-        restoredCount++;
-      }
-    }
-
-    // 3. 닉네임 동기화
-    final syncNicknameUseCase = widget.ref.read(syncNicknameAfterLoginUseCaseProvider);
-    await syncNicknameUseCase();
     widget.ref.invalidate(currentNicknameProvider);
 
     if (!mounted) return;
@@ -898,6 +850,9 @@ class _LoginDialogState extends State<LoginDialog> {
     Navigator.pop(context); // 다이얼로그 닫기
 
     // 결과 메시지 표시
+    final linkedCount = result.linkedCount;
+    final restoredCount = result.restoredCount;
+
     if (linkedCount > 0 && restoredCount > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$linkedCount개 그룹 연결, $restoredCount개 그룹 복구됨')),

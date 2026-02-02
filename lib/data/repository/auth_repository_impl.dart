@@ -12,6 +12,9 @@ class AuthRepositoryImpl implements AuthRepository {
   String? get currentUserId => _dataSource.currentUserId;
 
   @override
+  bool get isAnonymous => _dataSource.isAnonymous;
+
+  @override
   Stream<String?> get authStateChanges => _dataSource.authStateChanges;
 
   @override

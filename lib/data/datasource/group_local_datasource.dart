@@ -65,4 +65,8 @@ class GroupLocalDataSource {
         .watchSingleOrNull()
         .map((row) => row?.toDto());
   }
+
+  Future<void> deleteAll() async {
+    await _db.delete(_db.subscriptionGroups).go();
+  }
 }
