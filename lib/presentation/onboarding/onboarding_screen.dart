@@ -21,33 +21,13 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   bool _isLoading = false;
 
-  Future<void> _handleAnonymousLogin() async {
-    if (_isLoading) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final authRepository = ref.read(authRepositoryProvider);
-      await authRepository.signInAnonymously();
-
-      // 온보딩 타입 저장 (신규 사용자 - 툴팁 표시 필요)
-      await ref
-          .read(onboardingTypeProvider.notifier)
-          .setOnboardingType(OnboardingType.newUser);
-      await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
-    } catch (e) {
-      if (mounted) {
-        Fluttertoast.showToast(
-          msg: '로그인에 실패했습니다. 다시 시도해주세요.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  Future<void> _handleNewUser() async {
+    // 온보딩 타입 저장 (신규 사용자 - 코치마크 표시 필요)
+    // 로그인은 클라우드 연동 다이얼로그에서 처리
+    await ref
+        .read(onboardingTypeProvider.notifier)
+        .setOnboardingType(OnboardingType.newUser);
+    await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
   }
 
   Future<void> _handleGoogleLogin() async {
@@ -162,13 +142,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
               child: Column(
                 children: [
-                  // 처음이에요 버튼 (익명 로그인)
+                  // 처음이에요 버튼 (신규 사용자)
                   SubbyButton(
                     label: '처음이에요',
                     type: SubbyButtonType.primary,
                     isExpanded: true,
                     isEnabled: !_isLoading,
-                    onPressed: _handleAnonymousLogin,
+                    onPressed: _handleNewUser,
                   ),
                   const SizedBox(height: AppSpacing.s4),
                   // 써본 적 있어요 버튼 (Google 로그인)

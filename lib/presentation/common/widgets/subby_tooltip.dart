@@ -47,6 +47,7 @@ class SubbyTooltip extends StatelessWidget {
             title,
             style: AppTypography.bodyLargeSemi.copyWith(
               color: colors.textPrimary,
+              decoration: TextDecoration.none,
             ),
           ),
           const SizedBox(height: AppSpacing.s2),
@@ -54,6 +55,7 @@ class SubbyTooltip extends StatelessWidget {
             description,
             style: AppTypography.body.copyWith(
               color: colors.textSecondary,
+              decoration: TextDecoration.none,
             ),
           ),
         ],

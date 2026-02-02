@@ -10,58 +10,14 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
-import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
-import 'package:subby/presentation/onboarding/onboarding_flow_handler.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _onboardingStarted = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startOnboardingIfNeeded();
-    });
-  }
-
-  Future<void> _startOnboardingIfNeeded() async {
-    if (_onboardingStarted) return;
-
-    final nicknameSet = ref.read(nicknameSetProvider);
-    final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
-    final onboardingType = ref.read(onboardingTypeProvider);
-
-    // 신규 사용자이고 다이얼로그가 아직 표시 안 된 경우
-    final needsNicknameDialog = !nicknameSet;
-    final needsCloudDialog = !cloudSyncPrompted && onboardingType == OnboardingType.newUser;
-
-    if (needsNicknameDialog || needsCloudDialog) {
-      _onboardingStarted = true;
-
-      // 화면이 완전히 빌드된 후 약간의 딜레이 후 시작
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      if (mounted) {
-        final handler = OnboardingFlowHandler(
-          context: context,
-          ref: ref,
-        );
-        await handler.startOnboardingFlow();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
     final colors = context.colors;
 
@@ -107,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ref.read(homeViewModelProvider.notifier).selectCategory(category);
                   },
                   onTap: (sub) => _navigateToDetail(context, sub.id),
-                  onDelete: (sub) => _onDelete(context, sub),
+                  onDelete: (sub) => _onDelete(context, ref, sub),
                 ),
     );
   }
@@ -130,7 +86,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  void _onDelete(BuildContext context, SubscriptionUiModel sub) {
+  void _onDelete(BuildContext context, WidgetRef ref, SubscriptionUiModel sub) {
     final colors = context.colors;
 
     showSubbyDialog(
