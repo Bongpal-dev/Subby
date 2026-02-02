@@ -44,26 +44,55 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _dialogsShown = true;
 
     final cloudSyncPrompted = ref.read(cloudSyncPromptedProvider);
+    bool didGoogleLogin = false;
 
-    // 1. 클라우드 연동 미안내 시 (최초 1회) - 로그인하면 닉네임 불러올 수 있음
+    // 1. 클라우드 연동 미안내 시 (최초 1회)
     if (!cloudSyncPrompted) {
-      await _showCloudSyncDialog();
+      didGoogleLogin = await _showCloudSyncDialog();
     }
 
-    // 2. 로그인 후 기존 닉네임이 있는지 확인
+    // 2. Google 로그인한 경우에만 기존 닉네임 확인
     if (!mounted) return;
-    final existingNickname = await ref.read(currentNicknameProvider.future);
-    if (existingNickname != null && existingNickname.isNotEmpty) {
-      // 기존 닉네임 있으면 설정 완료 처리
-      await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
-      return;
+    if (didGoogleLogin) {
+      ref.invalidate(currentNicknameProvider);
+      final existingNickname = await ref.read(currentNicknameProvider.future);
+      if (existingNickname != null && existingNickname.isNotEmpty) {
+        await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
+      } else {
+        await _showNicknameDialogIfNeeded();
+      }
+    } else {
+      // 익명 로그인은 바로 닉네임 다이얼로그
+      await _showNicknameDialogIfNeeded();
     }
 
-    // 3. 닉네임 미설정 시
+    // 3. 온보딩 완료 후 FCM 초기화 (알림 권한 요청)
+    if (mounted) {
+      final authDataSource = ref.read(firebaseAuthDataSourceProvider);
+      final userId = authDataSource.currentUserId;
+      if (userId != null) {
+        final fcmService = ref.read(fcmServiceProvider);
+        await fcmService.initialize(userId);
+      }
+    }
+  }
+
+  Future<void> _showNicknameDialogIfNeeded() async {
     final nicknameSet = ref.read(nicknameSetProvider);
     if (!nicknameSet && mounted) {
       await _showNicknameDialog();
     }
+  }
+
+  void _showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 
   Future<void> _showNicknameDialog() async {
@@ -101,8 +130,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     await ref.read(nicknameSetProvider.notifier).completeNicknameSet();
   }
 
-  Future<void> _showCloudSyncDialog() async {
-    if (!mounted) return;
+  /// 클라우드 연동 다이얼로그. Google 로그인 성공 시 true 반환
+  Future<bool> _showCloudSyncDialog() async {
+    if (!mounted) return false;
 
     final colors = context.colors;
 
@@ -127,18 +157,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
 
-    // 로그인 처리 (다이얼로그 닫힌 후)
-    final authRepository = ref.read(authRepositoryProvider);
-    if (wantsLogin == true) {
-      final result = await authRepository.signInWithGoogle();
-      if (result is! GoogleSignInSuccess) {
-        await authRepository.signInAnonymously();
-      }
-    } else {
+    bool didGoogleLogin = false;
+    if (wantsLogin == true && mounted) {
+      // 로그인 다이얼로그 표시 (동기화 로직 포함)
+      await showLoginDialog(context: context, ref: ref);
+      // 로그인 성공 여부 확인
+      final isAnonymous = ref.read(isAnonymousProvider).valueOrNull ?? true;
+      didGoogleLogin = !isAnonymous;
+    } else if (mounted) {
+      // 익명 로그인 (로딩 표시)
+      _showLoadingDialog();
+      final authRepository = ref.read(authRepositoryProvider);
       await authRepository.signInAnonymously();
+      if (mounted) Navigator.pop(context);
     }
 
     await ref.read(cloudSyncPromptedProvider.notifier).completeCloudSyncPrompt();
+    return didGoogleLogin;
   }
 
   @override

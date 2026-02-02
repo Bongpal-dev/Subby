@@ -36,12 +36,20 @@ class FcmService {
   Future<void> initialize(String userId) async {
     _currentUserId = userId;
 
-    // 알림 권한 요청
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    // 현재 알림 권한 상태 확인
+    final currentSettings = await _messaging.getNotificationSettings();
+
+    // 아직 결정되지 않은 경우에만 권한 요청
+    NotificationSettings settings;
+    if (currentSettings.authorizationStatus == AuthorizationStatus.notDetermined) {
+      settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } else {
+      settings = currentSettings;
+    }
 
     if (settings.authorizationStatus != AuthorizationStatus.authorized) {
       return;

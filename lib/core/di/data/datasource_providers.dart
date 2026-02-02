@@ -82,12 +82,23 @@ final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) {
   return UserRemoteDataSource();
 });
 
-/// 현재 사용자 닉네임 (로컬 캐시 우선)
+/// 현재 사용자 닉네임 (로컬 우선, 없으면 원격에서 조회)
 final currentNicknameProvider = FutureProvider<String?>((ref) async {
   final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
   final userId = authDataSource.currentUserId;
   if (userId == null) return null;
 
+  // 로컬 우선
   final localDataSource = ref.watch(nicknameLocalDataSourceProvider);
-  return localDataSource.getNickname();
+  final localNickname = await localDataSource.getNickname();
+  if (localNickname != null) return localNickname;
+
+  // 로컬에 없으면 원격에서 조회
+  final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
+  final remoteNickname = await remoteDataSource.getNickname(userId);
+  if (remoteNickname != null) {
+    // 로컬에 캐시
+    await localDataSource.saveNickname(remoteNickname);
+  }
+  return remoteNickname;
 });

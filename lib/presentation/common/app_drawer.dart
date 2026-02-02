@@ -180,11 +180,7 @@ class AppDrawer extends ConsumerWidget {
   }
 
   void _showLoginDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (context) => _LoginDialog(ref: ref),
-    );
+    showLoginDialog(context: context, ref: ref);
   }
 
   Future<void> _showRenameGroupDialog(
@@ -705,17 +701,30 @@ class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
   }
 }
 
-/// 로그인 다이얼로그
-class _LoginDialog extends StatefulWidget {
-  final WidgetRef ref;
-
-  const _LoginDialog({required this.ref});
-
-  @override
-  State<_LoginDialog> createState() => _LoginDialogState();
+/// 로그인 다이얼로그 표시 헬퍼
+Future<void> showLoginDialog({
+  required BuildContext context,
+  required WidgetRef ref,
+}) {
+  return showDialog(
+    context: context,
+    barrierColor: Colors.black.withValues(alpha: 0.5),
+    barrierDismissible: false,
+    builder: (context) => LoginDialog(ref: ref),
+  );
 }
 
-class _LoginDialogState extends State<_LoginDialog> {
+/// 로그인 다이얼로그
+class LoginDialog extends StatefulWidget {
+  final WidgetRef ref;
+
+  const LoginDialog({super.key, required this.ref});
+
+  @override
+  State<LoginDialog> createState() => _LoginDialogState();
+}
+
+class _LoginDialogState extends State<LoginDialog> {
   bool _isLoading = false;
 
   @override

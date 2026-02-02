@@ -55,10 +55,9 @@ class _AppInitializationWrapperState
 
   @override
   Widget build(BuildContext context) {
-    // sync, FCM, 딥링크 활성화
+    // sync, 딥링크 활성화 (FCM은 온보딩 완료 후 HomeScreen에서 초기화)
     ref.watch(realtimeSyncProvider);
     ref.watch(pendingSyncProvider);
-    ref.watch(fcmInitializedProvider);
 
     if (!_initialLinkHandled) {
       _initialLinkHandled = true;
