@@ -18,4 +18,10 @@ abstract class SubscriptionRepository {
 
   /// 로컬 데이터 전체 삭제 (로그아웃 시)
   Future<void> clearLocalData();
+
+  /// 실시간 동기화 시작
+  void startRemoteSync(String groupCode);
+
+  /// 실시간 동기화 중지
+  void stopRemoteSync();
 }

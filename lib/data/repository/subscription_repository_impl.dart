@@ -1,14 +1,20 @@
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
 import 'package:subby/data/datasource/subscription_remote_datasource.dart';
 import 'package:subby/data/mapper/subscription_mapper.dart';
+import 'package:subby/data/service/realtime_sync_service.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
 
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
   final SubscriptionLocalDataSource _localDataSource;
   final SubscriptionRemoteDataSource _remoteDataSource;
+  final RealtimeSyncService _syncService;
 
-  SubscriptionRepositoryImpl(this._localDataSource, this._remoteDataSource);
+  SubscriptionRepositoryImpl(
+    this._localDataSource,
+    this._remoteDataSource,
+    this._syncService,
+  );
 
   @override
   Future<List<UserSubscription>> getAll() async {
@@ -76,5 +82,15 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   @override
   Future<void> clearLocalData() async {
     await _localDataSource.deleteAll();
+  }
+
+  @override
+  void startRemoteSync(String groupCode) {
+    _syncService.startSync(groupCode);
+  }
+
+  @override
+  void stopRemoteSync() {
+    _syncService.stopSync();
   }
 }

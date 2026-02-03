@@ -3,21 +3,30 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/di/data/service_providers.dart';
 import 'package:subby/core/utils/currency_converter.dart';
 import 'package:subby/domain/model/conflict_resolution.dart';
 import 'package:subby/domain/model/exchange_rate.dart';
 import 'package:subby/domain/model/currency.dart';
-import 'package:subby/domain/repository/onboarding_repository.dart';
 import 'package:subby/presentation/common/providers/conflict_state_provider.dart';
 
 final authStateProvider = StreamProvider<String?>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
+  final watchAuthState = ref.watch(watchAuthStateUseCaseProvider);
 
-  return authRepository.authStateChanges;
+  return watchAuthState();
+});
+
+/// 현재 사용자가 익명인지 여부를 실시간으로 감지
+final isAnonymousStateProvider = StreamProvider<bool>((ref) {
+  final watchIsAnonymous = ref.watch(watchIsAnonymousUseCaseProvider);
+  return watchIsAnonymous();
+});
+
+/// 현재 사용자 닉네임
+final currentNicknameStateProvider = FutureProvider<String?>((ref) async {
+  final getCurrentNickname = ref.watch(getCurrentNicknameUseCaseProvider);
+  return getCurrentNickname();
 });
 
 final onboardingCompletedProvider =
@@ -32,37 +41,15 @@ class OnboardingCompletedNotifier extends Notifier<bool> {
   }
 
   Future<void> _load() async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    state = await repository.isOnboardingCompleted();
+    final checkOnboardingCompleted =
+        ref.read(checkOnboardingCompletedUseCaseProvider);
+    state = await checkOnboardingCompleted();
   }
 
   Future<void> completeOnboarding() async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    await repository.completeOnboarding();
+    final completeOnboarding = ref.read(completeOnboardingUseCaseProvider);
+    await completeOnboarding();
     state = true;
-  }
-}
-
-final onboardingTypeProvider =
-    NotifierProvider<OnboardingTypeNotifier, OnboardingType?>(
-        OnboardingTypeNotifier.new);
-
-class OnboardingTypeNotifier extends Notifier<OnboardingType?> {
-  @override
-  OnboardingType? build() {
-    _load();
-    return null;
-  }
-
-  Future<void> _load() async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    state = await repository.getOnboardingType();
-  }
-
-  Future<void> setOnboardingType(OnboardingType type) async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    await repository.setOnboardingType(type);
-    state = type;
   }
 }
 
@@ -78,13 +65,14 @@ class TutorialCompletedNotifier extends Notifier<bool> {
   }
 
   Future<void> _load() async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    state = await repository.isTutorialCompleted();
+    final checkTutorialCompleted =
+        ref.read(checkTutorialCompletedUseCaseProvider);
+    state = await checkTutorialCompleted();
   }
 
   Future<void> completeTutorial() async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    await repository.completeTutorial();
+    final completeTutorial = ref.read(completeTutorialUseCaseProvider);
+    await completeTutorial();
     state = true;
   }
 }
@@ -100,13 +88,13 @@ class SetupCompletedNotifier extends Notifier<bool> {
   }
 
   Future<void> _load() async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    state = await repository.isSetupCompleted();
+    final checkSetupCompleted = ref.read(checkSetupCompletedUseCaseProvider);
+    state = await checkSetupCompleted();
   }
 
   Future<void> completeSetup() async {
-    final repository = ref.read(onboardingRepositoryProvider);
-    await repository.completeSetup();
+    final completeSetup = ref.read(completeSetupUseCaseProvider);
+    await completeSetup();
     state = true;
   }
 }
@@ -122,8 +110,6 @@ final appInitializedProvider = FutureProvider<void>((ref) async {
 });
 
 /// 마지막 선택 그룹 코드 Provider (영구 저장)
-const _lastSelectedGroupCodeKey = 'last_selected_group_code';
-
 final lastSelectedGroupCodeProvider =
     NotifierProvider<LastSelectedGroupCodeNotifier, String?>(
         LastSelectedGroupCodeNotifier.new);
@@ -131,26 +117,21 @@ final lastSelectedGroupCodeProvider =
 class LastSelectedGroupCodeNotifier extends Notifier<String?> {
   @override
   String? build() {
-    _loadLastSelectedGroupCode();
+    _load();
     return null;
   }
 
-  Future<void> _loadLastSelectedGroupCode() async {
-    final prefs = await SharedPreferences.getInstance();
-    final code = prefs.getString(_lastSelectedGroupCodeKey);
-    if (code != null) {
-      state = code;
-    }
+  Future<void> _load() async {
+    final getLastSelectedGroupCode =
+        ref.read(getLastSelectedGroupCodeUseCaseProvider);
+    state = await getLastSelectedGroupCode();
   }
 
   Future<void> setGroupCode(String? code) async {
     state = code;
-    final prefs = await SharedPreferences.getInstance();
-    if (code != null) {
-      await prefs.setString(_lastSelectedGroupCodeKey, code);
-    } else {
-      await prefs.remove(_lastSelectedGroupCodeKey);
-    }
+    final saveLastSelectedGroupCode =
+        ref.read(saveLastSelectedGroupCodeUseCaseProvider);
+    await saveLastSelectedGroupCode(code);
   }
 }
 
@@ -162,9 +143,9 @@ final currentGroupProvider = StreamProvider((ref) {
 
   if (groupCode == null) return const Stream.empty();
 
-  final groupRepository = ref.watch(groupRepositoryProvider);
+  final watchGroupByCode = ref.watch(watchGroupByCodeUseCaseProvider);
 
-  return groupRepository.watchByCode(groupCode);
+  return watchGroupByCode(groupCode);
 });
 
 final realtimeSyncProvider = Provider<void>((ref) {
@@ -217,9 +198,9 @@ final pendingSyncProvider = Provider<void>((ref) {
 });
 
 final exchangeRateProvider = FutureProvider<ExchangeRate?>((ref) async {
-  final repository = ref.watch(exchangeRateRepositoryProvider);
+  final getExchangeRate = ref.watch(getExchangeRateUseCaseProvider);
 
-  return repository.getExchangeRate();
+  return getExchangeRate();
 });
 
 final currencyConverterProvider = Provider<CurrencyConverter?>((ref) {
@@ -252,13 +233,13 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   }
 
   Future<void> _load() async {
-    final repository = ref.read(settingsRepositoryProvider);
-    state = await repository.getThemeMode();
+    final getThemeMode = ref.read(getThemeModeUseCaseProvider);
+    state = await getThemeMode();
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    final repository = ref.read(settingsRepositoryProvider);
-    await repository.setThemeMode(mode);
+    final setThemeModeUseCase = ref.read(setThemeModeUseCaseProvider);
+    await setThemeModeUseCase(mode);
     state = mode;
   }
 }
@@ -286,13 +267,13 @@ class DefaultCurrencyNotifier extends Notifier<Currency> {
   }
 
   Future<void> _load() async {
-    final repository = ref.read(settingsRepositoryProvider);
-    state = await repository.getDefaultCurrency();
+    final getDefaultCurrency = ref.read(getDefaultCurrencyUseCaseProvider);
+    state = await getDefaultCurrency();
   }
 
   Future<void> setCurrency(Currency currency) async {
-    final repository = ref.read(settingsRepositoryProvider);
-    await repository.setDefaultCurrency(currency);
+    final setDefaultCurrency = ref.read(setDefaultCurrencyUseCaseProvider);
+    await setDefaultCurrency(currency);
     state = currency;
   }
 }
@@ -313,13 +294,15 @@ class NotificationEnabledNotifier extends Notifier<bool> {
   }
 
   Future<void> _load() async {
-    final repository = ref.read(settingsRepositoryProvider);
-    state = await repository.isNotificationEnabled();
+    final checkNotificationEnabled =
+        ref.read(checkNotificationEnabledUseCaseProvider);
+    state = await checkNotificationEnabled();
   }
 
   Future<void> setNotificationEnabled(bool enabled) async {
-    final repository = ref.read(settingsRepositoryProvider);
-    await repository.setNotificationEnabled(enabled);
+    final setNotificationEnabledUseCase =
+        ref.read(setNotificationEnabledUseCaseProvider);
+    await setNotificationEnabledUseCase(enabled);
     state = enabled;
 
     final fcmService = ref.read(fcmServiceProvider);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/core/di/data/service_providers.dart';
+import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/util/invite_link_generator.dart';
 import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
@@ -48,9 +48,8 @@ class _AppInitializationWrapperState
 
     if (groupCode == null) return;
 
-    final syncService = ref.read(realtimeSyncServiceProvider);
-    syncService.stopSync();
-    syncService.startSync(groupCode);
+    final restartSync = ref.read(restartSubscriptionSyncUseCaseProvider);
+    restartSync(groupCode);
   }
 
   @override

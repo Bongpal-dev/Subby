@@ -20,12 +20,6 @@ final firebaseAuthDataSourceProvider = Provider<FirebaseAuthDataSource>((ref) {
   return FirebaseAuthDataSource();
 });
 
-/// 현재 사용자가 익명인지 여부를 실시간으로 감지
-final isAnonymousProvider = StreamProvider<bool>((ref) {
-  final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
-  return authDataSource.userChanges.map((user) => user?.isAnonymous ?? true);
-});
-
 final groupLocalDataSourceProvider = Provider<GroupLocalDataSource>((ref) {
   final db = ref.watch(databaseProvider);
 
@@ -82,23 +76,6 @@ final userLocalDataSourceProvider = Provider<UserLocalDataSource>((ref) {
 
 final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) {
   return UserRemoteDataSource();
-});
-
-final currentNicknameProvider = FutureProvider<String?>((ref) async {
-  final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
-  final userId = authDataSource.currentUserId;
-  if (userId == null) return null;
-
-  final localDataSource = ref.watch(userLocalDataSourceProvider);
-  final localNickname = await localDataSource.getNickname();
-  if (localNickname != null) return localNickname;
-
-  final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
-  final remoteNickname = await remoteDataSource.getNickname(userId);
-  if (remoteNickname != null) {
-    await localDataSource.saveNickname(remoteNickname);
-  }
-  return remoteNickname;
 });
 
 final onboardingLocalDataSourceProvider = Provider<OnboardingLocalDataSource>((ref) {

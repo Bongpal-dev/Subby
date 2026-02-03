@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/data/datasource_providers.dart';
+import 'package:subby/core/di/data/service_providers.dart';
 import 'package:subby/data/repository/auth_repository_impl.dart';
 import 'package:subby/data/repository/exchange_rate_repository_impl.dart';
 import 'package:subby/data/repository/group_repository_impl.dart';
@@ -35,8 +36,9 @@ final groupRepositoryProvider = Provider<GroupRepository>((ref) {
 final subscriptionRepositoryProvider = Provider<SubscriptionRepository>((ref) {
   final localDataSource = ref.watch(subscriptionLocalDataSourceProvider);
   final remoteDataSource = ref.watch(subscriptionRemoteDataSourceProvider);
+  final syncService = ref.watch(realtimeSyncServiceProvider);
 
-  return SubscriptionRepositoryImpl(localDataSource, remoteDataSource);
+  return SubscriptionRepositoryImpl(localDataSource, remoteDataSource, syncService);
 });
 
 final presetRepositoryProvider = Provider<PresetRepository>((ref) {

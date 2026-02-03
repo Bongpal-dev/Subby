@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:subby/core/di/providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
+import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
@@ -28,7 +28,7 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
     final colors = context.colors;
-    final isAnonymous = ref.watch(isAnonymousProvider).valueOrNull ?? true;
+    final isAnonymous = ref.watch(isAnonymousStateProvider).valueOrNull ?? true;
 
     // 키보드가 올라와도 Drawer 레이아웃이 변하지 않도록 높이 고정
     // viewPadding은 키보드 상태와 관계없이 시스템 UI 영역 반환
@@ -137,7 +137,7 @@ class AppDrawer extends ConsumerWidget {
   }
 
   Future<void> _showEditNicknameDialog(BuildContext context, WidgetRef ref) async {
-    final currentNickname = ref.read(currentNicknameProvider).valueOrNull;
+    final currentNickname = ref.read(currentNicknameStateProvider).valueOrNull;
     final colors = context.colors;
 
     final newNickname = await showSubbyTextInputDialog(
@@ -168,7 +168,7 @@ class AppDrawer extends ConsumerWidget {
     if (newNickname != null && context.mounted) {
       final saveUserInfoUseCase = ref.read(saveUserInfoUseCaseProvider);
       await saveUserInfoUseCase(nickname: newNickname);
-      ref.invalidate(currentNicknameProvider);
+      ref.invalidate(currentNicknameStateProvider);
     }
   }
 
@@ -277,7 +277,7 @@ class _ProfileSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
-    final nickname = ref.watch(currentNicknameProvider).valueOrNull;
+    final nickname = ref.watch(currentNicknameStateProvider).valueOrNull;
 
     return Row(
       children: [
@@ -842,7 +842,7 @@ class _LoginDialogState extends State<LoginDialog> {
     final syncUserDataUseCase = widget.ref.read(syncUserDataAfterLoginUseCaseProvider);
     final result = await syncUserDataUseCase(previousUserId);
 
-    widget.ref.invalidate(currentNicknameProvider);
+    widget.ref.invalidate(currentNicknameStateProvider);
 
     if (!mounted) return;
 
@@ -872,7 +872,7 @@ class _LoginDialogState extends State<LoginDialog> {
     }
 
     widget.ref.invalidate(homeViewModelProvider);
-    widget.ref.invalidate(isAnonymousProvider);
+    widget.ref.invalidate(isAnonymousStateProvider);
   }
 
   void _showErrorSnackBar(String message) {

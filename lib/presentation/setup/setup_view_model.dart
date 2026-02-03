@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subby/core/di/data/datasource_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 
@@ -59,7 +58,7 @@ class SetupViewModel extends Notifier<SetupState> {
     final hasNickname = await fetchUserInfoUseCase();
 
     if (hasNickname) {
-      ref.invalidate(currentNicknameProvider);
+      ref.invalidate(currentNicknameStateProvider);
       await _completeSetup();
     } else {
       state = state.copyWith(step: SetupStep.nickname, isProcessing: false);
@@ -81,7 +80,7 @@ class SetupViewModel extends Notifier<SetupState> {
     final saveUserInfoUseCase = ref.read(saveUserInfoUseCaseProvider);
     await saveUserInfoUseCase(nickname: nickname);
 
-    ref.invalidate(currentNicknameProvider);
+    ref.invalidate(currentNicknameStateProvider);
     await _completeSetup();
   }
 
