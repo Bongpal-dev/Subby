@@ -118,4 +118,17 @@ class GroupRepositoryImpl implements GroupRepository {
   Future<void> clearLocalData() async {
     await _localDataSource.deleteAll();
   }
+
+  @override
+  Future<void> updateMemberNicknameInGroups(
+    List<String> groupCodes,
+    String userId,
+    String nickname,
+  ) async {
+    await _remoteDataSource.updateMemberNicknameInGroups(
+      groupCodes,
+      userId,
+      nickname,
+    );
+  }
 }

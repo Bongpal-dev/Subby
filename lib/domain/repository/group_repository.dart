@@ -34,4 +34,10 @@ abstract class GroupRepository {
 
   /// 로컬 데이터 전체 삭제 (로그아웃 시)
   Future<void> clearLocalData();
+
+  Future<void> updateMemberNicknameInGroups(
+    List<String> groupCodes,
+    String userId,
+    String nickname,
+  );
 }

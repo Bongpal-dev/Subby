@@ -6,14 +6,14 @@ import 'package:subby/data/repository/group_repository_impl.dart';
 import 'package:subby/data/repository/pending_change_repository_impl.dart';
 import 'package:subby/data/repository/preset_repository_impl.dart';
 import 'package:subby/data/repository/subscription_repository_impl.dart';
-import 'package:subby/data/repository/nickname_repository_impl.dart';
+import 'package:subby/data/repository/user_repository_impl.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
-import 'package:subby/domain/repository/nickname_repository.dart';
 import 'package:subby/domain/repository/exchange_rate_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
 import 'package:subby/domain/repository/preset_repository.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
+import 'package:subby/domain/repository/user_repository.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final dataSource = ref.watch(firebaseAuthDataSourceProvider);
@@ -58,11 +58,11 @@ final exchangeRateRepositoryProvider = Provider<ExchangeRateRepository>((ref) {
   return ExchangeRateRepositoryImpl(localDataSource, remoteDataSource);
 });
 
-final nicknameRepositoryProvider = Provider<NicknameRepository>((ref) {
-  final localDataSource = ref.watch(nicknameLocalDataSourceProvider);
+final userRepositoryProvider = Provider<UserRepository>((ref) {
+  final localDataSource = ref.watch(userLocalDataSourceProvider);
   final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
 
-  return NicknameRepositoryImpl(
+  return UserRepositoryImpl(
     localDataSource: localDataSource,
     remoteDataSource: remoteDataSource,
   );

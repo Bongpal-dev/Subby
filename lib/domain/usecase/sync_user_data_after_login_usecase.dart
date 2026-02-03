@@ -1,23 +1,19 @@
 import 'package:subby/domain/repository/auth_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
-import 'package:subby/domain/repository/nickname_repository.dart';
+import 'package:subby/domain/repository/user_repository.dart';
 
-/// 로그인 후 사용자 데이터 동기화 UseCase
-/// - 그룹 멤버 ID 교체 (익명 → 구글)
-/// - 원격 그룹 복구
-/// - 닉네임 동기화
 class SyncUserDataAfterLoginUseCase {
   final AuthRepository _authRepository;
   final GroupRepository _groupRepository;
-  final NicknameRepository _nicknameRepository;
+  final UserRepository _userRepository;
 
   SyncUserDataAfterLoginUseCase({
     required AuthRepository authRepository,
     required GroupRepository groupRepository,
-    required NicknameRepository nicknameRepository,
+    required UserRepository userRepository,
   })  : _authRepository = authRepository,
         _groupRepository = groupRepository,
-        _nicknameRepository = nicknameRepository;
+        _userRepository = userRepository;
 
   /// 로그인 후 데이터 동기화
   /// [previousUserId] 이전 익명 사용자 ID
@@ -57,14 +53,13 @@ class SyncUserDataAfterLoginUseCase {
       }
     }
 
-    // 3. 닉네임 동기화
-    final remoteNickname = await _nicknameRepository.getRemoteNickname(userId);
+    final remoteNickname = await _userRepository.getNickname(userId);
     if (remoteNickname != null && remoteNickname.isNotEmpty) {
-      await _nicknameRepository.saveToLocal(remoteNickname);
+      await _userRepository.saveLocalNickname(remoteNickname);
     } else {
-      final localNickname = await _nicknameRepository.getLocalNickname();
+      final localNickname = await _userRepository.getLocalNickname();
       if (localNickname != null && localNickname.isNotEmpty) {
-        await _nicknameRepository.saveToRemote(userId, localNickname);
+        await _userRepository.saveNickname(userId, localNickname);
       }
     }
 

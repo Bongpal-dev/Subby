@@ -175,4 +175,31 @@ class GroupRemoteDataSource {
       updatedAt: data['updatedAt'] as int?,
     );
   }
+
+  Future<void> updateMemberNickname(
+    String groupCode,
+    String userId,
+    String nickname,
+  ) async {
+    await _groupsRef.doc(groupCode).update({
+      'members.$userId.nickname': nickname,
+    });
+  }
+
+  Future<void> updateMemberNicknameInGroups(
+    List<String> groupCodes,
+    String userId,
+    String nickname,
+  ) async {
+    if (groupCodes.isEmpty) return;
+
+    final batch = _firestore.batch();
+    for (final groupCode in groupCodes) {
+      batch.update(
+        _groupsRef.doc(groupCode),
+        {'members.$userId.nickname': nickname},
+      );
+    }
+    await batch.commit();
+  }
 }

@@ -166,8 +166,8 @@ class AppDrawer extends ConsumerWidget {
     );
 
     if (newNickname != null && context.mounted) {
-      final saveNicknameUseCase = ref.read(saveNicknameUseCaseProvider);
-      await saveNicknameUseCase(newNickname);
+      final saveUserInfoUseCase = ref.read(saveUserInfoUseCaseProvider);
+      await saveUserInfoUseCase(nickname: newNickname);
       ref.invalidate(currentNicknameProvider);
     }
   }

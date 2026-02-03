@@ -11,7 +11,7 @@ import 'package:subby/data/datasource/preset_remote_datasource.dart';
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
 import 'package:subby/data/datasource/subscription_remote_datasource.dart';
 import 'package:subby/data/datasource/fcm_token_remote_datasource.dart';
-import 'package:subby/data/datasource/nickname_local_datasource.dart';
+import 'package:subby/data/datasource/user_local_datasource.dart';
 import 'package:subby/data/datasource/user_remote_datasource.dart';
 
 final firebaseAuthDataSourceProvider = Provider<FirebaseAuthDataSource>((ref) {
@@ -74,30 +74,26 @@ final fcmTokenRemoteDataSourceProvider = Provider<FcmTokenRemoteDataSource>((ref
   return FcmTokenRemoteDataSource();
 });
 
-final nicknameLocalDataSourceProvider = Provider<NicknameLocalDataSource>((ref) {
-  return NicknameLocalDataSource();
+final userLocalDataSourceProvider = Provider<UserLocalDataSource>((ref) {
+  return UserLocalDataSource();
 });
 
 final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) {
   return UserRemoteDataSource();
 });
 
-/// 현재 사용자 닉네임 (로컬 우선, 없으면 원격에서 조회)
 final currentNicknameProvider = FutureProvider<String?>((ref) async {
   final authDataSource = ref.watch(firebaseAuthDataSourceProvider);
   final userId = authDataSource.currentUserId;
   if (userId == null) return null;
 
-  // 로컬 우선
-  final localDataSource = ref.watch(nicknameLocalDataSourceProvider);
+  final localDataSource = ref.watch(userLocalDataSourceProvider);
   final localNickname = await localDataSource.getNickname();
   if (localNickname != null) return localNickname;
 
-  // 로컬에 없으면 원격에서 조회
   final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
   final remoteNickname = await remoteDataSource.getNickname(userId);
   if (remoteNickname != null) {
-    // 로컬에 캐시
     await localDataSource.saveNickname(remoteNickname);
   }
   return remoteNickname;

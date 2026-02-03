@@ -53,12 +53,10 @@ class SetupViewModel extends Notifier<SetupState> {
       return;
     }
 
-    // Google 로그인 → 닉네임 동기화
     state = state.copyWith(isProcessing: true);
 
-    final syncNicknameUseCase = ref.read(syncNicknameAfterLoginUseCaseProvider);
-    final hasNickname = await syncNicknameUseCase();
-    print('[Setup] hasNickname: $hasNickname');
+    final fetchUserInfoUseCase = ref.read(fetchUserInfoUseCaseProvider);
+    final hasNickname = await fetchUserInfoUseCase();
 
     if (hasNickname) {
       ref.invalidate(currentNicknameProvider);
@@ -80,8 +78,8 @@ class SetupViewModel extends Notifier<SetupState> {
   Future<void> handleNicknameSet(String nickname) async {
     state = state.copyWith(isProcessing: true);
 
-    final saveNicknameUseCase = ref.read(saveNicknameUseCaseProvider);
-    await saveNicknameUseCase(nickname);
+    final saveUserInfoUseCase = ref.read(saveUserInfoUseCaseProvider);
+    await saveUserInfoUseCase(nickname: nickname);
 
     ref.invalidate(currentNicknameProvider);
     await _completeSetup();
