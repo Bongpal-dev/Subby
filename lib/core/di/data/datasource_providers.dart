@@ -11,6 +11,8 @@ import 'package:subby/data/datasource/preset_remote_datasource.dart';
 import 'package:subby/data/datasource/subscription_local_datasource.dart';
 import 'package:subby/data/datasource/subscription_remote_datasource.dart';
 import 'package:subby/data/datasource/fcm_token_remote_datasource.dart';
+import 'package:subby/data/datasource/onboarding_local_datasource.dart';
+import 'package:subby/data/datasource/settings_local_datasource.dart';
 import 'package:subby/data/datasource/user_local_datasource.dart';
 import 'package:subby/data/datasource/user_remote_datasource.dart';
 
@@ -97,4 +99,12 @@ final currentNicknameProvider = FutureProvider<String?>((ref) async {
     await localDataSource.saveNickname(remoteNickname);
   }
   return remoteNickname;
+});
+
+final onboardingLocalDataSourceProvider = Provider<OnboardingLocalDataSource>((ref) {
+  return OnboardingLocalDataSource();
+});
+
+final settingsLocalDataSourceProvider = Provider<SettingsLocalDataSource>((ref) {
+  return SettingsLocalDataSource();
 });

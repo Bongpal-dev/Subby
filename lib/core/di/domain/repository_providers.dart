@@ -7,11 +7,15 @@ import 'package:subby/data/repository/pending_change_repository_impl.dart';
 import 'package:subby/data/repository/preset_repository_impl.dart';
 import 'package:subby/data/repository/subscription_repository_impl.dart';
 import 'package:subby/data/repository/user_repository_impl.dart';
+import 'package:subby/data/repository/onboarding_repository_impl.dart';
+import 'package:subby/data/repository/settings_repository_impl.dart';
 import 'package:subby/domain/repository/auth_repository.dart';
 import 'package:subby/domain/repository/exchange_rate_repository.dart';
 import 'package:subby/domain/repository/group_repository.dart';
+import 'package:subby/domain/repository/onboarding_repository.dart';
 import 'package:subby/domain/repository/pending_change_repository.dart';
 import 'package:subby/domain/repository/preset_repository.dart';
+import 'package:subby/domain/repository/settings_repository.dart';
 import 'package:subby/domain/repository/subscription_repository.dart';
 import 'package:subby/domain/repository/user_repository.dart';
 
@@ -66,4 +70,16 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
     localDataSource: localDataSource,
     remoteDataSource: remoteDataSource,
   );
+});
+
+final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
+  final localDataSource = ref.watch(onboardingLocalDataSourceProvider);
+
+  return OnboardingRepositoryImpl(localDataSource);
+});
+
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  final localDataSource = ref.watch(settingsLocalDataSourceProvider);
+
+  return SettingsRepositoryImpl(localDataSource);
 });

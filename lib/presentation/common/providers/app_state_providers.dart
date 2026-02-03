@@ -11,6 +11,7 @@ import 'package:subby/core/utils/currency_converter.dart';
 import 'package:subby/domain/model/conflict_resolution.dart';
 import 'package:subby/domain/model/exchange_rate.dart';
 import 'package:subby/domain/model/currency.dart';
+import 'package:subby/domain/repository/onboarding_repository.dart';
 import 'package:subby/presentation/common/providers/conflict_state_provider.dart';
 
 final authStateProvider = StreamProvider<String?>((ref) {
@@ -19,14 +20,6 @@ final authStateProvider = StreamProvider<String?>((ref) {
   return authRepository.authStateChanges;
 });
 
-/// 온보딩 완료 여부 Provider
-const _onboardingCompletedKey = 'onboarding_completed';
-const _onboardingTypeKey = 'onboarding_type';
-const _tutorialCompletedKey = 'coach_mark_completed';
-
-/// 온보딩 타입 (처음이에요 vs 써본 적 있어요)
-enum OnboardingType { newUser, returningUser }
-
 final onboardingCompletedProvider =
     NotifierProvider<OnboardingCompletedNotifier, bool>(
         OnboardingCompletedNotifier.new);
@@ -34,23 +27,22 @@ final onboardingCompletedProvider =
 class OnboardingCompletedNotifier extends Notifier<bool> {
   @override
   bool build() {
-    _loadOnboardingCompleted();
+    _load();
     return false;
   }
 
-  Future<void> _loadOnboardingCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    state = prefs.getBool(_onboardingCompletedKey) ?? false;
+  Future<void> _load() async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    state = await repository.isOnboardingCompleted();
   }
 
   Future<void> completeOnboarding() async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    await repository.completeOnboarding();
     state = true;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_onboardingCompletedKey, true);
   }
 }
 
-/// 온보딩 타입 Provider
 final onboardingTypeProvider =
     NotifierProvider<OnboardingTypeNotifier, OnboardingType?>(
         OnboardingTypeNotifier.new);
@@ -58,29 +50,22 @@ final onboardingTypeProvider =
 class OnboardingTypeNotifier extends Notifier<OnboardingType?> {
   @override
   OnboardingType? build() {
-    _loadOnboardingType();
+    _load();
     return null;
   }
 
-  Future<void> _loadOnboardingType() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_onboardingTypeKey);
-    if (value != null) {
-      state = value == 'new' ? OnboardingType.newUser : OnboardingType.returningUser;
-    }
+  Future<void> _load() async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    state = await repository.getOnboardingType();
   }
 
   Future<void> setOnboardingType(OnboardingType type) async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    await repository.setOnboardingType(type);
     state = type;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _onboardingTypeKey,
-      type == OnboardingType.newUser ? 'new' : 'returning',
-    );
   }
 }
 
-/// 튜토리얼 완료 여부 Provider
 final tutorialCompletedProvider =
     NotifierProvider<TutorialCompletedNotifier, bool>(
         TutorialCompletedNotifier.new);
@@ -88,24 +73,21 @@ final tutorialCompletedProvider =
 class TutorialCompletedNotifier extends Notifier<bool> {
   @override
   bool build() {
-    _loadTutorialCompleted();
+    _load();
     return false;
   }
 
-  Future<void> _loadTutorialCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    state = prefs.getBool(_tutorialCompletedKey) ?? false;
+  Future<void> _load() async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    state = await repository.isTutorialCompleted();
   }
 
   Future<void> completeTutorial() async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    await repository.completeTutorial();
     state = true;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_tutorialCompletedKey, true);
   }
 }
-
-/// 셋업 완료 여부 Provider (클라우드 연동 + 닉네임 설정)
-const _setupCompletedKey = 'setup_completed';
 
 final setupCompletedProvider =
     NotifierProvider<SetupCompletedNotifier, bool>(SetupCompletedNotifier.new);
@@ -113,19 +95,19 @@ final setupCompletedProvider =
 class SetupCompletedNotifier extends Notifier<bool> {
   @override
   bool build() {
-    _loadSetupCompleted();
+    _load();
     return false;
   }
 
-  Future<void> _loadSetupCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    state = prefs.getBool(_setupCompletedKey) ?? false;
+  Future<void> _load() async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    state = await repository.isSetupCompleted();
   }
 
   Future<void> completeSetup() async {
+    final repository = ref.read(onboardingRepositoryProvider);
+    await repository.completeSetup();
     state = true;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_setupCompletedKey, true);
   }
 }
 
@@ -259,53 +241,25 @@ final fcmInitializedProvider = FutureProvider<void>((ref) async {
   await fcmService.initialize(userId);
 });
 
-/// 테마 모드 Provider
-const _themeModeKey = 'theme_mode';
-
 final themeModeProvider =
     NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
   ThemeMode build() {
-    _loadThemeMode();
+    _load();
     return ThemeMode.system;
   }
 
-  Future<void> _loadThemeMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_themeModeKey);
-    if (value != null) {
-      state = _stringToThemeMode(value);
-    }
+  Future<void> _load() async {
+    final repository = ref.read(settingsRepositoryProvider);
+    state = await repository.getThemeMode();
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
+    final repository = ref.read(settingsRepositoryProvider);
+    await repository.setThemeMode(mode);
     state = mode;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_themeModeKey, _themeModeToString(mode));
-  }
-
-  String _themeModeToString(ThemeMode mode) {
-    switch (mode) {
-      case ThemeMode.system:
-        return 'system';
-      case ThemeMode.light:
-        return 'light';
-      case ThemeMode.dark:
-        return 'dark';
-    }
-  }
-
-  ThemeMode _stringToThemeMode(String value) {
-    switch (value) {
-      case 'light':
-        return ThemeMode.light;
-      case 'dark':
-        return ThemeMode.dark;
-      default:
-        return ThemeMode.system;
-    }
   }
 }
 
@@ -320,9 +274,6 @@ String themeModeToLabel(ThemeMode mode) {
   }
 }
 
-/// 기본 통화 Provider
-const _defaultCurrencyKey = 'default_currency';
-
 final defaultCurrencyProvider =
     NotifierProvider<DefaultCurrencyNotifier, Currency>(
         DefaultCurrencyNotifier.new);
@@ -330,34 +281,25 @@ final defaultCurrencyProvider =
 class DefaultCurrencyNotifier extends Notifier<Currency> {
   @override
   Currency build() {
-    _loadCurrency();
+    _load();
     return Currency.KRW;
   }
 
-  Future<void> _loadCurrency() async {
-    final prefs = await SharedPreferences.getInstance();
-    final code = prefs.getString(_defaultCurrencyKey);
-    if (code != null) {
-      final currency = Currency.fromCode(code);
-      if (currency != null) {
-        state = currency;
-      }
-    }
+  Future<void> _load() async {
+    final repository = ref.read(settingsRepositoryProvider);
+    state = await repository.getDefaultCurrency();
   }
 
   Future<void> setCurrency(Currency currency) async {
+    final repository = ref.read(settingsRepositoryProvider);
+    await repository.setDefaultCurrency(currency);
     state = currency;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_defaultCurrencyKey, currency.code);
   }
 }
 
 String currencyToLabel(Currency currency) {
   return '${currency.code}  ${currency.name}(${currency.symbol})';
 }
-
-/// 알림 설정 Provider
-const _notificationEnabledKey = 'notification_enabled';
 
 final notificationEnabledProvider =
     NotifierProvider<NotificationEnabledNotifier, bool>(
@@ -366,24 +308,20 @@ final notificationEnabledProvider =
 class NotificationEnabledNotifier extends Notifier<bool> {
   @override
   bool build() {
-    _loadNotificationEnabled();
-    return true; // 기본값: 알림 활성화
+    _load();
+    return true;
   }
 
-  Future<void> _loadNotificationEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getBool(_notificationEnabledKey);
-    if (value != null) {
-      state = value;
-    }
+  Future<void> _load() async {
+    final repository = ref.read(settingsRepositoryProvider);
+    state = await repository.isNotificationEnabled();
   }
 
   Future<void> setNotificationEnabled(bool enabled) async {
+    final repository = ref.read(settingsRepositoryProvider);
+    await repository.setNotificationEnabled(enabled);
     state = enabled;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_notificationEnabledKey, enabled);
 
-    // FCM 토큰 등록/삭제로 서버 푸시 제어
     final fcmService = ref.read(fcmServiceProvider);
     final userId = ref.read(currentUserIdProvider);
 
