@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subby/data/datasource/fcm_token_remote_datasource.dart';
 
@@ -36,23 +38,44 @@ class FcmService {
   Future<void> initialize(String userId) async {
     _currentUserId = userId;
 
-    // 현재 알림 권한 상태 확인
-    final currentSettings = await _messaging.getNotificationSettings();
+    // Android 13+ 알림 권한 요청
+    if (Platform.isAndroid) {
+      final status = await Permission.notification.status;
+      print('[FCM] Android notification permission status: $status');
 
-    // 아직 결정되지 않은 경우에만 권한 요청
-    NotificationSettings settings;
-    if (currentSettings.authorizationStatus == AuthorizationStatus.notDetermined) {
-      settings = await _messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    } else {
-      settings = currentSettings;
+      if (status.isDenied) {
+        print('[FCM] Requesting notification permission...');
+        final result = await Permission.notification.request();
+        print('[FCM] Permission request result: $result');
+        if (!result.isGranted) {
+          print('[FCM] Permission not granted, returning');
+          return;
+        }
+      } else if (status.isPermanentlyDenied) {
+        print('[FCM] Permission permanently denied, returning');
+        return;
+      } else if (status.isGranted) {
+        print('[FCM] Permission already granted');
+      }
     }
 
-    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
-      return;
+    // iOS 알림 권한 요청
+    if (Platform.isIOS) {
+      final currentSettings = await _messaging.getNotificationSettings();
+      NotificationSettings settings;
+      if (currentSettings.authorizationStatus == AuthorizationStatus.notDetermined) {
+        settings = await _messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      } else {
+        settings = currentSettings;
+      }
+
+      if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+        return;
+      }
     }
 
     // 로컬 알림 초기화 (Android)
