@@ -19,10 +19,6 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _handleNewUser() async {
-    // 온보딩 타입 저장 (신규 사용자 - 튜토리얼 표시)
-    await ref
-        .read(onboardingTypeProvider.notifier)
-        .setOnboardingType(OnboardingType.newUser);
     await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
 
     if (mounted) {
@@ -31,10 +27,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _handleReturningUser() async {
-    // 온보딩 타입 저장 (기존 사용자 - 튜토리얼 스킵)
-    await ref
-        .read(onboardingTypeProvider.notifier)
-        .setOnboardingType(OnboardingType.returningUser);
     await ref.read(onboardingCompletedProvider.notifier).completeOnboarding();
 
     if (mounted) {

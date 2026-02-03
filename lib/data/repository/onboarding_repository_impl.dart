@@ -17,19 +17,6 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   }
 
   @override
-  Future<OnboardingType?> getOnboardingType() async {
-    final value = await _localDataSource.getOnboardingType();
-    if (value == null) return null;
-    return value == 'new' ? OnboardingType.newUser : OnboardingType.returningUser;
-  }
-
-  @override
-  Future<void> setOnboardingType(OnboardingType type) {
-    final value = type == OnboardingType.newUser ? 'new' : 'returning';
-    return _localDataSource.setOnboardingType(value);
-  }
-
-  @override
   Future<bool> isTutorialCompleted() {
     return _localDataSource.isTutorialCompleted();
   }

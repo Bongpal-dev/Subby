@@ -10,4 +10,7 @@ abstract class SettingsRepository {
 
   Future<bool> isNotificationEnabled();
   Future<void> setNotificationEnabled(bool enabled);
+
+  Future<String?> getLastSelectedGroupCode();
+  Future<void> setLastSelectedGroupCode(String? code);
 }

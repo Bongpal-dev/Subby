@@ -54,4 +54,14 @@ class SettingsRepositoryImpl implements SettingsRepository {
   Future<void> setNotificationEnabled(bool enabled) {
     return _localDataSource.setNotificationEnabled(enabled);
   }
+
+  @override
+  Future<String?> getLastSelectedGroupCode() {
+    return _localDataSource.getLastSelectedGroupCode();
+  }
+
+  @override
+  Future<void> setLastSelectedGroupCode(String? code) {
+    return _localDataSource.setLastSelectedGroupCode(code);
+  }
 }
