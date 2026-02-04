@@ -11,6 +11,7 @@ class SubscriptionResponse {
   final double? feeRatePercent;
   final int createdAt;
   final int? updatedAt;
+  final String? updatedBy;
 
   SubscriptionResponse({
     required this.id,
@@ -25,6 +26,7 @@ class SubscriptionResponse {
     this.feeRatePercent,
     required this.createdAt,
     this.updatedAt,
+    this.updatedBy,
   });
 
   factory SubscriptionResponse.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class SubscriptionResponse {
       feeRatePercent: (json['feeRatePercent'] as num?)?.toDouble(),
       createdAt: json['createdAt'] as int,
       updatedAt: json['updatedAt'] as int?,
+      updatedBy: json['updatedBy'] as String?,
     );
   }
 
@@ -58,6 +61,7 @@ class SubscriptionResponse {
       'feeRatePercent': feeRatePercent,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'updatedBy': updatedBy,
     };
   }
 }

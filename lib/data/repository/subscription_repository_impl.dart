@@ -58,13 +58,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<void> syncCreate(UserSubscription subscription) async {
-    await _remoteDataSource.saveSubscription(subscription.toDto());
+  Future<void> syncCreate(UserSubscription subscription, {String? updatedBy}) async {
+    await _remoteDataSource.saveSubscription(subscription.toDto(), updatedBy: updatedBy);
   }
 
   @override
-  Future<void> syncUpdate(UserSubscription subscription) async {
-    await _remoteDataSource.saveSubscription(subscription.toDto());
+  Future<void> syncUpdate(UserSubscription subscription, {String? updatedBy}) async {
+    await _remoteDataSource.saveSubscription(subscription.toDto(), updatedBy: updatedBy);
   }
 
   @override

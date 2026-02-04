@@ -66,6 +66,8 @@ class ProcessPendingChangesUseCase {
 
     if (subscriptionChanges.isEmpty) return;
 
+    final userId = _authRepository.currentUserId;
+
     final groupCodes =
         subscriptionChanges.map((e) => e.$2?.groupCode).whereType<String>().toSet();
 
@@ -82,7 +84,7 @@ class ProcessPendingChangesUseCase {
       try {
         switch (change.action) {
           case ChangeAction.create:
-            await _subscriptionRepository.syncCreate(subscription);
+            await _subscriptionRepository.syncCreate(subscription, updatedBy: userId);
 
           case ChangeAction.update:
             final serverList = serverSubscriptions[subscription.groupCode] ?? [];
@@ -95,9 +97,9 @@ class ProcessPendingChangesUseCase {
 
               if (resolution == null) continue;
 
-              await _resolveConflict(resolution, subscription, conflict);
+              await _resolveConflict(resolution, subscription, conflict, userId);
             } else {
-              await _subscriptionRepository.syncUpdate(subscription);
+              await _subscriptionRepository.syncUpdate(subscription, updatedBy: userId);
             }
 
           case ChangeAction.delete:
@@ -126,10 +128,11 @@ class ProcessPendingChangesUseCase {
     ConflictResolution resolution,
     UserSubscription localSubscription,
     SubscriptionConflict conflict,
+    String? userId,
   ) async {
     switch (resolution) {
       case ConflictResolution.keepLocal:
-        await _subscriptionRepository.syncUpdate(localSubscription);
+        await _subscriptionRepository.syncUpdate(localSubscription, updatedBy: userId);
 
       case ConflictResolution.useServer:
         await _subscriptionRepository.update(conflict.serverSubscription);

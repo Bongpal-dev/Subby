@@ -198,16 +198,20 @@ export const onSubscriptionChange = onDocumentWritten(
     // 변경 유형 판단
     let changeType: "created" | "updated" | "deleted";
     let subscriptionName: string;
+    let updatedBy: string | null = null;
 
     if (!before && after) {
       changeType = "created";
       subscriptionName = after.name || "새 구독";
+      updatedBy = after.updatedBy || null;
     } else if (before && !after) {
       changeType = "deleted";
       subscriptionName = before.name || "구독";
+      updatedBy = before.updatedBy || null;
     } else if (before && after) {
       changeType = "updated";
       subscriptionName = after.name || "구독";
+      updatedBy = after.updatedBy || null;
     } else {
       return;
     }
@@ -223,10 +227,13 @@ export const onSubscriptionChange = onDocumentWritten(
 
     if (memberIds.length === 0) return;
 
-    // 각 멤버의 FCM 토큰 수집
+    // 각 멤버의 FCM 토큰 수집 (변경한 사람 제외)
     const tokens: string[] = [];
 
     for (const memberId of memberIds) {
+      // 변경한 사람은 알림 제외
+      if (memberId === updatedBy) continue;
+
       const userDoc = await db.collection("users").doc(memberId).get();
 
       if (!userDoc.exists) continue;

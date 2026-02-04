@@ -9,8 +9,8 @@ abstract class SubscriptionRepository {
   Future<void> deleteByGroupCode(String groupCode);
   Stream<List<UserSubscription>> watchAll();
 
-  Future<void> syncCreate(UserSubscription subscription);
-  Future<void> syncUpdate(UserSubscription subscription);
+  Future<void> syncCreate(UserSubscription subscription, {String? updatedBy});
+  Future<void> syncUpdate(UserSubscription subscription, {String? updatedBy});
   Future<void> syncDelete(String groupCode, String subscriptionId);
 
   /// 서버에서 그룹의 모든 구독 조회 (충돌 감지용)
