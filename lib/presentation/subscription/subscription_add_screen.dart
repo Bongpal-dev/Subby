@@ -10,14 +10,7 @@ import 'package:subby/presentation/subscription/subscription_add_view_model.dart
 import 'package:subby/presentation/subscription/widgets/service_dropdown.dart';
 
 class SubscriptionAddScreen extends ConsumerStatefulWidget {
-  final String? editSubscriptionId;
-
-  const SubscriptionAddScreen({
-    super.key,
-    this.editSubscriptionId,
-  });
-
-  bool get isEditMode => editSubscriptionId != null;
+  const SubscriptionAddScreen({super.key});
 
   @override
   ConsumerState<SubscriptionAddScreen> createState() => _SubscriptionAddScreenState();
@@ -42,8 +35,8 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
         focusNode: _focusSink,
         child: Scaffold(
           backgroundColor: colors.bgPrimary,
-          appBar: SubbyAppBar(
-            title: widget.isEditMode ? '구독 수정' : '구독 추가',
+          appBar: const SubbyAppBar(
+            title: '구독 추가',
             showBackButton: true,
           ),
           body: Column(
@@ -54,42 +47,24 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ServiceDropdown(editSubscriptionId: widget.editSubscriptionId),
+                      const ServiceDropdown(),
                       const SizedBox(height: AppSpacing.s6),
-                      _PlanSection(
-                        editSubscriptionId: widget.editSubscriptionId,
-                        focusSink: _focusSink,
-                      ),
-                      _AmountCurrencySection(
-                        editSubscriptionId: widget.editSubscriptionId,
-                      ),
+                      _PlanSection(focusSink: _focusSink),
+                      const _AmountCurrencySection(),
                       const SizedBox(height: AppSpacing.s6),
-                      _BillingDaySection(
-                        editSubscriptionId: widget.editSubscriptionId,
-                        focusSink: _focusSink,
-                      ),
+                      _BillingDaySection(focusSink: _focusSink),
                       const SizedBox(height: AppSpacing.s6),
-                      _PeriodSection(
-                        editSubscriptionId: widget.editSubscriptionId,
-                        focusSink: _focusSink,
-                      ),
+                      _PeriodSection(focusSink: _focusSink),
                       const SizedBox(height: AppSpacing.s6),
-                      _CategorySection(
-                        editSubscriptionId: widget.editSubscriptionId,
-                      ),
+                      const _CategorySection(),
                       const SizedBox(height: AppSpacing.s6),
-                      _MemoSection(
-                        editSubscriptionId: widget.editSubscriptionId,
-                      ),
+                      const _MemoSection(),
                       const SizedBox(height: 100),
                     ],
                   ),
                 ),
               ),
-              _SaveButton(
-                editSubscriptionId: widget.editSubscriptionId,
-                isEditMode: widget.isEditMode,
-              ),
+              const _SaveButton(),
             ],
           ),
         ),
@@ -100,17 +75,13 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
 
 /// 요금제 섹션 - selectedPreset, selectedPlan만 watch
 class _PlanSection extends ConsumerWidget {
-  final String? editSubscriptionId;
   final FocusNode focusSink;
 
-  const _PlanSection({
-    required this.editSubscriptionId,
-    required this.focusSink,
-  });
+  const _PlanSection({required this.focusSink});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = subscriptionAddViewModelProvider(editSubscriptionId);
+    final provider = subscriptionAddViewModelProvider;
     final selectedPreset = ref.watch(provider.select((s) => s.selectedPreset));
     final selectedPlan = ref.watch(provider.select((s) => s.selectedPlan));
 
@@ -153,11 +124,7 @@ class _PlanSection extends ConsumerWidget {
 
 /// 금액/통화 섹션 - amount, currency만 watch
 class _AmountCurrencySection extends ConsumerStatefulWidget {
-  final String? editSubscriptionId;
-
-  const _AmountCurrencySection({
-    required this.editSubscriptionId,
-  });
+  const _AmountCurrencySection();
 
   @override
   ConsumerState<_AmountCurrencySection> createState() => _AmountCurrencySectionState();
@@ -195,7 +162,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
 
   @override
   Widget build(BuildContext context) {
-    final provider = subscriptionAddViewModelProvider(widget.editSubscriptionId);
+    final provider = subscriptionAddViewModelProvider;
     final amount = ref.watch(provider.select((s) => s.amount));
     final currency = ref.watch(provider.select((s) => s.currency));
     final vm = ref.read(provider.notifier);
@@ -277,17 +244,13 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
 
 /// 결제일 섹션 - billingDay만 watch
 class _BillingDaySection extends ConsumerWidget {
-  final String? editSubscriptionId;
   final FocusNode focusSink;
 
-  const _BillingDaySection({
-    required this.editSubscriptionId,
-    required this.focusSink,
-  });
+  const _BillingDaySection({required this.focusSink});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = subscriptionAddViewModelProvider(editSubscriptionId);
+    final provider = subscriptionAddViewModelProvider;
     final billingDay = ref.watch(provider.select((s) => s.billingDay));
     final vm = ref.read(provider.notifier);
 
@@ -335,17 +298,13 @@ class _BillingDaySection extends ConsumerWidget {
 
 /// 결제 주기 섹션 - period만 watch
 class _PeriodSection extends ConsumerWidget {
-  final String? editSubscriptionId;
   final FocusNode focusSink;
 
-  const _PeriodSection({
-    required this.editSubscriptionId,
-    required this.focusSink,
-  });
+  const _PeriodSection({required this.focusSink});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = subscriptionAddViewModelProvider(editSubscriptionId);
+    final provider = subscriptionAddViewModelProvider;
     final period = ref.watch(provider.select((s) => s.period));
     final vm = ref.read(provider.notifier);
 
@@ -382,17 +341,13 @@ class _PeriodSection extends ConsumerWidget {
 
 /// 카테고리 섹션 - category만 watch
 class _CategorySection extends ConsumerWidget {
-  final String? editSubscriptionId;
-
-  const _CategorySection({
-    required this.editSubscriptionId,
-  });
+  const _CategorySection();
 
   static const _categories = ['영상', '음악', '게임', 'AI', '소프트웨어', '교육', '금융', '멤버십'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = subscriptionAddViewModelProvider(editSubscriptionId);
+    final provider = subscriptionAddViewModelProvider;
     final category = ref.watch(provider.select((s) => s.category));
     final vm = ref.read(provider.notifier);
 
@@ -414,11 +369,7 @@ class _CategorySection extends ConsumerWidget {
 
 /// 메모 섹션 - memo만 watch
 class _MemoSection extends ConsumerStatefulWidget {
-  final String? editSubscriptionId;
-
-  const _MemoSection({
-    required this.editSubscriptionId,
-  });
+  const _MemoSection();
 
   @override
   ConsumerState<_MemoSection> createState() => _MemoSectionState();
@@ -426,7 +377,6 @@ class _MemoSection extends ConsumerStatefulWidget {
 
 class _MemoSectionState extends ConsumerState<_MemoSection> {
   final _controller = TextEditingController();
-  bool _initialized = false;
 
   @override
   void dispose() {
@@ -436,15 +386,8 @@ class _MemoSectionState extends ConsumerState<_MemoSection> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = subscriptionAddViewModelProvider(widget.editSubscriptionId);
-    final memo = ref.watch(provider.select((s) => s.memo));
+    final provider = subscriptionAddViewModelProvider;
     final vm = ref.read(provider.notifier);
-
-    // 초기값 동기화 (한 번만)
-    if (!_initialized && memo.isNotEmpty) {
-      _controller.text = memo;
-      _initialized = true;
-    }
 
     return SubbyTextField(
       label: '메모',
@@ -457,17 +400,11 @@ class _MemoSectionState extends ConsumerState<_MemoSection> {
 
 /// 저장 버튼 - isSaving만 watch
 class _SaveButton extends ConsumerWidget {
-  final String? editSubscriptionId;
-  final bool isEditMode;
-
-  const _SaveButton({
-    required this.editSubscriptionId,
-    required this.isEditMode,
-  });
+  const _SaveButton();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = subscriptionAddViewModelProvider(editSubscriptionId);
+    final provider = subscriptionAddViewModelProvider;
     final isSaving = ref.watch(provider.select((s) => s.isSaving));
 
     final colors = context.colors;
@@ -493,7 +430,7 @@ class _SaveButton extends ConsumerWidget {
   }
 
   Future<void> _onSave(BuildContext context, WidgetRef ref) async {
-    final provider = subscriptionAddViewModelProvider(editSubscriptionId);
+    final provider = subscriptionAddViewModelProvider;
     final state = ref.read(provider);
     final vm = ref.read(provider.notifier);
 
@@ -510,17 +447,9 @@ class _SaveButton extends ConsumerWidget {
       return;
     }
 
-    final bool success;
-    if (isEditMode) {
-      success = await vm.update(editSubscriptionId!);
-    } else {
-      success = await vm.save();
-    }
-
+    final success = await vm.save();
     if (success && context.mounted) {
-      // 편집 모드: true 반환하여 상세 화면에서 refresh
-      // 추가 모드: 단순 pop
-      Navigator.pop(context, isEditMode ? true : null);
+      Navigator.pop(context);
     }
   }
 }

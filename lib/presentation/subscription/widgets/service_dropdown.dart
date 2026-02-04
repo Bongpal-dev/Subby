@@ -15,12 +15,7 @@ import 'package:subby/presentation/subscription/subscription_add_view_model.dart
 /// - 프리셋 선택 시 로고 + 이름 표시
 /// - 직접 입력 선택 시 입력한 텍스트가 서비스명이 됨
 class ServiceDropdown extends ConsumerStatefulWidget {
-  final String? editSubscriptionId;
-
-  const ServiceDropdown({
-    super.key,
-    this.editSubscriptionId,
-  });
+  const ServiceDropdown({super.key});
 
   @override
   ConsumerState<ServiceDropdown> createState() => _ServiceDropdownState();
@@ -94,9 +89,8 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
           child: SizedBox(
             width: size.width,
             child: _ServiceDropdownMenu(
-            editSubscriptionId: widget.editSubscriptionId,
             onPresetSelected: (preset) {
-              final vm = ref.read(subscriptionAddViewModelProvider(widget.editSubscriptionId).notifier);
+              final vm = ref.read(subscriptionAddViewModelProvider.notifier);
               final locale = Localizations.localeOf(this.context);
               vm.selectPreset(preset, locale);
               _controller.text = preset.displayName(locale);
@@ -104,7 +98,7 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
               _focusNode.unfocus();
             },
             onManualInputSelected: () {
-              final vm = ref.read(subscriptionAddViewModelProvider(widget.editSubscriptionId).notifier);
+              final vm = ref.read(subscriptionAddViewModelProvider.notifier);
               // 현재 입력된 텍스트를 서비스명으로 사용
               vm.selectManualInput();
               _removeOverlay();
@@ -119,14 +113,14 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(subscriptionAddViewModelProvider(widget.editSubscriptionId));
-    final vm = ref.read(subscriptionAddViewModelProvider(widget.editSubscriptionId).notifier);
+    final state = ref.watch(subscriptionAddViewModelProvider);
+    final vm = ref.read(subscriptionAddViewModelProvider.notifier);
     final colors = context.colors;
     final locale = Localizations.localeOf(context);
 
     // 프리셋 선택 변경 감지하여 컨트롤러 동기화
     ref.listen(
-      subscriptionAddViewModelProvider(widget.editSubscriptionId).select((s) => s.selectedPreset),
+      subscriptionAddViewModelProvider.select((s) => s.selectedPreset),
       (prev, next) {
         if (next != null) {
           _controller.text = next.displayName(locale);
@@ -192,18 +186,16 @@ class _ServiceLogo extends StatelessWidget {
 /// 서비스 드롭다운 메뉴
 class _ServiceDropdownMenu extends ConsumerWidget {
   const _ServiceDropdownMenu({
-    required this.editSubscriptionId,
     required this.onPresetSelected,
     required this.onManualInputSelected,
   });
 
-  final String? editSubscriptionId;
   final void Function(SubscriptionPreset preset) onPresetSelected;
   final VoidCallback onManualInputSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(subscriptionAddViewModelProvider(editSubscriptionId));
+    final state = ref.watch(subscriptionAddViewModelProvider);
     final colors = context.colors;
     final locale = Localizations.localeOf(context);
 

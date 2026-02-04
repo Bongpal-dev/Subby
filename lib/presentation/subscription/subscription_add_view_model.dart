@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/core/util/category_mapper.dart';
 import 'package:subby/domain/model/user_subscription.dart';
 import 'package:subby/domain/model/subscription_preset.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
@@ -99,48 +100,11 @@ class SubscriptionAddState {
   }
 }
 
-class SubscriptionAddViewModel extends AutoDisposeFamilyNotifier<SubscriptionAddState, String?> {
+class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState> {
   @override
-  SubscriptionAddState build(String? editSubscriptionId) {
-    _initialize(editSubscriptionId);
+  SubscriptionAddState build() {
+    _loadPresets();
     return const SubscriptionAddState();
-  }
-
-  Future<void> _initialize(String? editSubscriptionId) async {
-    await _loadPresets();
-    if (editSubscriptionId != null) {
-      await _loadSubscription(editSubscriptionId);
-    }
-  }
-
-  Future<void> _loadSubscription(String subscriptionId) async {
-    final getByIdUseCase = ref.read(getSubscriptionByIdUseCaseProvider);
-    final subscription = await getByIdUseCase(subscriptionId);
-
-    if (subscription != null) {
-      // 구독 이름과 일치하는 프리셋 찾기
-      SubscriptionPreset? matchingPreset;
-      for (final preset in state.presets) {
-        if (preset.displayNameKo == subscription.name ||
-            preset.displayNameEn == subscription.name) {
-          matchingPreset = preset;
-          break;
-        }
-      }
-
-      state = state.copyWith(
-        name: subscription.name,
-        currency: subscription.currency,
-        amount: subscription.amount,
-        billingDay: subscription.billingDay,
-        period: subscription.period.toUpperCase(),
-        category: subscription.category,
-        memo: subscription.memo ?? '',
-        isServiceSelected: true,
-        selectedPreset: matchingPreset,
-        isManualPriceInput: matchingPreset == null || !matchingPreset.hasPlans,
-      );
-    }
   }
 
   Future<void> _loadPresets() async {
@@ -201,7 +165,7 @@ class SubscriptionAddViewModel extends AutoDisposeFamilyNotifier<SubscriptionAdd
       currency: defaultPlan?.currency ?? preset.defaultCurrency,
       amount: defaultPlan?.price ?? 0,
       period: defaultPlan?.period ?? preset.defaultPeriod,
-      category: _mapPresetCategory(preset.category),
+      category: mapPresetCategoryToKorean(preset.category),
       selectedPlan: defaultPlan,
       isManualPriceInput: !preset.hasPlans, // 요금제 없으면 직접입력 모드
     );
@@ -315,46 +279,6 @@ class SubscriptionAddViewModel extends AutoDisposeFamilyNotifier<SubscriptionAdd
     state = state.copyWith(category: category);
   }
 
-  /// 편집 모드: 기존 구독 업데이트
-  Future<bool> update(String subscriptionId) async {
-    if (state.name.isEmpty || state.amount <= 0) {
-      return false;
-    }
-
-    state = state.copyWith(isSaving: true);
-
-    try {
-      final updateUseCase = ref.read(updateSubscriptionUseCaseProvider);
-      final getByIdUseCase = ref.read(getSubscriptionByIdUseCaseProvider);
-
-      // 기존 구독 가져오기
-      final existing = await getByIdUseCase(subscriptionId);
-      if (existing == null) {
-        state = state.copyWith(isSaving: false);
-        return false;
-      }
-
-      // 업데이트된 구독 생성
-      final updated = existing.copyWith(
-        amount: state.amount,
-        currency: state.currency,
-        billingDay: state.billingDay,
-        period: state.period,
-        category: state.category,
-        memo: state.memo.isEmpty ? null : state.memo,
-        clearMemo: state.memo.isEmpty,
-      );
-
-      await updateUseCase(updated);
-      ref.read(pendingSyncTriggerProvider.notifier).state++;
-      state = state.copyWith(isSaving: false);
-      return true;
-    } catch (e) {
-      state = state.copyWith(isSaving: false);
-      return false;
-    }
-  }
-
   Future<bool> save() async {
     if (state.name.isEmpty || state.amount <= 0) {
       return false;
@@ -391,40 +315,9 @@ class SubscriptionAddViewModel extends AutoDisposeFamilyNotifier<SubscriptionAdd
     }
   }
 
-  String _mapPresetCategory(PresetCategory category) {
-    switch (category) {
-      case PresetCategory.VIDEO:
-        return '영상';
-      case PresetCategory.MUSIC:
-        return '음악';
-      case PresetCategory.GAME:
-        return '게임';
-      case PresetCategory.AI:
-      case PresetCategory.DEV:
-      case PresetCategory.CLOUD:
-      case PresetCategory.PRODUCTIVITY:
-        return '소프트웨어';
-      case PresetCategory.EDUCATION:
-        return '교육';
-      case PresetCategory.DESIGN:
-        return '디자인';
-      case PresetCategory.FINANCE:
-        return '금융';
-      case PresetCategory.MEMBERSHIP:
-        return '멤버십';
-      case PresetCategory.DELIVERY:
-        return '배달';
-      case PresetCategory.EBOOK:
-        return '전자책';
-      case PresetCategory.MOBILITY:
-        return '모빌리티';
-      case PresetCategory.LIFESTYLE:
-        return '라이프스타일';
-    }
-  }
 }
 
 final subscriptionAddViewModelProvider =
-    NotifierProvider.autoDispose.family<SubscriptionAddViewModel, SubscriptionAddState, String?>(() {
+    NotifierProvider.autoDispose<SubscriptionAddViewModel, SubscriptionAddState>(() {
   return SubscriptionAddViewModel();
 });
