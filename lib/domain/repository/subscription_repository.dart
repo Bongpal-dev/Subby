@@ -11,7 +11,7 @@ abstract class SubscriptionRepository {
 
   Future<void> syncCreate(UserSubscription subscription, {String? updatedBy});
   Future<void> syncUpdate(UserSubscription subscription, {String? updatedBy});
-  Future<void> syncDelete(String groupCode, String subscriptionId);
+  Future<void> syncDelete(String groupCode, String subscriptionId, {String? updatedBy});
 
   /// 서버에서 그룹의 모든 구독 조회 (충돌 감지용)
   Future<List<UserSubscription>> fetchRemoteByGroupCode(String groupCode);
