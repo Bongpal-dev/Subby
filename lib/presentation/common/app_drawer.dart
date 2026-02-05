@@ -250,15 +250,18 @@ class AppDrawer extends ConsumerWidget {
           label: '로그아웃',
           isPrimary: true,
           onPressed: () async {
-            Navigator.pop(context); // 다이얼로그 닫기
-            Navigator.pop(context); // Drawer 닫기
-
             // UseCase를 통해 로그아웃 처리
             final signOutUseCase = ref.read(signOutUseCaseProvider);
             await signOutUseCase();
 
-            // 홈 화면 새로고침
+            // 상태 새로고침
             ref.invalidate(homeViewModelProvider);
+            ref.invalidate(currentNicknameStateProvider);
+
+            // 닉네임 설정 화면으로 이동 (go는 replace이므로 pop 불필요)
+            if (context.mounted) {
+              context.go('${AppRoutes.setup}?nicknameOnly=true');
+            }
           },
         ),
       ],

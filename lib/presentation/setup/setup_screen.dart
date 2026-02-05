@@ -14,7 +14,9 @@ import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/setup/setup_view_model.dart';
 
 class SetupScreen extends ConsumerStatefulWidget {
-  const SetupScreen({super.key});
+  final bool nicknameOnly;
+
+  const SetupScreen({super.key, this.nicknameOnly = false});
 
   @override
   ConsumerState<SetupScreen> createState() => _SetupScreenState();
@@ -23,12 +25,12 @@ class SetupScreen extends ConsumerStatefulWidget {
 class _SetupScreenState extends ConsumerState<SetupScreen> {
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(setupViewModelProvider);
+    final state = ref.watch(setupViewModelProvider(widget.nicknameOnly));
     final colors = context.colors;
 
     // Step 변경 시 UI 반응
     ref.listen<SetupStep>(
-      setupViewModelProvider.select((s) => s.step),
+      setupViewModelProvider(widget.nicknameOnly).select((s) => s.step),
       (previous, next) {
         if (previous == next) return;
         _handleStepChange(next);
@@ -100,7 +102,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (!mounted) return;
 
     final colors = context.colors;
-    final vm = ref.read(setupViewModelProvider.notifier);
+    final vm = ref.read(setupViewModelProvider(widget.nicknameOnly).notifier);
 
     final wantsLogin = await showSubbyDialog<bool>(
       context: context,
@@ -141,7 +143,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (!mounted) return;
 
     final colors = context.colors;
-    final vm = ref.read(setupViewModelProvider.notifier);
+    final vm = ref.read(setupViewModelProvider(widget.nicknameOnly).notifier);
 
     final nickname = await showSubbyTextInputDialog(
       context: context,

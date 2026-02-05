@@ -42,7 +42,10 @@ GoRouter createRouter(String initialLocation) => GoRouter(
     ),
     GoRoute(
       path: AppRoutes.setup,
-      builder: (context, state) => const SetupScreen(),
+      builder: (context, state) {
+        final nicknameOnly = state.uri.queryParameters['nicknameOnly'] == 'true';
+        return SetupScreen(nicknameOnly: nicknameOnly);
+      },
     ),
     GoRoute(
       path: AppRoutes.settings,

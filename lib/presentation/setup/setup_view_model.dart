@@ -30,11 +30,15 @@ class SetupState {
   }
 }
 
-class SetupViewModel extends Notifier<SetupState> {
+class SetupViewModel extends FamilyNotifier<SetupState, bool> {
   @override
-  SetupState build() {
+  SetupState build(bool nicknameOnly) {
     Future.microtask(() {
-      state = state.copyWith(step: SetupStep.cloudSync);
+      if (nicknameOnly) {
+        state = state.copyWith(step: SetupStep.nickname);
+      } else {
+        state = state.copyWith(step: SetupStep.cloudSync);
+      }
     });
     return const SetupState();
   }
@@ -92,4 +96,4 @@ class SetupViewModel extends Notifier<SetupState> {
 }
 
 final setupViewModelProvider =
-    NotifierProvider<SetupViewModel, SetupState>(SetupViewModel.new);
+    NotifierProvider.family<SetupViewModel, SetupState, bool>(SetupViewModel.new);
