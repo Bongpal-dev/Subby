@@ -16,3 +16,6 @@ final deepLinkStreamProvider = StreamProvider<Uri>((ref) {
 
   return service.onLink;
 });
+
+// 딥링크로 받은 pending group code (View에서 처리하도록 상태로 관리)
+final pendingDeepLinkGroupCodeProvider = StateProvider<String?>((ref) => null);

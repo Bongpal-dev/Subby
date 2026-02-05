@@ -10,6 +10,7 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/app_drawer.dart';
 import 'package:subby/presentation/common/group_actions.dart';
+import 'package:subby/presentation/common/providers/deep_link_provider.dart';
 import 'package:subby/presentation/common/widgets/subby_dialog.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
@@ -23,7 +24,42 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
+  void initState() {
+    super.initState();
+    // 딥링크 상태 감시 (앱이 이미 열려있을 때 들어온 딥링크 처리)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPendingDeepLink();
+    });
+  }
+
+  void _checkPendingDeepLink() {
+    final groupCode = ref.read(pendingDeepLinkGroupCodeProvider);
+    if (groupCode != null) {
+      _handlePendingDeepLink(groupCode);
+    }
+  }
+
+  Future<void> _handlePendingDeepLink(String groupCode) async {
+    // 상태 클리어 (중복 처리 방지)
+    ref.read(pendingDeepLinkGroupCodeProvider.notifier).state = null;
+
+    // 다이얼로그 표시 (HomeScreen context는 Navigator 하위 ✅)
+    await joinGroupWithConfirmation(
+      context: context,
+      ref: ref,
+      groupCode: groupCode,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // 딥링크 상태 변화 감시
+    ref.listen(pendingDeepLinkGroupCodeProvider, (prev, next) {
+      if (next != null) {
+        _handlePendingDeepLink(next);
+      }
+    });
+
     final state = ref.watch(homeViewModelProvider);
     final colors = context.colors;
 

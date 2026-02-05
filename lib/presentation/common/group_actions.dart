@@ -86,9 +86,14 @@ Future<bool> joinGroupWithConfirmation({
   // 그룹 이름이 없으면 원격에서 조회
   String? displayName = groupName;
   if (displayName == null) {
-    final groupRepository = ref.read(groupRepositoryProvider);
-    final group = await groupRepository.fetchRemoteByCode(groupCode);
-    displayName = group?.name ?? groupCode;
+    try {
+      final groupRepository = ref.read(groupRepositoryProvider);
+      final group = await groupRepository.fetchRemoteByCode(groupCode);
+      displayName = group?.name;
+    } catch (e) {
+      debugPrint('[DeepLink] fetchGroupName failed: $e');
+    }
+    displayName ??= groupCode; // fallback
   }
 
   final confirmed = await showSubbyDialog<bool>(

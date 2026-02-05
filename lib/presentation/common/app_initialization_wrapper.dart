@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/core/util/invite_link_generator.dart';
-import 'package:subby/presentation/common/group_actions.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/presentation/common/providers/deep_link_provider.dart';
 
@@ -74,15 +73,11 @@ class _AppInitializationWrapperState
     return widget.child;
   }
 
-  Future<void> _handleDeepLink(Uri uri) async {
+  void _handleDeepLink(Uri uri) {
     final groupCode = InviteLinkGenerator.parseGroupCode(uri);
+    if (groupCode == null) return;
 
-    if (groupCode == null || !mounted) return;
-
-    await joinGroupWithConfirmation(
-      context: context,
-      ref: ref,
-      groupCode: groupCode,
-    );
+    // State에 저장 (View에서 처리하도록)
+    ref.read(pendingDeepLinkGroupCodeProvider.notifier).state = groupCode;
   }
 }
