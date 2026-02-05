@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/core/di/providers.dart';
+import 'package:subby/domain/repository/group_repository.dart';
 import 'package:subby/domain/usecase/join_group_usecase.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
@@ -82,7 +83,13 @@ Future<bool> joinGroupWithConfirmation({
   required String groupCode,
   String? groupName,
 }) async {
-  final displayName = groupName ?? groupCode;
+  // 그룹 이름이 없으면 원격에서 조회
+  String? displayName = groupName;
+  if (displayName == null) {
+    final groupRepository = ref.read(groupRepositoryProvider);
+    final group = await groupRepository.fetchRemoteByCode(groupCode);
+    displayName = group?.name ?? groupCode;
+  }
 
   final confirmed = await showSubbyDialog<bool>(
     context: context,

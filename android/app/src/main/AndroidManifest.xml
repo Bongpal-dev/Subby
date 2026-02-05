@@ -7,6 +7,8 @@
         android:label="Subby"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Flutter 내장 딥링크 핸들러 비활성화 (app_links 패키지 사용) -->
+        <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
