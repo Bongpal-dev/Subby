@@ -106,6 +106,7 @@ class ProcessPendingChangesUseCase {
             await _subscriptionRepository.syncDelete(
               subscription.groupCode,
               change.entityId,
+              updatedBy: userId,
             );
         }
 

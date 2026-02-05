@@ -69,8 +69,15 @@ class SubscriptionRemoteDataSource {
 
   Future<void> deleteSubscription(
     String groupCode,
-    String subscriptionId,
-  ) async {
-    await _subscriptionsRef(groupCode).doc(subscriptionId).delete();
+    String subscriptionId, {
+    String? updatedBy,
+  }) async {
+    final docRef = _subscriptionsRef(groupCode).doc(subscriptionId);
+
+    if (updatedBy != null) {
+      await docRef.update({'updatedBy': updatedBy});
+    }
+
+    await docRef.delete();
   }
 }

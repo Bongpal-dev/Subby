@@ -68,8 +68,8 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<void> syncDelete(String groupCode, String subscriptionId) async {
-    await _remoteDataSource.deleteSubscription(groupCode, subscriptionId);
+  Future<void> syncDelete(String groupCode, String subscriptionId, {String? updatedBy}) async {
+    await _remoteDataSource.deleteSubscription(groupCode, subscriptionId, updatedBy: updatedBy);
   }
 
   @override
