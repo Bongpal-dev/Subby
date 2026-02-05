@@ -30,11 +30,14 @@ class SetupState {
   }
 }
 
-class SetupViewModel extends FamilyNotifier<SetupState, bool> {
+class SetupViewModel extends AutoDisposeFamilyNotifier<SetupState, bool> {
   @override
   SetupState build(bool nicknameOnly) {
-    Future.microtask(() {
+    Future.microtask(() async {
       if (nicknameOnly) {
+        // 로그아웃 후 재진입: 익명 로그인 후 닉네임 단계로
+        final signInAnonymouslyUseCase = ref.read(signInAnonymouslyUseCaseProvider);
+        await signInAnonymouslyUseCase();
         state = state.copyWith(step: SetupStep.nickname);
       } else {
         state = state.copyWith(step: SetupStep.cloudSync);
@@ -69,12 +72,22 @@ class SetupViewModel extends FamilyNotifier<SetupState, bool> {
     }
   }
 
-  /// 익명 로그인 수행 → 닉네임 단계로 이동
+  /// 익명 로그인 수행 → 닉네임 체크 후 다음 단계 결정
   Future<void> signInAnonymously() async {
     state = state.copyWith(isProcessing: true);
+
     final signInAnonymouslyUseCase = ref.read(signInAnonymouslyUseCaseProvider);
     await signInAnonymouslyUseCase();
-    state = state.copyWith(step: SetupStep.nickname, isProcessing: false);
+
+    final fetchUserInfoUseCase = ref.read(fetchUserInfoUseCaseProvider);
+    final hasNickname = await fetchUserInfoUseCase();
+
+    if (hasNickname) {
+      ref.invalidate(currentNicknameStateProvider);
+      await _completeSetup();
+    } else {
+      state = state.copyWith(step: SetupStep.nickname, isProcessing: false);
+    }
   }
 
   /// 닉네임 설정 완료
@@ -96,4 +109,4 @@ class SetupViewModel extends FamilyNotifier<SetupState, bool> {
 }
 
 final setupViewModelProvider =
-    NotifierProvider.family<SetupViewModel, SetupState, bool>(SetupViewModel.new);
+    NotifierProvider.autoDispose.family<SetupViewModel, SetupState, bool>(SetupViewModel.new);

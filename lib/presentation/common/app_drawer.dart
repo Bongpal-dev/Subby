@@ -258,7 +258,7 @@ class AppDrawer extends ConsumerWidget {
             ref.invalidate(homeViewModelProvider);
             ref.invalidate(currentNicknameStateProvider);
 
-            // 닉네임 설정 화면으로 이동 (go는 replace이므로 pop 불필요)
+            // setup 화면으로 이동 (닉네임만 설정)
             if (context.mounted) {
               context.go('${AppRoutes.setup}?nicknameOnly=true');
             }

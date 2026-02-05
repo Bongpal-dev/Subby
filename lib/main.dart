@@ -26,12 +26,15 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
   final setupCompleted = prefs.getBool('setup_completed') ?? false;
+  final nicknameOnly = prefs.getBool('nickname_only') ?? false;
 
   String initialRoute;
   if (!onboardingCompleted) {
     initialRoute = AppRoutes.onboarding;
   } else if (!setupCompleted) {
-    initialRoute = AppRoutes.setup;
+    initialRoute = nicknameOnly
+        ? '${AppRoutes.setup}?nicknameOnly=true'
+        : AppRoutes.setup;
   } else {
     initialRoute = AppRoutes.home;
   }

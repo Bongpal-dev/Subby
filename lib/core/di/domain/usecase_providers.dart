@@ -184,6 +184,7 @@ final signOutUseCaseProvider = Provider<SignOutUseCase>((ref) {
   final groupRepository = ref.watch(groupRepositoryProvider);
   final subscriptionRepository = ref.watch(subscriptionRepositoryProvider);
   final pendingChangeRepository = ref.watch(pendingChangeRepositoryProvider);
+  final onboardingRepository = ref.watch(onboardingRepositoryProvider);
 
   return SignOutUseCase(
     authRepository: authRepository,
@@ -191,6 +192,7 @@ final signOutUseCaseProvider = Provider<SignOutUseCase>((ref) {
     groupRepository: groupRepository,
     subscriptionRepository: subscriptionRepository,
     pendingChangeRepository: pendingChangeRepository,
+    onboardingRepository: onboardingRepository,
   );
 });
 

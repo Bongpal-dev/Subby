@@ -7,7 +7,8 @@ class CompleteSetupUseCase {
     required OnboardingRepository onboardingRepository,
   }) : _onboardingRepository = onboardingRepository;
 
-  Future<void> call() {
-    return _onboardingRepository.completeSetup();
+  Future<void> call() async {
+    await _onboardingRepository.completeSetup();
+    await _onboardingRepository.setNicknameOnly(false);
   }
 }

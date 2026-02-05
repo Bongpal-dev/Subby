@@ -4,6 +4,7 @@ class OnboardingLocalDataSource {
   static const _onboardingCompletedKey = 'onboarding_completed';
   static const _tutorialCompletedKey = 'coach_mark_completed';
   static const _setupCompletedKey = 'setup_completed';
+  static const _nicknameOnlyKey = 'nickname_only';
 
   Future<bool> isOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,5 +34,15 @@ class OnboardingLocalDataSource {
   Future<void> setSetupCompleted(bool completed) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_setupCompletedKey, completed);
+  }
+
+  Future<bool> isNicknameOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_nicknameOnlyKey) ?? false;
+  }
+
+  Future<void> setNicknameOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_nicknameOnlyKey, value);
   }
 }

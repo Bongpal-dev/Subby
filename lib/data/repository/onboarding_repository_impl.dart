@@ -35,4 +35,19 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   Future<void> completeSetup() {
     return _localDataSource.setSetupCompleted(true);
   }
+
+  @override
+  Future<void> resetSetup() {
+    return _localDataSource.setSetupCompleted(false);
+  }
+
+  @override
+  Future<bool> isNicknameOnly() {
+    return _localDataSource.isNicknameOnly();
+  }
+
+  @override
+  Future<void> setNicknameOnly(bool value) {
+    return _localDataSource.setNicknameOnly(value);
+  }
 }
