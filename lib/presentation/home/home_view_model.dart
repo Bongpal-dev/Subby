@@ -14,20 +14,24 @@ class SubscriptionUiModel {
   final String name;
   final String? category;
   final int billingDay;
+  final int? billingMonth; // 연간 결제 시 결제월 (1-12)
   final String period;
   final String formattedAmount; // 원래 통화로 포맷된 금액
   final String? convertedAmount; // 기본 통화로 변환된 금액 (다를 경우)
   final String periodLabel;
+  final String billingDayLabel; // 결제일 라벨 (연간: "매년 M월 N일", 월간: "매월 N일")
 
   const SubscriptionUiModel({
     required this.id,
     required this.name,
     this.category,
     required this.billingDay,
+    this.billingMonth,
     required this.period,
     required this.formattedAmount,
     this.convertedAmount,
     required this.periodLabel,
+    required this.billingDayLabel,
   });
 }
 
@@ -236,17 +240,32 @@ class HomeViewModel extends Notifier<HomeState> {
         convertedAmount = '≈${converter.format(converted, defaultCurrency)}';
       }
 
+      // 결제일 라벨 생성
+      final billingDayLabel = _getBillingDayLabel(sub.period, sub.billingDay, sub.billingMonth);
+
       return SubscriptionUiModel(
         id: sub.id,
         name: sub.name,
         category: sub.category,
         billingDay: sub.billingDay,
+        billingMonth: sub.billingMonth,
         period: sub.period,
         formattedAmount: formattedAmount,
         convertedAmount: convertedAmount,
         periodLabel: _getPeriodLabel(sub.period),
+        billingDayLabel: billingDayLabel,
       );
     }).toList();
+  }
+
+  String _getBillingDayLabel(String period, int billingDay, int? billingMonth) {
+    if (period.toUpperCase() == 'YEARLY') {
+      if (billingMonth != null) {
+        return '매년 $billingMonth월 $billingDay일 결제';
+      }
+      return '매년 $billingDay일 결제';
+    }
+    return '매월 $billingDay일 결제';
   }
 
   String _calculateFormattedTotal(List<UserSubscription> subscriptions) {
@@ -270,12 +289,12 @@ class HomeViewModel extends Notifier<HomeState> {
   }
 
   String _getPeriodLabel(String period) {
-    switch (period) {
-      case 'monthly':
+    switch (period.toUpperCase()) {
+      case 'MONTHLY':
         return '월간 결제';
-      case 'yearly':
+      case 'YEARLY':
         return '연간 결제';
-      case 'weekly':
+      case 'WEEKLY':
         return '주간 결제';
       default:
         return '월간 결제';

@@ -16,6 +16,7 @@ class SubscriptionEditState {
   final String currency;
   final double amount;
   final int billingDay;
+  final int? billingMonth; // 연간 결제 시 결제월 (1-12)
   final String period;
   final String? category;
   final String memo;
@@ -40,6 +41,7 @@ class SubscriptionEditState {
     this.currency = 'KRW',
     this.amount = 0,
     this.billingDay = 15,
+    this.billingMonth,
     this.period = 'MONTHLY',
     this.category,
     this.memo = '',
@@ -63,6 +65,8 @@ class SubscriptionEditState {
     String? currency,
     double? amount,
     int? billingDay,
+    int? billingMonth,
+    bool clearBillingMonth = false,
     String? period,
     String? category,
     bool clearCategory = false,
@@ -88,6 +92,7 @@ class SubscriptionEditState {
       currency: currency ?? this.currency,
       amount: amount ?? this.amount,
       billingDay: billingDay ?? this.billingDay,
+      billingMonth: clearBillingMonth ? null : (billingMonth ?? this.billingMonth),
       period: period ?? this.period,
       category: clearCategory ? null : (category ?? this.category),
       memo: memo ?? this.memo,
@@ -171,6 +176,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
         currency: subscription.currency,
         amount: subscription.amount,
         billingDay: subscription.billingDay,
+        billingMonth: subscription.billingMonth,
         period: subscription.period,
         category: subscription.category,
         memo: subscription.memo ?? '',
@@ -204,6 +210,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
 
   void selectPreset(SubscriptionPreset preset, Locale locale) {
     final defaultPlan = preset.defaultPlan;
+    final period = defaultPlan?.period ?? preset.defaultPeriod;
 
     state = state.copyWith(
       selectedPreset: preset,
@@ -211,7 +218,9 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
       name: preset.displayName(locale),
       currency: defaultPlan?.currency ?? preset.defaultCurrency,
       amount: defaultPlan?.price ?? 0,
-      period: defaultPlan?.period ?? preset.defaultPeriod,
+      period: period,
+      billingMonth: period == 'YEARLY' ? (state.billingMonth ?? DateTime.now().month) : null,
+      clearBillingMonth: period != 'YEARLY',
       category: mapPresetCategoryToKorean(preset.category),
       selectedPlan: defaultPlan,
     );
@@ -223,6 +232,8 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
       currency: plan.currency,
       amount: plan.price,
       period: plan.period,
+      billingMonth: plan.period == 'YEARLY' ? (state.billingMonth ?? DateTime.now().month) : null,
+      clearBillingMonth: plan.period != 'YEARLY',
     );
   }
 
@@ -235,6 +246,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
       amount: 0,
       period: 'MONTHLY',
       clearCategory: true,
+      clearBillingMonth: true,
     );
   }
 
@@ -263,8 +275,44 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
     state = state.copyWith(billingDay: day);
   }
 
+  void setBillingMonth(int? month) {
+    if (month == null) {
+      state = state.copyWith(clearBillingMonth: true);
+    } else {
+      state = state.copyWith(billingMonth: month);
+    }
+  }
+
   void setPeriod(String period) {
-    state = state.copyWith(period: period);
+    // 해당 주기의 최저가 요금제 자동 선택
+    PlanOption? lowestPricePlan;
+    if (state.selectedPreset?.hasPlans == true) {
+      final plansForPeriod = state.selectedPreset!.plans
+          .where((p) => p.period == period)
+          .toList();
+      if (plansForPeriod.isNotEmpty) {
+        plansForPeriod.sort((a, b) => a.price.compareTo(b.price));
+        lowestPricePlan = plansForPeriod.first;
+      }
+    }
+
+    if (period == 'YEARLY') {
+      state = state.copyWith(
+        period: period,
+        billingMonth: state.billingMonth ?? DateTime.now().month,
+        selectedPlan: lowestPricePlan,
+        amount: lowestPricePlan?.price ?? state.amount,
+        currency: lowestPricePlan?.currency ?? state.currency,
+      );
+    } else {
+      state = state.copyWith(
+        period: period,
+        clearBillingMonth: true,
+        selectedPlan: lowestPricePlan,
+        amount: lowestPricePlan?.price ?? state.amount,
+        currency: lowestPricePlan?.currency ?? state.currency,
+      );
+    }
   }
 
   void setMemo(String memo) {
@@ -291,6 +339,7 @@ class SubscriptionEditViewModel extends AutoDisposeFamilyNotifier<SubscriptionEd
         amount: state.amount,
         currency: state.currency,
         billingDay: state.billingDay,
+        billingMonth: state.period == 'YEARLY' ? state.billingMonth : null,
         period: state.period,
         category: state.category,
         memo: state.memo.isEmpty ? null : state.memo,
