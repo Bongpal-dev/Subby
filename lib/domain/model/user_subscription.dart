@@ -7,6 +7,7 @@ class UserSubscription {
   final double amount;
   final String currency;
   final int billingDay;
+  final int? billingMonth; // 연간 결제 시 결제월 (1-12)
   final String period;
   final String? category;
   final String? memo;
@@ -26,6 +27,7 @@ class UserSubscription {
     required this.amount,
     required this.currency,
     required this.billingDay,
+    this.billingMonth,
     required this.period,
     this.category,
     this.memo,
@@ -44,6 +46,8 @@ class UserSubscription {
     double? amount,
     String? currency,
     int? billingDay,
+    int? billingMonth,
+    bool clearBillingMonth = false,
     String? period,
     String? category,
     bool clearCategory = false,
@@ -63,6 +67,7 @@ class UserSubscription {
       amount: amount ?? this.amount,
       currency: currency ?? this.currency,
       billingDay: billingDay ?? this.billingDay,
+      billingMonth: clearBillingMonth ? null : (billingMonth ?? this.billingMonth),
       period: period ?? this.period,
       category: clearCategory ? null : (category ?? this.category),
       memo: clearMemo ? null : (memo ?? this.memo),

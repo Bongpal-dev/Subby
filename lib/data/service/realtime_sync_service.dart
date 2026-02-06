@@ -82,6 +82,7 @@ class RealtimeSyncService {
         a.amount != b.amount ||
         a.currency != b.currency ||
         a.billingDay != b.billingDay ||
+        a.billingMonth != b.billingMonth ||
         a.period != b.period ||
         a.category != b.category ||
         a.memo != b.memo ||

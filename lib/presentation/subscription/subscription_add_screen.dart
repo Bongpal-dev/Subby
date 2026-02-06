@@ -73,7 +73,7 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
   }
 }
 
-/// 요금제 섹션 - selectedPreset, selectedPlan만 watch
+/// 요금제 섹션 - selectedPreset, selectedPlan, period watch
 class _PlanSection extends ConsumerWidget {
   final FocusNode focusSink;
 
@@ -84,6 +84,7 @@ class _PlanSection extends ConsumerWidget {
     final provider = subscriptionAddViewModelProvider;
     final selectedPreset = ref.watch(provider.select((s) => s.selectedPreset));
     final selectedPlan = ref.watch(provider.select((s) => s.selectedPlan));
+    final period = ref.watch(provider.select((s) => s.period));
 
     if (selectedPreset?.hasPlans != true) {
       return const SizedBox.shrink();
@@ -92,7 +93,13 @@ class _PlanSection extends ConsumerWidget {
     final vm = ref.read(provider.notifier);
     final colors = context.colors;
     final locale = Localizations.localeOf(context);
-    final plans = selectedPreset!.plans;
+
+    // 현재 선택된 결제주기에 맞는 요금제만 필터링
+    final plans = selectedPreset!.plans.where((p) => p.period == period).toList();
+
+    if (plans.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +249,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
   }
 }
 
-/// 결제일 섹션 - billingDay만 watch
+/// 결제일 섹션 - billingDay, billingMonth, period watch
 class _BillingDaySection extends ConsumerWidget {
   final FocusNode focusSink;
 
@@ -252,9 +259,17 @@ class _BillingDaySection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = subscriptionAddViewModelProvider;
     final billingDay = ref.watch(provider.select((s) => s.billingDay));
+    final billingMonth = ref.watch(provider.select((s) => s.billingMonth));
+    final period = ref.watch(provider.select((s) => s.period));
     final vm = ref.read(provider.notifier);
 
     final colors = context.colors;
+    final isYearly = period == 'YEARLY';
+
+    // 표시 텍스트
+    final displayText = isYearly && billingMonth != null
+        ? '매년 $billingMonth월 $billingDay일'
+        : '매월 $billingDay일';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,11 +279,25 @@ class _BillingDaySection extends ConsumerWidget {
         GestureDetector(
           onTap: () async {
             focusSink.requestFocus();
-            final result = await showDayPickerDialog(
-              context: context,
-              initialDay: billingDay,
-            );
-            if (result != null) vm.setBillingDay(result);
+            if (isYearly) {
+              // 연간: 월/일 선택
+              final result = await showMonthDayPickerDialog(
+                context: context,
+                initialMonth: billingMonth ?? DateTime.now().month,
+                initialDay: billingDay,
+              );
+              if (result != null) {
+                vm.setBillingMonth(result.month);
+                vm.setBillingDay(result.day);
+              }
+            } else {
+              // 월간: 일만 선택
+              final result = await showDayPickerDialog(
+                context: context,
+                initialDay: billingDay,
+              );
+              if (result != null) vm.setBillingDay(result);
+            }
           },
           child: Container(
             height: 52,
@@ -282,7 +311,7 @@ class _BillingDaySection extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '매월 ${billingDay}일',
+                    displayText,
                     style: AppTypography.body.copyWith(color: colors.textPrimary),
                   ),
                 ),
@@ -310,7 +339,7 @@ class _PeriodSection extends ConsumerWidget {
 
     final colors = context.colors;
 
-    const periods = [('WEEKLY', '매주'), ('MONTHLY', '매월'), ('YEARLY', '매년')];
+    const periods = [('MONTHLY', '매월'), ('YEARLY', '매년')];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

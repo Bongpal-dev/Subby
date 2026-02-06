@@ -8,6 +8,7 @@ class SubscriptionDto {
   final double amount;
   final String currency;
   final int billingDay;
+  final int? billingMonth; // 연간 결제 시 결제월 (1-12)
   final String period;
   final String? category;
   final String? memo;
@@ -22,6 +23,7 @@ class SubscriptionDto {
     required this.amount,
     required this.currency,
     required this.billingDay,
+    this.billingMonth,
     required this.period,
     this.category,
     this.memo,
@@ -38,6 +40,7 @@ class SubscriptionDto {
       amount: (json['amount'] as num).toDouble(),
       currency: json['currency'] as String,
       billingDay: json['billingDay'] as int,
+      billingMonth: json['billingMonth'] as int?,
       period: json['period'] as String,
       category: json['category'] as String?,
       memo: json['memo'] as String?,
@@ -57,6 +60,7 @@ class SubscriptionDto {
       'amount': amount,
       'currency': currency,
       'billingDay': billingDay,
+      'billingMonth': billingMonth,
       'period': period,
       'category': category,
       'memo': memo,
@@ -76,6 +80,7 @@ extension UserSubscriptionRowToDto on UserSubscription {
       amount: amount,
       currency: currency,
       billingDay: billingDay,
+      billingMonth: billingMonth,
       period: period,
       category: category,
       memo: memo,
@@ -94,6 +99,7 @@ extension SubscriptionDtoToCompanion on SubscriptionDto {
       amount: amount,
       currency: currency,
       billingDay: billingDay,
+      billingMonth: Value.absentIfNull(billingMonth),
       period: period,
       category: Value.absentIfNull(category),
       memo: Value.absentIfNull(memo),

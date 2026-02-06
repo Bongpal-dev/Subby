@@ -26,7 +26,9 @@ const List<SubscriptionPreset> subscriptionPresets = [
     aliases: ['유프미'],
     plans: [
       PlanOption(planKey: 'individual', displayNameKo: '개인', displayNameEn: 'Individual', price: 14900, currency: 'KRW', period: 'MONTHLY'),
+      PlanOption(planKey: 'individual-yearly', displayNameKo: '개인', displayNameEn: 'Individual', price: 149000, currency: 'KRW', period: 'YEARLY'),
       PlanOption(planKey: 'family', displayNameKo: '가족', displayNameEn: 'Family', price: 23900, currency: 'KRW', period: 'MONTHLY', notes: '한국 미출시/우회'),
+      PlanOption(planKey: 'family-yearly', displayNameKo: '가족', displayNameEn: 'Family', price: 239000, currency: 'KRW', period: 'YEARLY', notes: '한국 미출시/우회'),
     ],
   ),
   SubscriptionPreset(
@@ -243,6 +245,7 @@ const List<SubscriptionPreset> subscriptionPresets = [
     aliases: ['스포'],
     plans: [
       PlanOption(planKey: 'individual', displayNameKo: '개인', displayNameEn: 'Individual', price: 10900, currency: 'KRW', period: 'MONTHLY'),
+      PlanOption(planKey: 'individual-yearly', displayNameKo: '개인', displayNameEn: 'Individual', price: 109000, currency: 'KRW', period: 'YEARLY'),
       PlanOption(planKey: 'duo', displayNameKo: '듀오', displayNameEn: 'Duo', price: 16350, currency: 'KRW', period: 'MONTHLY'),
     ],
   ),
@@ -256,6 +259,7 @@ const List<SubscriptionPreset> subscriptionPresets = [
     aliases: ['애플뮤직'],
     plans: [
       PlanOption(planKey: 'individual', displayNameKo: '개인', displayNameEn: 'Individual', price: 8900, currency: 'KRW', period: 'MONTHLY'),
+      PlanOption(planKey: 'individual-yearly', displayNameKo: '개인', displayNameEn: 'Individual', price: 89000, currency: 'KRW', period: 'YEARLY'),
       PlanOption(planKey: 'family', displayNameKo: '가족', displayNameEn: 'Family', price: 13500, currency: 'KRW', period: 'MONTHLY'),
     ],
   ),
@@ -552,6 +556,7 @@ const List<SubscriptionPreset> subscriptionPresets = [
     aliases: ['클로드'],
     plans: [
       PlanOption(planKey: 'pro', displayNameKo: '프로', displayNameEn: 'Pro', price: 22.00, currency: 'USD', period: 'MONTHLY', notes: 'Claude 3.5'),
+      PlanOption(planKey: 'pro-yearly', displayNameKo: '프로', displayNameEn: 'Pro', price: 200.00, currency: 'USD', period: 'YEARLY'),
       PlanOption(planKey: 'max-5x', displayNameKo: '맥스 5x', displayNameEn: 'Max 5x', price: 110.00, currency: 'USD', period: 'MONTHLY', notes: '\$100+VAT'),
       PlanOption(planKey: 'max-20x', displayNameKo: '맥스 20x', displayNameEn: 'Max 20x', price: 220.00, currency: 'USD', period: 'MONTHLY', notes: '\$200+VAT'),
     ],
@@ -566,6 +571,7 @@ const List<SubscriptionPreset> subscriptionPresets = [
     aliases: ['챗지피티', 'GPT'],
     plans: [
       PlanOption(planKey: 'plus', displayNameKo: '플러스', displayNameEn: 'Plus', price: 22.00, currency: 'USD', period: 'MONTHLY', notes: 'GPT-4o'),
+      PlanOption(planKey: 'plus-yearly', displayNameKo: '플러스', displayNameEn: 'Plus', price: 240.00, currency: 'USD', period: 'YEARLY'),
       PlanOption(planKey: 'pro', displayNameKo: '프로', displayNameEn: 'Pro', price: 220.00, currency: 'USD', period: 'MONTHLY', notes: '\$200+VAT, o1 무제한'),
     ],
   ),
@@ -617,6 +623,7 @@ const List<SubscriptionPreset> subscriptionPresets = [
     notes: 'AI 코딩 어시스턴트',
     plans: [
       PlanOption(planKey: 'individual', displayNameKo: '개인', displayNameEn: 'Individual', price: 11.00, currency: 'USD', period: 'MONTHLY'),
+      PlanOption(planKey: 'individual-yearly', displayNameKo: '개인', displayNameEn: 'Individual', price: 100.00, currency: 'USD', period: 'YEARLY'),
       PlanOption(planKey: 'business', displayNameKo: '비즈니스', displayNameEn: 'Business', price: 20.90, currency: 'USD', period: 'MONTHLY'),
     ],
   ),
@@ -967,8 +974,11 @@ const List<SubscriptionPreset> subscriptionPresets = [
     aliases: ['구글드라이브'],
     plans: [
       PlanOption(planKey: '100gb', displayNameKo: '100GB', displayNameEn: '100GB', price: 2400, currency: 'KRW', period: 'MONTHLY'),
+      PlanOption(planKey: '100gb-yearly', displayNameKo: '100GB', displayNameEn: '100GB', price: 24000, currency: 'KRW', period: 'YEARLY'),
       PlanOption(planKey: '200gb', displayNameKo: '200GB', displayNameEn: '200GB', price: 3700, currency: 'KRW', period: 'MONTHLY'),
+      PlanOption(planKey: '200gb-yearly', displayNameKo: '200GB', displayNameEn: '200GB', price: 37000, currency: 'KRW', period: 'YEARLY'),
       PlanOption(planKey: '2tb', displayNameKo: '2TB', displayNameEn: '2TB', price: 11900, currency: 'KRW', period: 'MONTHLY'),
+      PlanOption(planKey: '2tb-yearly', displayNameKo: '2TB', displayNameEn: '2TB', price: 119000, currency: 'KRW', period: 'YEARLY'),
     ],
   ),
   SubscriptionPreset(
@@ -1088,6 +1098,7 @@ const List<SubscriptionPreset> subscriptionPresets = [
     defaultPeriod: 'MONTHLY',
     plans: [
       PlanOption(planKey: 'plus', displayNameKo: '플러스', displayNameEn: 'Plus', price: 11.00, currency: 'USD', period: 'MONTHLY'),
+      PlanOption(planKey: 'plus-yearly', displayNameKo: '플러스', displayNameEn: 'Plus', price: 120.00, currency: 'USD', period: 'YEARLY'),
       PlanOption(planKey: 'business', displayNameKo: '비즈니스', displayNameEn: 'Business', price: 16.50, currency: 'USD', period: 'MONTHLY'),
     ],
   ),

@@ -69,6 +69,17 @@ class $UserSubscriptionsTable extends UserSubscriptions
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _billingMonthMeta = const VerificationMeta(
+    'billingMonth',
+  );
+  @override
+  late final GeneratedColumn<int> billingMonth = GeneratedColumn<int>(
+    'billing_month',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _periodMeta = const VerificationMeta('period');
   @override
   late final GeneratedColumn<String> period = GeneratedColumn<String>(
@@ -128,6 +139,7 @@ class $UserSubscriptionsTable extends UserSubscriptions
     amount,
     currency,
     billingDay,
+    billingMonth,
     period,
     category,
     memo,
@@ -190,6 +202,12 @@ class $UserSubscriptionsTable extends UserSubscriptions
       );
     } else if (isInserting) {
       context.missing(_billingDayMeta);
+    }
+    if (data.containsKey('billing_month')) {
+      context.handle(
+        _billingMonthMeta,
+        billingMonth.isAcceptableOrUnknown(data['billing_month']!, _billingMonthMeta),
+      );
     }
     if (data.containsKey('period')) {
       context.handle(
@@ -261,6 +279,10 @@ class $UserSubscriptionsTable extends UserSubscriptions
         DriftSqlType.int,
         data['${effectivePrefix}billing_day'],
       )!,
+      billingMonth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}billing_month'],
+      ),
       period: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}period'],
@@ -298,6 +320,7 @@ class UserSubscription extends DataClass
   final double amount;
   final String currency;
   final int billingDay;
+  final int? billingMonth;
   final String period;
   final String? category;
   final String? memo;
@@ -310,6 +333,7 @@ class UserSubscription extends DataClass
     required this.amount,
     required this.currency,
     required this.billingDay,
+    this.billingMonth,
     required this.period,
     this.category,
     this.memo,
@@ -325,6 +349,9 @@ class UserSubscription extends DataClass
     map['amount'] = Variable<double>(amount);
     map['currency'] = Variable<String>(currency);
     map['billing_day'] = Variable<int>(billingDay);
+    if (!nullToAbsent || billingMonth != null) {
+      map['billing_month'] = Variable<int>(billingMonth);
+    }
     map['period'] = Variable<String>(period);
     if (!nullToAbsent || category != null) {
       map['category'] = Variable<String>(category);
@@ -347,6 +374,9 @@ class UserSubscription extends DataClass
       amount: Value(amount),
       currency: Value(currency),
       billingDay: Value(billingDay),
+      billingMonth: billingMonth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billingMonth),
       period: Value(period),
       category: category == null && nullToAbsent
           ? const Value.absent()
@@ -371,6 +401,7 @@ class UserSubscription extends DataClass
       amount: serializer.fromJson<double>(json['amount']),
       currency: serializer.fromJson<String>(json['currency']),
       billingDay: serializer.fromJson<int>(json['billingDay']),
+      billingMonth: serializer.fromJson<int?>(json['billingMonth']),
       period: serializer.fromJson<String>(json['period']),
       category: serializer.fromJson<String?>(json['category']),
       memo: serializer.fromJson<String?>(json['memo']),
@@ -388,6 +419,7 @@ class UserSubscription extends DataClass
       'amount': serializer.toJson<double>(amount),
       'currency': serializer.toJson<String>(currency),
       'billingDay': serializer.toJson<int>(billingDay),
+      'billingMonth': serializer.toJson<int?>(billingMonth),
       'period': serializer.toJson<String>(period),
       'category': serializer.toJson<String?>(category),
       'memo': serializer.toJson<String?>(memo),
@@ -403,6 +435,7 @@ class UserSubscription extends DataClass
     double? amount,
     String? currency,
     int? billingDay,
+    Value<int?> billingMonth = const Value.absent(),
     String? period,
     Value<String?> category = const Value.absent(),
     Value<String?> memo = const Value.absent(),
@@ -415,6 +448,7 @@ class UserSubscription extends DataClass
     amount: amount ?? this.amount,
     currency: currency ?? this.currency,
     billingDay: billingDay ?? this.billingDay,
+    billingMonth: billingMonth.present ? billingMonth.value : this.billingMonth,
     period: period ?? this.period,
     category: category.present ? category.value : this.category,
     memo: memo.present ? memo.value : this.memo,
@@ -433,6 +467,9 @@ class UserSubscription extends DataClass
       billingDay: data.billingDay.present
           ? data.billingDay.value
           : this.billingDay,
+      billingMonth: data.billingMonth.present
+          ? data.billingMonth.value
+          : this.billingMonth,
       period: data.period.present ? data.period.value : this.period,
       category: data.category.present ? data.category.value : this.category,
       memo: data.memo.present ? data.memo.value : this.memo,
@@ -452,6 +489,7 @@ class UserSubscription extends DataClass
           ..write('amount: $amount, ')
           ..write('currency: $currency, ')
           ..write('billingDay: $billingDay, ')
+          ..write('billingMonth: $billingMonth, ')
           ..write('period: $period, ')
           ..write('category: $category, ')
           ..write('memo: $memo, ')
@@ -469,6 +507,7 @@ class UserSubscription extends DataClass
     amount,
     currency,
     billingDay,
+    billingMonth,
     period,
     category,
     memo,
@@ -485,6 +524,7 @@ class UserSubscription extends DataClass
           other.amount == this.amount &&
           other.currency == this.currency &&
           other.billingDay == this.billingDay &&
+          other.billingMonth == this.billingMonth &&
           other.period == this.period &&
           other.category == this.category &&
           other.memo == this.memo &&
@@ -499,6 +539,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   final Value<double> amount;
   final Value<String> currency;
   final Value<int> billingDay;
+  final Value<int?> billingMonth;
   final Value<String> period;
   final Value<String?> category;
   final Value<String?> memo;
@@ -512,6 +553,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
     this.amount = const Value.absent(),
     this.currency = const Value.absent(),
     this.billingDay = const Value.absent(),
+    this.billingMonth = const Value.absent(),
     this.period = const Value.absent(),
     this.category = const Value.absent(),
     this.memo = const Value.absent(),
@@ -526,6 +568,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
     required double amount,
     required String currency,
     required int billingDay,
+    this.billingMonth = const Value.absent(),
     required String period,
     this.category = const Value.absent(),
     this.memo = const Value.absent(),
@@ -547,6 +590,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
     Expression<double>? amount,
     Expression<String>? currency,
     Expression<int>? billingDay,
+    Expression<int>? billingMonth,
     Expression<String>? period,
     Expression<String>? category,
     Expression<String>? memo,
@@ -561,6 +605,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
       if (amount != null) 'amount': amount,
       if (currency != null) 'currency': currency,
       if (billingDay != null) 'billing_day': billingDay,
+      if (billingMonth != null) 'billing_month': billingMonth,
       if (period != null) 'period': period,
       if (category != null) 'category': category,
       if (memo != null) 'memo': memo,
@@ -577,6 +622,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
     Value<double>? amount,
     Value<String>? currency,
     Value<int>? billingDay,
+    Value<int?>? billingMonth,
     Value<String>? period,
     Value<String?>? category,
     Value<String?>? memo,
@@ -591,6 +637,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
       amount: amount ?? this.amount,
       currency: currency ?? this.currency,
       billingDay: billingDay ?? this.billingDay,
+      billingMonth: billingMonth ?? this.billingMonth,
       period: period ?? this.period,
       category: category ?? this.category,
       memo: memo ?? this.memo,
@@ -620,6 +667,9 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
     }
     if (billingDay.present) {
       map['billing_day'] = Variable<int>(billingDay.value);
+    }
+    if (billingMonth.present) {
+      map['billing_month'] = Variable<int>(billingMonth.value);
     }
     if (period.present) {
       map['period'] = Variable<String>(period.value);
@@ -651,6 +701,7 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
           ..write('amount: $amount, ')
           ..write('currency: $currency, ')
           ..write('billingDay: $billingDay, ')
+          ..write('billingMonth: $billingMonth, ')
           ..write('period: $period, ')
           ..write('category: $category, ')
           ..write('memo: $memo, ')

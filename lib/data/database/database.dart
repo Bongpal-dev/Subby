@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 part 'database.g.dart';
+// Force regeneration v7 - billingMonth added
 
 // ──────────────────────────────────────────────
 // 1) user_subscriptions 테이블
@@ -13,6 +14,7 @@ class UserSubscriptions extends Table {
   RealColumn get amount => real()();
   TextColumn get currency => text()(); // KRW, USD
   IntColumn get billingDay => integer()();
+  IntColumn get billingMonth => integer().nullable()(); // 연간 결제 시 결제월 (1-12)
   TextColumn get period => text()(); // MONTHLY, YEARLY
   TextColumn get category => text().nullable()();
   TextColumn get memo => text().nullable()();
@@ -114,7 +116,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -136,6 +138,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 6) {
         // PresetCache에 plans 컬럼 추가
         await migrator.addColumn(presetCache, presetCache.plans);
+      }
+      if (from < 7) {
+        // UserSubscriptions에 billingMonth 컬럼 추가 (연간 결제용)
+        await migrator.addColumn(userSubscriptions, userSubscriptions.billingMonth);
       }
     },
   );

@@ -14,6 +14,7 @@ export 'subby_tooltip.dart';
 // App-specific Widgets
 export 'amount_adder.dart';
 export 'day_picker_dialog.dart';
+export 'month_day_picker_dialog.dart';
 export 'subby_text_input_dialog.dart';
 export 'invite_dialog.dart';
 export 'segmented_selector.dart';

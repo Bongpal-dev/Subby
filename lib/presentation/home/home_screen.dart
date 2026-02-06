@@ -570,7 +570,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                               ),
                               const SizedBox(height: AppSpacing.s1),
                               Text(
-                                '매월 ${sub.billingDay}일 결제',
+                                sub.billingDayLabel,
                                 style: AppTypography.caption.copyWith(
                                   color: colors.textTertiary,
                                 ),

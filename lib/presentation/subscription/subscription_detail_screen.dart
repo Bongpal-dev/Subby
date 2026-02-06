@@ -65,6 +65,7 @@ final subscriptionDetailProvider = FutureProvider.autoDispose.family<Subscriptio
 
   // 결제 주기
   String periodLabel;
+  final isYearly = subscription.period.toUpperCase() == 'YEARLY';
   switch (subscription.period.toUpperCase()) {
     case 'YEARLY':
       periodLabel = '매년';
@@ -76,22 +77,50 @@ final subscriptionDetailProvider = FutureProvider.autoDispose.family<Subscriptio
       periodLabel = '매월';
   }
 
+  // 결제일 라벨
+  final billingDayLabel = isYearly && subscription.billingMonth != null
+      ? '매년 ${subscription.billingMonth}월 ${subscription.billingDay}일'
+      : '매월 ${subscription.billingDay}일';
+
   // 다음 결제일 계산
   final now = DateTime.now();
-  int year = now.year;
-  int month = now.month;
-  if (now.day > subscription.billingDay) {
-    month++;
-    if (month > 12) {
-      month = 1;
+  String nextBillingDate;
+
+  if (isYearly && subscription.billingMonth != null) {
+    // 연간 결제: 특정 월/일
+    int year = now.year;
+    final billingMonth = subscription.billingMonth!;
+    final billingDay = subscription.billingDay;
+
+    // 올해 결제일이 지났으면 내년
+    final thisYearBillingDate = DateTime(year, billingMonth, 1);
+    final lastDayOfBillingMonth = DateTime(year, billingMonth + 1, 0).day;
+    final actualBillingDay = billingDay > lastDayOfBillingMonth ? lastDayOfBillingMonth : billingDay;
+    final thisYearActualDate = DateTime(year, billingMonth, actualBillingDay);
+
+    if (now.isAfter(thisYearActualDate)) {
       year++;
     }
+    final nextLastDayOfMonth = DateTime(year, billingMonth + 1, 0).day;
+    final nextBillingDay = billingDay > nextLastDayOfMonth ? nextLastDayOfMonth : billingDay;
+    nextBillingDate = '$year.${billingMonth.toString().padLeft(2, '0')}.${nextBillingDay.toString().padLeft(2, '0')}';
+  } else {
+    // 월간 결제
+    int year = now.year;
+    int month = now.month;
+    if (now.day > subscription.billingDay) {
+      month++;
+      if (month > 12) {
+        month = 1;
+        year++;
+      }
+    }
+    final lastDayOfMonth = DateTime(year, month + 1, 0).day;
+    final billingDay = subscription.billingDay > lastDayOfMonth
+        ? lastDayOfMonth
+        : subscription.billingDay;
+    nextBillingDate = '$year.${month.toString().padLeft(2, '0')}.${billingDay.toString().padLeft(2, '0')}';
   }
-  final lastDayOfMonth = DateTime(year, month + 1, 0).day;
-  final billingDay = subscription.billingDay > lastDayOfMonth
-      ? lastDayOfMonth
-      : subscription.billingDay;
-  final nextBillingDate = '$year.${month.toString().padLeft(2, '0')}.${billingDay.toString().padLeft(2, '0')}';
 
   return SubscriptionDetailUiModel(
     id: subscription.id,
@@ -99,7 +128,7 @@ final subscriptionDetailProvider = FutureProvider.autoDispose.family<Subscriptio
     category: subscription.category,
     formattedAmount: '$formattedAmount / $periodLabel',
     periodLabel: periodLabel,
-    billingDayLabel: '매월 ${subscription.billingDay}일',
+    billingDayLabel: billingDayLabel,
     nextBillingDate: nextBillingDate,
     memo: subscription.memo,
   );

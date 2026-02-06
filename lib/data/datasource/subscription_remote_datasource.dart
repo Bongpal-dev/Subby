@@ -22,6 +22,7 @@ class SubscriptionRemoteDataSource {
       amount: dto.amount,
       currency: dto.currency,
       billingDay: dto.billingDay,
+      billingMonth: dto.billingMonth,
       period: dto.period,
       category: dto.category,
       memo: dto.memo,
