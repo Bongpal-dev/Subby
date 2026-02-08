@@ -83,11 +83,11 @@ class _SubbyTextFieldState extends State<SubbyTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
     final borderColor = _getBorderColor(colors, hasError);
-    final fillColor = widget.enabled ? colors.bgTertiary : colors.buttonDisableBg;
+    final fillColor = widget.enabled ? colors.surfaceContainerHighest : colors.surfaceContainerHighest;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +98,7 @@ class _SubbyTextFieldState extends State<SubbyTextField> {
           Text(
             widget.label!,
             style: AppTypography.label.copyWith(
-              color: widget.enabled ? colors.textPrimary : colors.textTertiary,
+              color: widget.enabled ? colors.onSurface : colors.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: AppSpacing.s2),
@@ -134,8 +134,8 @@ class _SubbyTextFieldState extends State<SubbyTextField> {
                                 : widget.hint ?? '',
                             style: AppTypography.body.copyWith(
                               color: widget.controller?.text.isNotEmpty == true
-                                  ? colors.textPrimary
-                                  : colors.textTertiary,
+                                  ? colors.onSurface
+                                  : colors.onSurfaceVariant,
                             ),
                             textAlign: widget.textAlign,
                           ),
@@ -155,11 +155,11 @@ class _SubbyTextFieldState extends State<SubbyTextField> {
                           onTap: widget.onTap,
                           textAlign: widget.textAlign,
                           style: AppTypography.body.copyWith(
-                            color: widget.enabled ? colors.textPrimary : colors.textTertiary,
+                            color: widget.enabled ? colors.onSurface : colors.onSurfaceVariant,
                           ),
                           decoration: InputDecoration(
                             hintText: widget.hint,
-                            hintStyle: AppTypography.body.copyWith(color: colors.textTertiary),
+                            hintStyle: AppTypography.body.copyWith(color: colors.onSurfaceVariant),
                             filled: false,
                             fillColor: Colors.transparent,
                             border: InputBorder.none,
@@ -192,23 +192,23 @@ class _SubbyTextFieldState extends State<SubbyTextField> {
           const SizedBox(height: AppSpacing.s1),
           Text(
             widget.errorText!,
-            style: AppTypography.caption.copyWith(color: colors.statusError),
+            style: AppTypography.caption.copyWith(color: colors.error),
           ),
         ],
       ],
     );
   }
 
-  Color _getBorderColor(AppColorScheme colors, bool hasError) {
+  Color _getBorderColor(SubbyColor colors, bool hasError) {
     if (!widget.enabled) {
-      return colors.buttonDisableText;
+      return colors.outlineVariant;
     }
     if (hasError) {
-      return colors.statusError;
+      return colors.error;
     }
     if (_isFocused) {
-      return colors.borderFocus;
+      return colors.primary;
     }
-    return colors.borderSecondary;
+    return colors.outlineVariant;
   }
 }

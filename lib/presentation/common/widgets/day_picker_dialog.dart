@@ -28,7 +28,7 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -36,7 +36,7 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: colors.bgSecondary,
+          color: colors.surfaceContainer,
           borderRadius: BorderRadius.circular(AppSpacing.s4),
         ),
         child: Padding(
@@ -47,7 +47,7 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
               // Title
               Text(
                 '결제일 선택',
-                style: AppTypography.title.copyWith(color: colors.textPrimary),
+                style: AppTypography.title.copyWith(color: colors.onSurface),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: AppSpacing.s6),
@@ -69,7 +69,7 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? colors.bgAccent
+                                  ? colors.primary
                                   : Colors.transparent,
                               shape: BoxShape.circle,
                             ),
@@ -78,8 +78,8 @@ class _DayPickerDialogState extends State<DayPickerDialog> {
                                 '$day',
                                 style: AppTypography.body.copyWith(
                                   color: isSelected
-                                      ? colors.textOnAccent
-                                      : colors.textPrimary,
+                                      ? colors.onPrimary
+                                      : colors.onSurface,
                                 ),
                               ),
                             ),

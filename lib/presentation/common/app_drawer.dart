@@ -27,7 +27,7 @@ class AppDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final isAnonymous = ref.watch(isAnonymousStateProvider).valueOrNull ?? true;
 
     // 키보드가 올라와도 Drawer 레이아웃이 변하지 않도록 높이 고정
@@ -38,7 +38,7 @@ class AppDrawer extends ConsumerWidget {
 
     return Drawer(
       width: 300,
-      backgroundColor: colors.bgSecondary,
+      backgroundColor: colors.surfaceContainer,
       child: SafeArea(
         bottom: false,
         child: SizedBox(
@@ -86,8 +86,8 @@ class AppDrawer extends ConsumerWidget {
               _SvgMenuItem(
                 iconPath: 'assets/icons/ic_plus_small.svg',
                 label: '새 그룹 만들기',
-                iconColor: colors.iconSecondary,
-                labelColor: colors.textSecondary,
+                iconColor: colors.onSurfaceVariant,
+                labelColor: colors.onSurfaceVariant,
                 onTap: () => showCreateGroupFlow(context, ref),
               ),
               const SizedBox(height: AppSpacing.s2),
@@ -95,8 +95,8 @@ class AppDrawer extends ConsumerWidget {
                 iconPath: 'assets/icons/ic_mail.svg',
                 iconSize: 20,
                 label: '그룹 참여하기',
-                iconColor: colors.iconSecondary,
-                labelColor: colors.textSecondary,
+                iconColor: colors.onSurfaceVariant,
+                labelColor: colors.onSurfaceVariant,
                 onTap: () => showJoinGroupFlow(context, ref),
               ),
 
@@ -138,7 +138,7 @@ class AppDrawer extends ConsumerWidget {
 
   Future<void> _showEditNicknameDialog(BuildContext context, WidgetRef ref) async {
     final currentNickname = ref.read(currentNicknameStateProvider).valueOrNull;
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     final newNickname = await showSubbyTextInputDialog(
       context: context,
@@ -158,7 +158,7 @@ class AppDrawer extends ConsumerWidget {
         width: 24,
         height: 24,
         colorFilter: ColorFilter.mode(
-          colors.iconSecondary,
+          colors.onSurfaceVariant,
           BlendMode.srcIn,
         ),
       ),
@@ -233,12 +233,12 @@ class AppDrawer extends ConsumerWidget {
   }
 
   void _showSignOutDialog(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     showSubbyDialog(
       context: context,
       iconType: AppIconType.logout,
-      iconColor: colors.statusError,
+      iconColor: colors.error,
       title: '로그아웃 할까요?',
       description: '로그아웃하면 다른 기기에서\n동기화되지 않아요',
       actions: [
@@ -279,7 +279,7 @@ class _ProfileSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final nickname = ref.watch(currentNicknameStateProvider).valueOrNull;
 
     return Row(
@@ -288,7 +288,7 @@ class _ProfileSection extends ConsumerWidget {
           child: Text(
             nickname ?? '닉네임 없음',
             style: AppTypography.bodyLargeSemi.copyWith(
-              color: colors.textPrimary,
+              color: colors.onSurface,
             ),
             overflow: TextOverflow.ellipsis,
           ),
@@ -301,7 +301,7 @@ class _ProfileSection extends ConsumerWidget {
             width: 20,
             height: 20,
             colorFilter: ColorFilter.mode(
-              colors.iconPrimary,
+              colors.onSurface,
               BlendMode.srcIn,
             ),
           ),
@@ -331,7 +331,7 @@ class _GroupSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     if (groups.isEmpty) {
       return Center(
@@ -340,7 +340,7 @@ class _GroupSection extends StatelessWidget {
           child: Text(
             '참여 중인 그룹이 없습니다',
             style: AppTypography.body.copyWith(
-              color: colors.textTertiary,
+              color: colors.secondary,
             ),
           ),
         ),
@@ -395,10 +395,10 @@ class _GroupItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Material(
-      color: isSelected ? colors.bgTertiary : Colors.transparent,
+      color: isSelected ? colors.surfaceContainerHighest : Colors.transparent,
       borderRadius: AppRadius.smAll,
       child: InkWell(
         onTap: onTap,
@@ -414,7 +414,7 @@ class _GroupItem extends StatelessWidget {
                 width: 24,
                 height: 24,
                 colorFilter: ColorFilter.mode(
-                  colors.iconPrimary,
+                  colors.onSurface,
                   BlendMode.srcIn,
                 ),
               ),
@@ -429,7 +429,7 @@ class _GroupItem extends StatelessWidget {
                     Text(
                       name,
                       style: AppTypography.body.copyWith(
-                        color: colors.textPrimary,
+                        color: colors.onSurface,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -437,7 +437,7 @@ class _GroupItem extends StatelessWidget {
                     Text(
                       memberCount > 1 ? '$memberCount명 참여중' : '나만 사용중',
                       style: AppTypography.caption.copyWith(
-                        color: colors.textTertiary,
+                        color: colors.secondary,
                       ),
                     ),
                   ],
@@ -451,7 +451,7 @@ class _GroupItem extends StatelessWidget {
                   width: 24,
                   height: 24,
                   colorFilter: ColorFilter.mode(
-                    colors.iconAccent,
+                    colors.primary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -465,16 +465,16 @@ class _GroupItem extends StatelessWidget {
                   width: 24,
                   height: 24,
                   colorFilter: ColorFilter.mode(
-                    colors.iconSecondary,
+                    colors.onSurfaceVariant,
                     BlendMode.srcIn,
                   ),
                 ),
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
                   borderRadius: AppRadius.mdAll,
-                  side: BorderSide(color: colors.borderSecondary),
+                  side: BorderSide(color: colors.outlineVariant),
                 ),
-                color: colors.bgSecondary,
+                color: colors.surfaceContainer,
                 elevation: 4,
                 onSelected: (value) {
                   if (value == 'edit') onEdit();
@@ -487,7 +487,7 @@ class _GroupItem extends StatelessWidget {
                     height: 48,
                     child: Text(
                       '그룹 이름 수정',
-                      style: AppTypography.body.copyWith(color: colors.textPrimary),
+                      style: AppTypography.body.copyWith(color: colors.onSurface),
                     ),
                   ),
                   PopupMenuItem(
@@ -495,7 +495,7 @@ class _GroupItem extends StatelessWidget {
                     height: 48,
                     child: Text(
                       '그룹 초대하기',
-                      style: AppTypography.body.copyWith(color: colors.textPrimary),
+                      style: AppTypography.body.copyWith(color: colors.onSurface),
                     ),
                   ),
                   PopupMenuItem(
@@ -503,7 +503,7 @@ class _GroupItem extends StatelessWidget {
                     height: 48,
                     child: Text(
                       '그룹 나가기',
-                      style: AppTypography.body.copyWith(color: colors.statusError),
+                      style: AppTypography.body.copyWith(color: colors.error),
                     ),
                   ),
                 ],
@@ -536,9 +536,9 @@ class _SvgMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textColor = labelColor ?? colors.textPrimary;
-    final svgColor = iconColor ?? colors.iconPrimary;
+    final colors = context.subbyColor;
+    final textColor = labelColor ?? colors.onSurface;
+    final svgColor = iconColor ?? colors.onSurface;
 
     return Material(
       color: Colors.transparent,
@@ -597,8 +597,8 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textColor = labelColor ?? colors.textPrimary;
+    final colors = context.subbyColor;
+    final textColor = labelColor ?? colors.onSurface;
 
     return Material(
       color: Colors.transparent,
@@ -614,7 +614,7 @@ class _MenuItem extends StatelessWidget {
               Icon(
                 icon,
                 size: 24,
-                color: colors.iconPrimary,
+                color: colors.onSurface,
               ),
               const SizedBox(width: AppSpacing.s3),
               Expanded(
@@ -720,7 +720,7 @@ class _LoginDialogState extends State<LoginDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -728,7 +728,7 @@ class _LoginDialogState extends State<LoginDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
       child: Container(
         decoration: BoxDecoration(
-          color: colors.bgSecondary,
+          color: colors.surfaceContainer,
           borderRadius: AppRadius.lgAll,
         ),
         padding: const EdgeInsets.all(AppSpacing.s6),
@@ -739,7 +739,7 @@ class _LoginDialogState extends State<LoginDialog> {
             Text(
               '로그인',
               style: AppTypography.title.copyWith(
-                color: colors.textPrimary,
+                color: colors.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -747,7 +747,7 @@ class _LoginDialogState extends State<LoginDialog> {
             Text(
               '로그인하면 데이터가 안전하게 저장되고\n다른 기기에서도 동기화돼요',
               style: AppTypography.body.copyWith(
-                color: colors.textSecondary,
+                color: colors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -756,7 +756,7 @@ class _LoginDialogState extends State<LoginDialog> {
 
             // Google 로그인 버튼
             Material(
-              color: colors.bgSecondary,
+              color: colors.surfaceContainer,
               borderRadius: AppRadius.mdAll,
               child: InkWell(
                 onTap: _isLoading ? null : _signInWithGoogle,
@@ -765,7 +765,7 @@ class _LoginDialogState extends State<LoginDialog> {
                   height: 44,
                   decoration: BoxDecoration(
                     borderRadius: AppRadius.mdAll,
-                    border: Border.all(color: colors.borderPrimary),
+                    border: Border.all(color: colors.outline),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -776,7 +776,7 @@ class _LoginDialogState extends State<LoginDialog> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: colors.textPrimary,
+                            color: colors.onSurface,
                           ),
                         )
                       else
@@ -789,7 +789,7 @@ class _LoginDialogState extends State<LoginDialog> {
                       Text(
                         _isLoading ? '로그인 중...' : 'Google로 계속하기',
                         style: AppTypography.body.copyWith(
-                          color: colors.textPrimary,
+                          color: colors.onSurface,
                         ),
                       ),
                     ],

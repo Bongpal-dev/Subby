@@ -30,11 +30,11 @@ class SubbyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
-    final backgroundColor = useAccentBackground ? colors.bgAccent : colors.bgPrimary;
-    final textColor = useAccentBackground ? colors.textOnAccent : colors.textPrimary;
-    final iconColor = useAccentBackground ? colors.iconOnAccent : colors.iconPrimary;
+    final backgroundColor = useAccentBackground ? colors.primary : colors.surface;
+    final textColor = useAccentBackground ? colors.onPrimary : colors.onSurface;
+    final iconColor = useAccentBackground ? colors.onPrimary : colors.onSurface;
 
     Widget? leadingWidget = leading;
     if (showBackButton && leadingWidget == null) {
@@ -106,7 +106,7 @@ class SubbyAppBarIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Material(
       color: Colors.transparent,
@@ -118,7 +118,7 @@ class SubbyAppBarIconButton extends StatelessWidget {
           child: AppIcon(
             icon,
             size: 24,
-            color: color ?? colors.iconPrimary,
+            color: color ?? colors.onSurface,
           ),
         ),
       ),

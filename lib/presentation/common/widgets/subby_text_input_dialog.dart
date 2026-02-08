@@ -96,7 +96,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
@@ -106,7 +106,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
         insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
         child: Container(
           decoration: BoxDecoration(
-            color: colors.bgSecondary,
+            color: colors.surfaceContainer,
             borderRadius: AppRadius.lgAll,
           ),
           padding: const EdgeInsets.all(AppSpacing.s6),
@@ -119,7 +119,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                   Text(
                     widget.title,
                     style: AppTypography.title.copyWith(
-                      color: colors.textPrimary,
+                      color: colors.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -128,7 +128,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                     Text(
                       widget.description!,
                       style: AppTypography.body.copyWith(
-                        color: colors.textSecondary,
+                        color: colors.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -147,10 +147,10 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                     Container(
                       height: 52,
                       decoration: BoxDecoration(
-                        color: colors.bgTertiary,
+                        color: colors.surfaceContainerHighest,
                         borderRadius: AppRadius.mdAll,
                         border: Border.all(
-                          color: _isFocused ? colors.borderFocus : colors.borderSecondary,
+                          color: _isFocused ? colors.primary : colors.outlineVariant,
                         ),
                       ),
                       child: TextFormField(
@@ -161,7 +161,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                         decoration: InputDecoration(
                           hintText: widget.hint,
                           hintStyle: AppTypography.body.copyWith(
-                            color: colors.textTertiary,
+                            color: colors.onSurfaceVariant,
                           ),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -200,7 +200,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                           ),
                         ),
                         style: AppTypography.body.copyWith(
-                          color: colors.textPrimary,
+                          color: colors.onSurface,
                         ),
                         onChanged: _onTextChanged,
                       ),
@@ -216,7 +216,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                                   ? Text(
                                       _errorText!,
                                       style: AppTypography.caption.copyWith(
-                                        color: colors.statusError,
+                                        color: colors.error,
                                       ),
                                     )
                                   : const SizedBox.shrink(),
@@ -225,7 +225,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                               Text(
                                 '${_controller.text.length}/${widget.maxLength}',
                                 style: AppTypography.caption.copyWith(
-                                  color: colors.textTertiary,
+                                  color: colors.onSurfaceVariant,
                                 ),
                               ),
                           ],

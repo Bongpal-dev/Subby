@@ -19,11 +19,11 @@ class SubbyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
-    final backgroundColor = isSelected ? colors.bgAccent : colors.bgSecondary;
-    final textColor = isSelected ? colors.textOnAccent : colors.textSecondary;
-    final borderColor = isSelected ? null : colors.borderSecondary;
+    final backgroundColor = isSelected ? colors.primary : colors.secondaryContainer;
+    final textColor = isSelected ? colors.onPrimary : colors.onSecondaryContainer;
+    final borderColor = isSelected ? null : colors.outlineVariant;
 
     return Material(
       color: backgroundColor,

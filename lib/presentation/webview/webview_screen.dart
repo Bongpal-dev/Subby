@@ -42,10 +42,10 @@ class _WebViewScreenState extends State<WebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       appBar: SubbyAppBar(
         title: widget.title,
         showBackButton: true,
@@ -56,7 +56,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
           if (_isLoading)
             Center(
               child: CircularProgressIndicator(
-                color: colors.bgAccent,
+                color: colors.primary,
               ),
             ),
         ],

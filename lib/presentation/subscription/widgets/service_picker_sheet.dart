@@ -29,13 +29,13 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
   Widget build(BuildContext context) {
     final state = ref.watch(subscriptionAddViewModelProvider);
     final vm = ref.read(subscriptionAddViewModelProvider.notifier);
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final locale = Localizations.localeOf(context);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       decoration: BoxDecoration(
-        color: colors.bgSecondary,
+        color: colors.surfaceContainer,
         borderRadius: AppRadius.xlTop,
       ),
       child: Column(
@@ -54,13 +54,13 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
     );
   }
 
-  Widget _buildHandle(AppColorScheme colors) {
+  Widget _buildHandle(SubbyColor colors) {
     return Container(
       margin: const EdgeInsets.only(top: AppSpacing.s3),
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: colors.borderSecondary,
+        color: colors.outlineVariant,
         borderRadius: AppRadius.fullAll,
       ),
     );
@@ -69,14 +69,14 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
   Widget _buildSearchField(
     SubscriptionAddViewModel vm,
     Locale locale,
-    AppColorScheme colors,
+    SubbyColor colors,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
       child: AppTextField(
         hint: '서비스 검색...',
         controller: _searchController,
-        prefix: AppIcon(AppIconType.search, size: 20, color: colors.iconSecondary),
+        prefix: AppIcon(AppIconType.search, size: 20, color: colors.onSurfaceVariant),
         onChanged: (value) => vm.filterPresets(value, locale),
       ),
     );
@@ -86,7 +86,7 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
     SubscriptionAddState state,
     SubscriptionAddViewModel vm,
     Locale locale,
-    AppColorScheme colors,
+    SubbyColor colors,
   ) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
@@ -105,7 +105,7 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
             horizontal: AppSpacing.s3,
             vertical: AppSpacing.s2,
           ),
-          child: Divider(color: colors.borderSecondary),
+          child: Divider(color: colors.outlineVariant),
         ),
         _ServiceItem(
           isManualInput: true,
@@ -123,13 +123,13 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
 
   void _showManualInputDialog(SubscriptionAddViewModel vm) {
     final controller = TextEditingController();
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (ctx) => AlertDialog(
-        backgroundColor: colors.bgSecondary,
+        backgroundColor: colors.surfaceContainer,
         title: Text('서비스명 입력', style: AppTypography.title),
         content: AppTextField(
           hint: '예: Netflix, Spotify',
@@ -144,7 +144,7 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('취소', style: TextStyle(color: colors.textSecondary)),
+            child: Text('취소', style: TextStyle(color: colors.onSurfaceVariant)),
           ),
           TextButton(
             onPressed: () {
@@ -153,7 +153,7 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
                 Navigator.pop(ctx);
               }
             },
-            child: Text('확인', style: TextStyle(color: colors.textAccent)),
+            child: Text('확인', style: TextStyle(color: colors.primary)),
           ),
         ],
       ),
@@ -173,7 +173,7 @@ class _ServiceItem extends StatelessWidget {
   final SubscriptionPreset? preset;
   final bool isManualInput;
   final Locale locale;
-  final AppColorScheme colors;
+  final SubbyColor colors;
   final VoidCallback onTap;
 
   @override
@@ -190,13 +190,13 @@ class _ServiceItem extends StatelessWidget {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(color: colors.buttonDisableBg),
+                decoration: BoxDecoration(color: colors.surfaceContainerHighest),
                 child: Center(
                   child: isManualInput
-                      ? AppIcon(AppIconType.plus, size: 20, color: colors.iconSecondary)
+                      ? AppIcon(AppIconType.plus, size: 20, color: colors.onSurfaceVariant)
                       : Text(
                           preset?.displayName(locale).substring(0, 1) ?? 'S',
-                          style: AppTypography.title.copyWith(color: colors.textSecondary),
+                          style: AppTypography.title.copyWith(color: colors.onSurfaceVariant),
                         ),
                 ),
               ),
@@ -204,7 +204,7 @@ class _ServiceItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   isManualInput ? '직접 입력' : preset!.displayName(locale),
-                  style: AppTypography.body.copyWith(color: colors.textPrimary),
+                  style: AppTypography.body.copyWith(color: colors.onSurface),
                 ),
               ),
             ],

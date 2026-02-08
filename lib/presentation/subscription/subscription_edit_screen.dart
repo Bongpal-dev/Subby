@@ -33,12 +33,12 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final state = ref.watch(subscriptionEditViewModelProvider(widget.subscriptionId));
 
     if (state.isLoading) {
       return Scaffold(
-        backgroundColor: colors.bgPrimary,
+        backgroundColor: colors.surface,
         appBar: const SubbyAppBar(title: '구독 수정', showBackButton: true),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -49,7 +49,7 @@ class _SubscriptionEditScreenState extends ConsumerState<SubscriptionEditScreen>
       child: Focus(
         focusNode: _focusSink,
         child: Scaffold(
-          backgroundColor: colors.bgPrimary,
+          backgroundColor: colors.surface,
           appBar: const SubbyAppBar(
             title: '구독 수정',
             showBackButton: true,
@@ -202,7 +202,7 @@ class _ServiceDropdownEditState extends ConsumerState<_ServiceDropdownEdit> {
     final provider = subscriptionEditViewModelProvider(widget.subscriptionId);
     final state = ref.watch(provider);
     final vm = ref.read(provider.notifier);
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final locale = Localizations.localeOf(context);
 
     // 초기값 동기화 (한 번만)
@@ -220,7 +220,7 @@ class _ServiceDropdownEditState extends ConsumerState<_ServiceDropdownEdit> {
         focusNode: _focusNode,
         prefix: state.isServiceSelected
             ? _ServiceLogo(colors: colors)
-            : AppIcon(AppIconType.search, size: 24, color: colors.iconSecondary),
+            : AppIcon(AppIconType.search, size: 24, color: colors.onSurfaceVariant),
         onChanged: (value) {
           vm.setName(value);
           vm.clearPresetSelection();
@@ -236,7 +236,7 @@ class _ServiceDropdownEditState extends ConsumerState<_ServiceDropdownEdit> {
 class _ServiceLogo extends StatelessWidget {
   const _ServiceLogo({required this.colors});
 
-  final AppColorScheme colors;
+  final SubbyColor colors;
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +244,7 @@ class _ServiceLogo extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: colors.buttonDisableBg,
+        color: colors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppSpacing.s3),
       ),
       alignment: Alignment.center,
@@ -253,7 +253,7 @@ class _ServiceLogo extends StatelessWidget {
         width: 28,
         height: 28,
         colorFilter: ColorFilter.mode(
-          colors.buttonDisableText,
+          colors.onSurfaceVariant,
           BlendMode.srcIn,
         ),
       ),
@@ -276,16 +276,16 @@ class _ServiceDropdownMenuEdit extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(subscriptionEditViewModelProvider(subscriptionId));
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final locale = Localizations.localeOf(context);
 
     return Material(
       color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: colors.bgSecondary,
+          color: colors.surfaceContainer,
           borderRadius: AppRadius.mdAll,
-          border: Border.all(color: colors.borderSecondary),
+          border: Border.all(color: colors.outlineVariant),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -343,7 +343,7 @@ class _PresetDropdownItem extends StatelessWidget {
 
   final SubscriptionPreset preset;
   final Locale locale;
-  final AppColorScheme colors;
+  final SubbyColor colors;
   final VoidCallback onTap;
 
   @override
@@ -362,7 +362,7 @@ class _PresetDropdownItem extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: colors.buttonDisableBg,
+                  color: colors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppSpacing.s3),
                 ),
                 alignment: Alignment.center,
@@ -371,7 +371,7 @@ class _PresetDropdownItem extends StatelessWidget {
                   width: 28,
                   height: 28,
                   colorFilter: ColorFilter.mode(
-                    colors.buttonDisableText,
+                    colors.onSurfaceVariant,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -380,7 +380,7 @@ class _PresetDropdownItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   preset.displayName(locale),
-                  style: AppTypography.body.copyWith(color: colors.textPrimary),
+                  style: AppTypography.body.copyWith(color: colors.onSurface),
                 ),
               ),
             ],
@@ -399,7 +399,7 @@ class _ManualInputItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final AppColorScheme colors;
+  final SubbyColor colors;
   final bool showDivider;
   final VoidCallback onTap;
 
@@ -414,7 +414,7 @@ class _ManualInputItem extends StatelessWidget {
             child: Divider(
               height: 1,
               thickness: 1,
-              color: colors.borderSecondary,
+              color: colors.outlineVariant,
             ),
           ),
         Padding(
@@ -432,13 +432,13 @@ class _ManualInputItem extends StatelessWidget {
                     AppIcon(
                       AppIconType.plus,
                       size: 24,
-                      color: colors.iconSecondary,
+                      color: colors.onSurfaceVariant,
                     ),
                     const SizedBox(width: AppSpacing.s3),
                     Expanded(
                       child: Text(
                         '직접 입력',
-                        style: AppTypography.body.copyWith(color: colors.textPrimary),
+                        style: AppTypography.body.copyWith(color: colors.onSurface),
                       ),
                     ),
                   ],
@@ -474,7 +474,7 @@ class _PlanSection extends ConsumerWidget {
     }
 
     final vm = ref.read(provider.notifier);
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final locale = Localizations.localeOf(context);
 
     // 현재 선택된 결제주기에 맞는 요금제만 필터링
@@ -487,7 +487,7 @@ class _PlanSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('요금제', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+        Text('요금제', style: AppTypography.label.copyWith(color: colors.onSurface)),
         const SizedBox(height: AppSpacing.s2),
         Row(
           children: plans.asMap().entries.map((entry) {
@@ -560,7 +560,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
     final currency = ref.watch(provider.select((s) => s.currency));
     final vm = ref.read(provider.notifier);
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     // 초기값 동기화
     if (!_initialized && amount > 0) {
@@ -577,14 +577,14 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('금액', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+              Text('금액', style: AppTypography.label.copyWith(color: colors.onSurface)),
               const SizedBox(height: AppSpacing.s2),
               Container(
                 height: 52,
                 decoration: BoxDecoration(
-                  color: colors.bgTertiary,
+                  color: colors.surfaceContainerHighest,
                   borderRadius: AppRadius.mdAll,
-                  border: Border.all(color: colors.borderSecondary),
+                  border: Border.all(color: colors.outlineVariant),
                 ),
                 child: ClipRRect(
                   borderRadius: AppRadius.mdAll,
@@ -593,7 +593,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
                     focusNode: _amountFocusNode,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
-                    style: AppTypography.body.copyWith(color: colors.textPrimary),
+                    style: AppTypography.body.copyWith(color: colors.onSurface),
                     decoration: const InputDecoration(
                       filled: false,
                       border: InputBorder.none,
@@ -657,7 +657,7 @@ class _BillingDaySection extends ConsumerWidget {
     final period = ref.watch(provider.select((s) => s.period));
     final vm = ref.read(provider.notifier);
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final isYearly = period == 'YEARLY';
 
     // 표시 텍스트
@@ -668,7 +668,7 @@ class _BillingDaySection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('결제일', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+        Text('결제일', style: AppTypography.label.copyWith(color: colors.onSurface)),
         const SizedBox(height: AppSpacing.s2),
         GestureDetector(
           onTap: () async {
@@ -697,19 +697,19 @@ class _BillingDaySection extends ConsumerWidget {
             height: 52,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
             decoration: BoxDecoration(
-              color: colors.bgTertiary,
+              color: colors.surfaceContainerHighest,
               borderRadius: AppRadius.mdAll,
-              border: Border.all(color: colors.borderSecondary),
+              border: Border.all(color: colors.outlineVariant),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     displayText,
-                    style: AppTypography.body.copyWith(color: colors.textPrimary),
+                    style: AppTypography.body.copyWith(color: colors.onSurface),
                   ),
                 ),
-                AppIcon(AppIconType.calendar, size: 24, color: colors.iconSecondary),
+                AppIcon(AppIconType.calendar, size: 24, color: colors.onSurfaceVariant),
               ],
             ),
           ),
@@ -735,14 +735,14 @@ class _PeriodSection extends ConsumerWidget {
     final period = ref.watch(provider.select((s) => s.period));
     final vm = ref.read(provider.notifier);
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     const periods = [('MONTHLY', '매월'), ('YEARLY', '매년')];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('결제 주기', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+        Text('결제 주기', style: AppTypography.label.copyWith(color: colors.onSurface)),
         const SizedBox(height: AppSpacing.s2),
         Row(
           children: periods.map((p) {
@@ -847,12 +847,12 @@ class _SaveButton extends ConsumerWidget {
     final provider = subscriptionEditViewModelProvider(subscriptionId);
     final isSaving = ref.watch(provider.select((s) => s.isSaving));
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.bgPrimary,
-        border: Border(top: BorderSide(color: colors.borderSecondary)),
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.outlineVariant)),
       ),
       padding: EdgeInsets.only(
         left: AppSpacing.s4,

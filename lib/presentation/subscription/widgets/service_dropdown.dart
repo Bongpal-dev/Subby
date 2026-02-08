@@ -115,7 +115,7 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
   Widget build(BuildContext context) {
     final state = ref.watch(subscriptionAddViewModelProvider);
     final vm = ref.read(subscriptionAddViewModelProvider.notifier);
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final locale = Localizations.localeOf(context);
 
     // 프리셋 선택 변경 감지하여 컨트롤러 동기화
@@ -142,7 +142,7 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
         focusNode: _focusNode,
         prefix: state.isServiceSelected
             ? _ServiceLogo(colors: colors)
-            : AppIcon(AppIconType.search, size: 24, color: colors.iconSecondary),
+            : AppIcon(AppIconType.search, size: 24, color: colors.onSurfaceVariant),
         onChanged: (value) {
           vm.setName(value);
           vm.clearPresetSelection(); // 입력 시 프리셋 선택 해제
@@ -158,7 +158,7 @@ class _ServiceDropdownState extends ConsumerState<ServiceDropdown> {
 class _ServiceLogo extends StatelessWidget {
   const _ServiceLogo({required this.colors});
 
-  final AppColorScheme colors;
+  final SubbyColor colors;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +166,7 @@ class _ServiceLogo extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: colors.buttonDisableBg,
+        color: colors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppSpacing.s3),
       ),
       alignment: Alignment.center,
@@ -175,7 +175,7 @@ class _ServiceLogo extends StatelessWidget {
         width: 28,
         height: 28,
         colorFilter: ColorFilter.mode(
-          colors.buttonDisableText,
+          colors.onSurfaceVariant,
           BlendMode.srcIn,
         ),
       ),
@@ -196,16 +196,16 @@ class _ServiceDropdownMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(subscriptionAddViewModelProvider);
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final locale = Localizations.localeOf(context);
 
     return Material(
       color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: colors.bgSecondary,
+          color: colors.surfaceContainer,
           borderRadius: AppRadius.mdAll,
-          border: Border.all(color: colors.borderSecondary),
+          border: Border.all(color: colors.outlineVariant),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -265,7 +265,7 @@ class _PresetDropdownItem extends StatelessWidget {
 
   final SubscriptionPreset preset;
   final Locale locale;
-  final AppColorScheme colors;
+  final SubbyColor colors;
   final VoidCallback onTap;
 
   @override
@@ -285,7 +285,7 @@ class _PresetDropdownItem extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: colors.buttonDisableBg,
+                  color: colors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppSpacing.s3),
                 ),
                 alignment: Alignment.center,
@@ -294,7 +294,7 @@ class _PresetDropdownItem extends StatelessWidget {
                   width: 28,
                   height: 28,
                   colorFilter: ColorFilter.mode(
-                    colors.buttonDisableText,
+                    colors.onSurfaceVariant,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -303,7 +303,7 @@ class _PresetDropdownItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   preset.displayName(locale),
-                  style: AppTypography.body.copyWith(color: colors.textPrimary),
+                  style: AppTypography.body.copyWith(color: colors.onSurface),
                 ),
               ),
             ],
@@ -322,7 +322,7 @@ class _ManualInputItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final AppColorScheme colors;
+  final SubbyColor colors;
   final bool showDivider;
   final VoidCallback onTap;
 
@@ -337,7 +337,7 @@ class _ManualInputItem extends StatelessWidget {
             child: Divider(
               height: 1,
               thickness: 1,
-              color: colors.borderSecondary,
+              color: colors.outlineVariant,
             ),
           ),
         Padding(
@@ -355,13 +355,13 @@ class _ManualInputItem extends StatelessWidget {
                     AppIcon(
                       AppIconType.plus,
                       size: 24,
-                      color: colors.iconSecondary,
+                      color: colors.onSurfaceVariant,
                     ),
                     const SizedBox(width: AppSpacing.s3),
                     Expanded(
                       child: Text(
                         '직접 입력',
-                        style: AppTypography.body.copyWith(color: colors.textPrimary),
+                        style: AppTypography.body.copyWith(color: colors.onSurface),
                       ),
                     ),
                   ],

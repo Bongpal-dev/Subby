@@ -1,243 +1,153 @@
 import 'package:flutter/material.dart';
 
-/// Figma 디자인 시스템 색상 토큰
-abstract class AppColors {
-  static const AppColorScheme light = _LightColors();
-  static const AppColorScheme dark = _DarkColors();
+/// Subby 앱 전용 색상 시스템
+/// Material 3 ColorScheme 기반이지만 래핑하여 관리
+@immutable
+class SubbyColor {
+  const SubbyColor({
+    // Primary
+    required this.primary,
+    required this.onPrimary,
+    required this.primaryContainer,
+    required this.onPrimaryContainer,
+    // Secondary
+    required this.secondary,
+    required this.secondaryContainer,
+    required this.onSecondaryContainer,
+    // Surface
+    required this.surface,
+    required this.onSurface,
+    required this.surfaceContainer,
+    required this.surfaceContainerHighest,
+    required this.onSurfaceVariant,
+    // Outline
+    required this.outline,
+    required this.outlineVariant,
+    // Status
+    required this.error,
+    required this.onError,
+    required this.warning,
+    required this.success,
+  });
+
+  // === Primary ===
+  /// #BFFF00 - FAB, CTA, 진행바, 토글 ON, 선택된 Chip
+  final Color primary;
+
+  /// #1A1A1A - primary 위 텍스트/아이콘
+  final Color onPrimary;
+
+  /// Light:#1A1A1A, Dark:#2A2A2A - Primary 버튼 배경
+  final Color primaryContainer;
+
+  /// #FFFFFF - primaryContainer 위 텍스트
+  final Color onPrimaryContainer;
+
+  // === Secondary ===
+  /// Light:#6B7280, Dark:#9CA3AF - 보조 텍스트, 비활성 아이콘
+  final Color secondary;
+
+  /// Light:#E5E7EB, Dark:#333333 - 비활성 Chip 배경
+  final Color secondaryContainer;
+
+  /// Light:#6B7280, Dark:#9CA3AF - 비활성 Chip 텍스트
+  final Color onSecondaryContainer;
+
+  // === Surface ===
+  /// Light:#F0F1F3, Dark:#121212 - 앱 전체 배경 (Scaffold)
+  final Color surface;
+
+  /// Light:#1A1A1A, Dark:#F1F5F9 - 주 텍스트
+  final Color onSurface;
+
+  /// Light:#FFFFFF, Dark:#1E1E1E - 카드, 시트, 다이얼로그 배경
+  final Color surfaceContainer;
+
+  /// Light:#E5E7EB, Dark:#333333 - 입력필드 배경, 토글 OFF 배경
+  final Color surfaceContainerHighest;
+
+  /// Light:#6B7280, Dark:#9CA3AF - 보조 텍스트, 아이콘
+  final Color onSurfaceVariant;
+
+  // === Outline ===
+  /// Light:#D1D5DB, Dark:#444444 - 입력필드 보더, Outline 버튼 보더
+  final Color outline;
+
+  /// Light:#E5E7EB, Dark:#333333 - 연한 구분선, 비활성 Chip 보더
+  final Color outlineVariant;
+
+  // === Status ===
+  /// Light:#EF4444, Dark:#F87171 - 에러, 삭제
+  final Color error;
+
+  /// Light:#FFFFFF, Dark:#1A1A1A - error 위 텍스트
+  final Color onError;
+
+  /// Light:#F97316, Dark:#FB923C - 결제 임박 경고
+  final Color warning;
+
+  /// Light:#3B82F6, Dark:#60A5FA - 성공, 링크
+  final Color success;
+
+  // === Light Theme ===
+  static const light = SubbyColor(
+    // Primary
+    primary: Color(0xFFBFFF00),
+    onPrimary: Color(0xFF1A1A1A),
+    primaryContainer: Color(0xFF1A1A1A),
+    onPrimaryContainer: Color(0xFFFFFFFF),
+    // Secondary
+    secondary: Color(0xFF6B7280),
+    secondaryContainer: Color(0xFFE5E7EB),
+    onSecondaryContainer: Color(0xFF6B7280),
+    // Surface
+    surface: Color(0xFFF0F1F3),
+    onSurface: Color(0xFF1A1A1A),
+    surfaceContainer: Color(0xFFFFFFFF),
+    surfaceContainerHighest: Color(0xFFE5E7EB),
+    onSurfaceVariant: Color(0xFF6B7280),
+    // Outline
+    outline: Color(0xFFD1D5DB),
+    outlineVariant: Color(0xFFE5E7EB),
+    // Status
+    error: Color(0xFFEF4444),
+    onError: Color(0xFFFFFFFF),
+    warning: Color(0xFFF97316),
+    success: Color(0xFF3B82F6),
+  );
+
+  // === Dark Theme ===
+  static const dark = SubbyColor(
+    // Primary
+    primary: Color(0xFFBFFF00),
+    onPrimary: Color(0xFF1A1A1A),
+    primaryContainer: Color(0xFF2A2A2A),
+    onPrimaryContainer: Color(0xFFFFFFFF),
+    // Secondary
+    secondary: Color(0xFF9CA3AF),
+    secondaryContainer: Color(0xFF333333),
+    onSecondaryContainer: Color(0xFF9CA3AF),
+    // Surface
+    surface: Color(0xFF121212),
+    onSurface: Color(0xFFF1F5F9),
+    surfaceContainer: Color(0xFF1E1E1E),
+    surfaceContainerHighest: Color(0xFF333333),
+    onSurfaceVariant: Color(0xFF9CA3AF),
+    // Outline
+    outline: Color(0xFF444444),
+    outlineVariant: Color(0xFF333333),
+    // Status
+    error: Color(0xFFF87171),
+    onError: Color(0xFF1A1A1A),
+    warning: Color(0xFFFB923C),
+    success: Color(0xFF60A5FA),
+  );
 }
 
-/// context.colors로 현재 테마 색상에 접근
-extension AppColorsExtension on BuildContext {
-  AppColorScheme get colors {
+/// context.subbyColor로 현재 테마 색상에 접근
+extension SubbyColorExtension on BuildContext {
+  SubbyColor get subbyColor {
     final isDark = Theme.of(this).brightness == Brightness.dark;
-    return isDark ? AppColors.dark : AppColors.light;
+    return isDark ? SubbyColor.dark : SubbyColor.light;
   }
-}
-
-abstract class AppColorScheme {
-  const AppColorScheme();
-
-  // ============================================
-  // Background
-  // ============================================
-  Color get bgPrimary;
-  Color get bgSecondary;
-  Color get bgTertiary;
-  Color get bgAccent;
-  Color get bgAccentSubtle;
-
-  // ============================================
-  // Text
-  // ============================================
-  Color get textPrimary;
-  Color get textSecondary;
-  Color get textTertiary;
-  Color get textAccent;
-  Color get textOnAccent;
-  Color get textAccentSubtle;
-
-  // ============================================
-  // Border
-  // ============================================
-  Color get borderPrimary;
-  Color get borderSecondary;
-  Color get borderFocus;
-
-  // ============================================
-  // Icon
-  // ============================================
-  Color get iconPrimary;
-  Color get iconSecondary;
-  Color get iconAccent;
-  Color get iconOnAccent;
-
-  // ============================================
-  // Button
-  // ============================================
-  Color get buttonPrimaryBg;
-  Color get buttonPrimaryText;
-  Color get buttonSecondaryBg;
-  Color get buttonSecondaryText;
-  Color get buttonDisableBg;
-  Color get buttonDisableText;
-
-  // ============================================
-  // Tab
-  // ============================================
-  Color get tabSelectedBg;
-  Color get tabSelectedText;
-  Color get tabUnselectedBg;
-  Color get tabUnselectedText;
-
-  // ============================================
-  // Status
-  // ============================================
-  Color get statusError;
-  Color get statusSuccess;
-  Color get statusWarning;
-  Color get statusInfo;
-}
-
-class _LightColors extends AppColorScheme {
-  const _LightColors();
-
-  // Background
-  @override
-  Color get bgPrimary => const Color(0xFFF3F4F6);
-  @override
-  Color get bgSecondary => const Color(0xFFFFFFFF);
-  @override
-  Color get bgTertiary => const Color(0xFFFAFAFA);
-  @override
-  Color get bgAccent => const Color(0xFFBFFF00);
-  @override
-  Color get bgAccentSubtle => const Color(0xFFE8FFB3);
-
-  // Text
-  @override
-  Color get textPrimary => const Color(0xFF1A1A1A);
-  @override
-  Color get textSecondary => const Color(0xFF6B7280);
-  @override
-  Color get textTertiary => const Color(0xFF9CA3AF);
-  @override
-  Color get textAccent => const Color(0xFFBFFF00);
-  @override
-  Color get textOnAccent => const Color(0xFF1A1A1A);
-  @override
-  Color get textAccentSubtle => const Color(0xFF1A1A1A);
-
-  // Border
-  @override
-  Color get borderPrimary => const Color(0xFFD1D5DB);
-  @override
-  Color get borderSecondary => const Color(0xFFE5E7EB);
-  @override
-  Color get borderFocus => const Color(0xFFBFFF00);
-
-  // Icon
-  @override
-  Color get iconPrimary => const Color(0xFF1A1A1A);
-  @override
-  Color get iconSecondary => const Color(0xFF6B7280);
-  @override
-  Color get iconAccent => const Color(0xFFBFFF00);
-  @override
-  Color get iconOnAccent => const Color(0xFF1A1A1A);
-
-  // Button
-  @override
-  Color get buttonPrimaryBg => const Color(0xFF1A1A1A);
-  @override
-  Color get buttonPrimaryText => const Color(0xFFBFFF00);
-  @override
-  Color get buttonSecondaryBg => const Color(0xFFFFFFFF);
-  @override
-  Color get buttonSecondaryText => const Color(0xFF1A1A1A);
-  @override
-  Color get buttonDisableBg => const Color(0xFFE5E7EB);
-  @override
-  Color get buttonDisableText => const Color(0xFF9CA3AF);
-
-  // Tab
-  @override
-  Color get tabSelectedBg => const Color(0xFFBFFF00);
-  @override
-  Color get tabSelectedText => const Color(0xFF1A1A1A);
-  @override
-  Color get tabUnselectedBg => const Color(0xFFFFFFFF);
-  @override
-  Color get tabUnselectedText => const Color(0xFF6B7280);
-
-  // Status
-  @override
-  Color get statusError => const Color(0xFFEF4444);
-  @override
-  Color get statusSuccess => const Color(0xFF22C55E);
-  @override
-  Color get statusWarning => const Color(0xFFF59E0B);
-  @override
-  Color get statusInfo => const Color(0xFF3B82F6);
-}
-
-class _DarkColors extends AppColorScheme {
-  const _DarkColors();
-
-  // Background
-  @override
-  Color get bgPrimary => const Color(0xFF0A0A0A);
-  @override
-  Color get bgSecondary => const Color(0xFF111827);
-  @override
-  Color get bgTertiary => const Color(0xFF1F2937);
-  @override
-  Color get bgAccent => const Color(0xFFBFFF00);
-  @override
-  Color get bgAccentSubtle => const Color(0xFF1A2E00);
-
-  // Text
-  @override
-  Color get textPrimary => const Color(0xFFFFFFFF);
-  @override
-  Color get textSecondary => const Color(0xFF9CA3AF);
-  @override
-  Color get textTertiary => const Color(0xFF6B7280);
-  @override
-  Color get textAccent => const Color(0xFFBFFF00);
-  @override
-  Color get textOnAccent => const Color(0xFF1A1A1A);
-  @override
-  Color get textAccentSubtle => const Color(0xFF1A1A1A);
-
-  // Border
-  @override
-  Color get borderPrimary => const Color(0xFF374151);
-  @override
-  Color get borderSecondary => const Color(0xFF1F2937);
-  @override
-  Color get borderFocus => const Color(0xFFBFFF00);
-
-  // Icon
-  @override
-  Color get iconPrimary => const Color(0xFFFFFFFF);
-  @override
-  Color get iconSecondary => const Color(0xFF9CA3AF);
-  @override
-  Color get iconAccent => const Color(0xFFBFFF00);
-  @override
-  Color get iconOnAccent => const Color(0xFF1A1A1A);
-
-  // Button
-  @override
-  Color get buttonPrimaryBg => const Color(0xFFBFFF00);
-  @override
-  Color get buttonPrimaryText => const Color(0xFF1A1A1A);
-  @override
-  Color get buttonSecondaryBg => const Color(0xFF1F2937);
-  @override
-  Color get buttonSecondaryText => const Color(0xFFFFFFFF);
-  @override
-  Color get buttonDisableBg => const Color(0xFF1F2937);
-  @override
-  Color get buttonDisableText => const Color(0xFF4B5563);
-
-  // Tab
-  @override
-  Color get tabSelectedBg => const Color(0xFFBFFF00);
-  @override
-  Color get tabSelectedText => const Color(0xFF1A1A1A);
-  @override
-  Color get tabUnselectedBg => const Color(0xFF1F2937);
-  @override
-  Color get tabUnselectedText => const Color(0xFF9CA3AF);
-
-  // Status
-  @override
-  Color get statusError => const Color(0xFFF87171);
-  @override
-  Color get statusSuccess => const Color(0xFF4ADE80);
-  @override
-  Color get statusWarning => const Color(0xFFFBBF24);
-  @override
-  Color get statusInfo => const Color(0xFF60A5FA);
 }

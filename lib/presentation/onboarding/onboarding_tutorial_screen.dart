@@ -110,7 +110,7 @@ class _PageIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +121,7 @@ class _PageIndicator extends StatelessWidget {
           height: 8,
           margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s1),
           decoration: BoxDecoration(
-            color: isActive ? colors.iconAccent : colors.iconSecondary,
+            color: isActive ? colors.primary : colors.onSurfaceVariant,
             borderRadius: BorderRadius.circular(4),
           ),
         );
@@ -137,22 +137,22 @@ class _DummyHomeScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 라이트 모드 색상 사용
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       appBar: SubbyAppBar(
         title: '그룹 이름',
         useAccentBackground: true,
         leading: SubbyAppBarIconButton(
           icon: AppIconType.menu,
-          color: colors.iconOnAccent,
+          color: colors.onPrimary,
           onPressed: () {},
         ),
         actions: [
           SubbyAppBarIconButton(
             icon: AppIconType.share,
-            color: colors.iconOnAccent,
+            color: colors.onPrimary,
             onPressed: () {},
           ),
         ],
@@ -185,7 +185,7 @@ class _FabTutorialPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
     final mediaQuery = MediaQuery.of(context);
     final bottomPadding = mediaQuery.padding.bottom;
 
@@ -213,9 +213,9 @@ class _FabTutorialPage extends StatelessWidget {
                     width: fabSize + 16,
                     height: fabSize + 16,
                     decoration: BoxDecoration(
-                      color: colors.bgPrimary,
+                      color: colors.surface,
                       border: Border.all(
-                        color: colors.bgAccent,
+                        color: colors.primary,
                         width: 3,
                       ),
                       borderRadius: BorderRadius.circular(20),
@@ -254,7 +254,7 @@ class _SummaryCardTutorialPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
     final mediaQuery = MediaQuery.of(context);
     final statusBarHeight = mediaQuery.padding.top;
     const appBarHeight = 56.0;
@@ -285,9 +285,9 @@ class _SummaryCardTutorialPage extends StatelessWidget {
                   child: Container(
                     height: cardHeight + 16,
                     decoration: BoxDecoration(
-                      color: colors.bgPrimary,
+                      color: colors.surface,
                       border: Border.all(
-                        color: colors.bgAccent,
+                        color: colors.primary,
                         width: 3,
                       ),
                       borderRadius: BorderRadius.circular(24),
@@ -305,7 +305,7 @@ class _SummaryCardTutorialPage extends StatelessWidget {
                       horizontal: AppSpacing.s4,
                     ),
                     decoration: BoxDecoration(
-                      color: colors.bgAccent,
+                      color: colors.primary,
                       borderRadius: BorderRadius.circular(AppSpacing.s4),
                     ),
                     child: Column(
@@ -313,14 +313,14 @@ class _SummaryCardTutorialPage extends StatelessWidget {
                         Text(
                           '이번 달 예상 구독료',
                           style: AppTypography.body.copyWith(
-                            color: colors.textOnAccent,
+                            color: colors.onPrimary,
                             decoration: TextDecoration.none,
                           ),
                         ),
                         Text(
                           '₩199,200',
                           style: AppTypography.display.copyWith(
-                            color: colors.textOnAccent,
+                            color: colors.onPrimary,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -354,7 +354,7 @@ class _DrawerTutorialPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
     final mediaQuery = MediaQuery.of(context);
     final statusBarHeight = mediaQuery.padding.top;
 
@@ -387,7 +387,7 @@ class _DrawerTutorialPage extends StatelessWidget {
                 children: [
                   // 드로어 흰색 배경
                   Container(
-                    color: colors.bgSecondary,
+                    color: colors.surfaceContainer,
                     padding: EdgeInsets.only(
                       left: AppSpacing.s4,
                       right: AppSpacing.s4,
@@ -404,7 +404,7 @@ class _DrawerTutorialPage extends StatelessWidget {
                               child: Text(
                                 '졸린 빨간색 판다',
                                 style: AppTypography.bodyLargeSemi.copyWith(
-                                  color: colors.textPrimary,
+                                  color: colors.onSurface,
                                 ),
                               ),
                             ),
@@ -413,14 +413,14 @@ class _DrawerTutorialPage extends StatelessWidget {
                               width: 24,
                               height: 24,
                               colorFilter: ColorFilter.mode(
-                                colors.iconPrimary,
+                                colors.onSurface,
                                 BlendMode.srcIn,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: AppSpacing.s4),
-                        Divider(color: colors.borderSecondary, height: 1),
+                        Divider(color: colors.outlineVariant, height: 1),
                         const SizedBox(height: AppSpacing.s4),
 
                         // 그룹 목록
@@ -455,7 +455,7 @@ class _DrawerTutorialPage extends StatelessWidget {
                         ),
 
                         // 하단 메뉴
-                        Divider(color: colors.borderSecondary, height: 1),
+                        Divider(color: colors.outlineVariant, height: 1),
                         const SizedBox(height: AppSpacing.s2),
                         _DummyMenuItem(
                           icon: 'assets/icons/ic_plus.svg',
@@ -466,7 +466,7 @@ class _DrawerTutorialPage extends StatelessWidget {
                           label: '그룹 참여하기',
                         ),
                         const SizedBox(height: AppSpacing.s2),
-                        Divider(color: colors.borderSecondary, height: 1),
+                        Divider(color: colors.outlineVariant, height: 1),
                         const SizedBox(height: AppSpacing.s2),
                         _DummyMenuItem(
                           icon: 'assets/icons/ic_logout.svg',
@@ -493,9 +493,9 @@ class _DrawerTutorialPage extends StatelessWidget {
                     child: Container(
                       height: groupItemHeight + 16,
                       decoration: BoxDecoration(
-                        color: colors.bgSecondary, // 흰색 배경으로 dim 제거
+                        color: colors.surfaceContainer, // 흰색 배경으로 dim 제거
                         border: Border.all(
-                          color: colors.bgAccent,
+                          color: colors.primary,
                           width: 3,
                         ),
                         borderRadius: BorderRadius.circular(16),
@@ -547,13 +547,13 @@ class _DummyGroupItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
 
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
       decoration: BoxDecoration(
-        color: isSelected ? colors.bgTertiary : Colors.transparent,
+        color: isSelected ? colors.surfaceContainerHighest : Colors.transparent,
         borderRadius: BorderRadius.circular(AppSpacing.s2),
       ),
       child: Row(
@@ -563,7 +563,7 @@ class _DummyGroupItem extends StatelessWidget {
             width: 24,
             height: 24,
             colorFilter: ColorFilter.mode(
-              colors.iconPrimary,
+              colors.onSurface,
               BlendMode.srcIn,
             ),
           ),
@@ -576,14 +576,14 @@ class _DummyGroupItem extends StatelessWidget {
                 Text(
                   name,
                   style: AppTypography.body.copyWith(
-                    color: colors.textPrimary,
+                    color: colors.onSurface,
                     decoration: TextDecoration.none,
                   ),
                 ),
                 Text(
                   memberCount,
                   style: AppTypography.caption.copyWith(
-                    color: colors.textTertiary,
+                    color: colors.secondary,
                     decoration: TextDecoration.none,
                   ),
                 ),
@@ -596,7 +596,7 @@ class _DummyGroupItem extends StatelessWidget {
               width: 24,
               height: 24,
               colorFilter: ColorFilter.mode(
-                colors.iconPrimary,
+                colors.onSurface,
                 BlendMode.srcIn,
               ),
             ),
@@ -606,7 +606,7 @@ class _DummyGroupItem extends StatelessWidget {
             width: 24,
             height: 24,
             colorFilter: ColorFilter.mode(
-              colors.iconSecondary,
+              colors.onSurfaceVariant,
               BlendMode.srcIn,
             ),
           ),
@@ -628,7 +628,7 @@ class _DummyMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
 
     return SizedBox(
       height: 48,
@@ -640,7 +640,7 @@ class _DummyMenuItem extends StatelessWidget {
             width: 24,
             height: 24,
             colorFilter: ColorFilter.mode(
-              colors.iconSecondary,
+              colors.onSurfaceVariant,
               BlendMode.srcIn,
             ),
           ),
@@ -648,7 +648,7 @@ class _DummyMenuItem extends StatelessWidget {
           Text(
             label,
             style: AppTypography.body.copyWith(
-              color: colors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
           ),
         ],
@@ -663,7 +663,7 @@ class _DummySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
@@ -674,18 +674,18 @@ class _DummySummaryCard extends StatelessWidget {
           horizontal: AppSpacing.s4,
         ),
         decoration: BoxDecoration(
-          color: colors.bgAccent,
+          color: colors.primary,
           borderRadius: BorderRadius.circular(AppSpacing.s4),
         ),
         child: Column(
           children: [
             Text(
               '이번 달 예상 구독료',
-              style: AppTypography.body.copyWith(color: colors.textOnAccent),
+              style: AppTypography.body.copyWith(color: colors.onPrimary),
             ),
             Text(
               '₩199,200',
-              style: AppTypography.display.copyWith(color: colors.textOnAccent),
+              style: AppTypography.display.copyWith(color: colors.onPrimary),
             ),
           ],
         ),
@@ -752,11 +752,11 @@ class _DummySubscriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.bgSecondary,
+        color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(AppSpacing.s4),
       ),
       padding: const EdgeInsets.all(AppSpacing.s4),
@@ -767,7 +767,7 @@ class _DummySubscriptionCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: colors.buttonDisableBg,
+              color: colors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(AppSpacing.s3),
             ),
             alignment: Alignment.center,
@@ -776,7 +776,7 @@ class _DummySubscriptionCard extends StatelessWidget {
               width: 28,
               height: 28,
               colorFilter: ColorFilter.mode(
-                colors.buttonDisableText,
+                colors.onSurfaceVariant,
                 BlendMode.srcIn,
               ),
             ),
@@ -790,14 +790,14 @@ class _DummySubscriptionCard extends StatelessWidget {
                 Text(
                   name,
                   style: AppTypography.bodySemi.copyWith(
-                    color: colors.textPrimary,
+                    color: colors.onSurface,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.s1),
                 Text(
                   '매월 15일 결제',
                   style: AppTypography.caption.copyWith(
-                    color: colors.textTertiary,
+                    color: colors.secondary,
                   ),
                 ),
               ],
@@ -810,14 +810,14 @@ class _DummySubscriptionCard extends StatelessWidget {
               Text(
                 amount,
                 style: AppTypography.bodyLargeSemi.copyWith(
-                  color: colors.textPrimary,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: AppSpacing.s1),
               Text(
                 '월간 결제',
                 style: AppTypography.caption.copyWith(
-                  color: colors.textTertiary,
+                  color: colors.secondary,
                 ),
               ),
             ],
@@ -837,10 +837,10 @@ class _WelcomeCompletePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 라이트 모드 색상 사용
-    final colors = AppColors.light;
+    final colors = SubbyColor.light;
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -863,7 +863,7 @@ class _WelcomeCompletePage extends StatelessWidget {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: colors.bgAccent,
+                            color: colors.primary,
                             borderRadius: BorderRadius.circular(AppSpacing.s4),
                           ),
                           alignment: Alignment.center,
@@ -871,7 +871,7 @@ class _WelcomeCompletePage extends StatelessWidget {
                           child: SvgPicture.asset(
                             'assets/icons/subby_place_holder.svg',
                             colorFilter: ColorFilter.mode(
-                              colors.textOnAccent,
+                              colors.onPrimary,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -881,7 +881,7 @@ class _WelcomeCompletePage extends StatelessWidget {
                         Text(
                           '시작할 준비 완료!',
                           style: AppTypography.title.copyWith(
-                            color: colors.textPrimary,
+                            color: colors.onSurface,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -890,7 +890,7 @@ class _WelcomeCompletePage extends StatelessWidget {
                         Text(
                           '이제 구독을 등록하고 한눈에 관리해보세요',
                           style: AppTypography.body.copyWith(
-                            color: colors.textSecondary,
+                            color: colors.onSurfaceVariant,
                           ),
                           textAlign: TextAlign.center,
                         ),

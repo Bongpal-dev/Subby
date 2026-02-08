@@ -7,7 +7,7 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 디자인 시스템 Dialog
-/// - 배경: bgSecondary, 라운드: 16dp
+/// - 배경: surfaceContainer, 라운드: 16dp
 /// - 패딩: 24dp, gap: 20dp
 /// - 버튼: 높이 44dp, 라운드 12dp, gap 12dp
 /// - 아이콘: 48px 고정
@@ -31,7 +31,7 @@ class SubbyDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
@@ -41,7 +41,7 @@ class SubbyDialog extends StatelessWidget {
         insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
         child: Container(
           decoration: BoxDecoration(
-            color: colors.bgSecondary,
+            color: colors.surfaceContainer,
             borderRadius: AppRadius.lgAll,
           ),
           padding: const EdgeInsets.all(AppSpacing.s6),
@@ -53,7 +53,7 @@ class SubbyDialog extends StatelessWidget {
                 AppIcon(
                   iconType!,
                   size: 48,
-                  color: iconColor ?? colors.iconPrimary,
+                  color: iconColor ?? colors.onSurface,
                 ),
                 const SizedBox(height: AppSpacing.s5),
               ],
@@ -64,7 +64,7 @@ class SubbyDialog extends StatelessWidget {
                   Text(
                     title,
                     style: AppTypography.title.copyWith(
-                      color: colors.textPrimary,
+                      color: colors.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -73,7 +73,7 @@ class SubbyDialog extends StatelessWidget {
                     Text(
                       description!,
                       style: AppTypography.body.copyWith(
-                        color: colors.textSecondary,
+                        color: colors.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -129,11 +129,11 @@ class _DialogButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
-    final bgColor = isPrimary ? colors.buttonPrimaryBg : Colors.transparent;
-    final textColor = isPrimary ? colors.buttonPrimaryText : colors.buttonSecondaryText;
-    final borderColor = isPrimary ? Colors.transparent : colors.borderPrimary;
+    final bgColor = isPrimary ? colors.primaryContainer : Colors.transparent;
+    final textColor = isPrimary ? colors.onPrimaryContainer : colors.onSurface;
+    final borderColor = isPrimary ? Colors.transparent : colors.outline;
 
     return Material(
       color: bgColor,
@@ -232,12 +232,12 @@ class SubbyDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Container(
       height: thickness,
       margin: EdgeInsets.only(left: indent, right: endIndent),
-      color: color ?? colors.borderSecondary,
+      color: color ?? colors.outlineVariant,
     );
   }
 }

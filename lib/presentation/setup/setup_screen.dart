@@ -26,7 +26,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(setupViewModelProvider(widget.nicknameOnly));
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     // Step 변경 시 UI 반응
     ref.listen<SetupStep>(
@@ -38,7 +38,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     );
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -48,7 +48,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: colors.bgAccent,
+                  color: colors.primary,
                   borderRadius: BorderRadius.circular(AppSpacing.s4),
                 ),
                 alignment: Alignment.center,
@@ -56,7 +56,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 child: SvgPicture.asset(
                   'assets/icons/subby_place_holder.svg',
                   colorFilter: ColorFilter.mode(
-                    colors.textOnAccent,
+                    colors.onPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -65,7 +65,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
               Text(
                 '설정 중...',
                 style: AppTypography.title.copyWith(
-                  color: colors.textPrimary,
+                  color: colors.onSurface,
                 ),
               ),
               if (state.isProcessing) ...[
@@ -101,13 +101,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Future<void> _showCloudSyncDialog() async {
     if (!mounted) return;
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final vm = ref.read(setupViewModelProvider(widget.nicknameOnly).notifier);
 
     final wantsLogin = await showSubbyDialog<bool>(
       context: context,
       iconType: AppIconType.download,
-      iconColor: colors.statusInfo,
+      iconColor: colors.success,
       title: '클라우드에 연동할까요?',
       description: '로그인하면 데이터가 안전하게 저장되고,\n다른 기기에서도 사용할 수 있어요',
       barrierDismissible: false,
@@ -142,7 +142,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Future<void> _showNicknameDialog() async {
     if (!mounted) return;
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final vm = ref.read(setupViewModelProvider(widget.nicknameOnly).notifier);
 
     final nickname = await showSubbyTextInputDialog(
@@ -159,7 +159,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         width: 24,
         height: 24,
         colorFilter: ColorFilter.mode(
-          colors.iconSecondary,
+          colors.onSurfaceVariant,
           BlendMode.srcIn,
         ),
       ),

@@ -19,13 +19,13 @@ class SubbyBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.bgSecondary,
+        color: colors.surfaceContainer,
         border: Border(
-          top: BorderSide(color: colors.borderSecondary),
+          top: BorderSide(color: colors.outlineVariant),
         ),
       ),
       child: SafeArea(
@@ -70,10 +70,10 @@ class _NavItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
-    final iconColor = isSelected ? colors.iconAccent : colors.iconSecondary;
-    final textColor = isSelected ? colors.textAccent : colors.textSecondary;
+    final iconColor = isSelected ? colors.primary : colors.onSurfaceVariant;
+    final textColor = isSelected ? colors.primary : colors.onSurfaceVariant;
 
     return Material(
       color: Colors.transparent,

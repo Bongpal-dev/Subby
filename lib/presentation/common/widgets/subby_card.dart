@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:subby/core/theme/app_colors.dart';
 
 class SubbyCard extends StatelessWidget {
   final Widget child;
@@ -14,10 +15,12 @@ class SubbyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.subbyColor;
+
     return Container(
       padding: padding ?? const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(borderRadius ?? 12),
       ),
       child: child,

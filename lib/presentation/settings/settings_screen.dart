@@ -39,10 +39,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       appBar: SubbyAppBar(
         title: '설정',
         showBackButton: true,
@@ -152,7 +152,7 @@ class SettingGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +165,7 @@ class SettingGroup extends StatelessWidget {
           child: Text(
             label,
             style: AppTypography.label.copyWith(
-              color: colors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
           ),
         ),
@@ -205,11 +205,11 @@ class _SettingItemContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.bgSecondary,
+        color: colors.surfaceContainer,
         borderRadius: AppRadius.mdAll,
       ),
       clipBehavior: Clip.antiAlias,
@@ -246,7 +246,7 @@ class SettingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Material(
       color: Colors.transparent,
@@ -263,7 +263,7 @@ class SettingItem extends StatelessWidget {
                 child: Text(
                   title,
                   style: AppTypography.body.copyWith(
-                    color: colors.textPrimary,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -272,7 +272,7 @@ class SettingItem extends StatelessWidget {
                 Text(
                   value!,
                   style: AppTypography.body.copyWith(
-                    color: colors.textSecondary,
+                    color: colors.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -281,7 +281,7 @@ class SettingItem extends StatelessWidget {
                 AppIcon(
                   AppIconType.next,
                   size: 24,
-                  color: colors.iconSecondary,
+                  color: colors.onSurfaceVariant,
                 ),
               ],
               if (type == SettingItemType.toggle)
@@ -316,7 +316,7 @@ class SettingItemDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Material(
       color: Colors.transparent,
@@ -333,21 +333,21 @@ class SettingItemDropdown<T> extends StatelessWidget {
                 child: Text(
                   title,
                   style: AppTypography.body.copyWith(
-                    color: colors.textPrimary,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
               Text(
                 itemLabel(value),
                 style: AppTypography.body.copyWith(
-                  color: colors.textSecondary,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
               const SizedBox(width: AppSpacing.s2),
               AppIcon(
                 AppIconType.dropdown,
                 size: 20,
-                color: colors.iconSecondary,
+                color: colors.onSurfaceVariant,
               ),
             ],
           ),
@@ -356,7 +356,7 @@ class SettingItemDropdown<T> extends StatelessWidget {
     );
   }
 
-  void _showDropdownMenu(BuildContext context, AppColorScheme colors) {
+  void _showDropdownMenu(BuildContext context, SubbyColor colors) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
         Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
@@ -372,7 +372,7 @@ class SettingItemDropdown<T> extends StatelessWidget {
       ),
       constraints: const BoxConstraints(maxHeight: 240),
       shape: RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-      color: colors.bgSecondary,
+      color: colors.surfaceContainer,
       elevation: 4,
       shadowColor: Colors.black.withValues(alpha: 0.32),
       surfaceTintColor: Colors.transparent,
@@ -387,7 +387,7 @@ class SettingItemDropdown<T> extends StatelessWidget {
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
             decoration: BoxDecoration(
-              color: isSelected ? colors.bgTertiary : Colors.transparent,
+              color: isSelected ? colors.surfaceContainerHighest : Colors.transparent,
               borderRadius: AppRadius.smAll,
             ),
             child: Row(
@@ -396,7 +396,7 @@ class SettingItemDropdown<T> extends StatelessWidget {
                   child: Text(
                     itemLabel(item),
                     style: AppTypography.body.copyWith(
-                      color: colors.textPrimary,
+                      color: colors.onSurface,
                     ),
                   ),
                 ),
@@ -404,7 +404,7 @@ class SettingItemDropdown<T> extends StatelessWidget {
                   AppIcon(
                     AppIconType.check,
                     size: 24,
-                    color: colors.bgAccent,
+                    color: colors.primary,
                   ),
               ],
             ),

@@ -5,10 +5,10 @@ import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 
 /// Figma 코치마크 ToolTip 컴포넌트
-/// - 배경: bgSecondary, 라운드: 12dp
+/// - 배경: surfaceContainer, 라운드: 12dp
 /// - 패딩: 16dp, gap: 8dp
 /// - 제목: bodyLargeSemi (16px, SemiBold)
-/// - 설명: body (14px, Regular, textSecondary)
+/// - 설명: body (14px, Regular, onSurfaceVariant)
 class SubbyTooltip extends StatelessWidget {
   const SubbyTooltip({
     super.key,
@@ -23,13 +23,13 @@ class SubbyTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Container(
       width: width,
       padding: const EdgeInsets.all(AppSpacing.s4),
       decoration: BoxDecoration(
-        color: colors.bgSecondary,
+        color: colors.surfaceContainer,
         borderRadius: AppRadius.smAll,
         boxShadow: [
           BoxShadow(
@@ -46,7 +46,7 @@ class SubbyTooltip extends StatelessWidget {
           Text(
             title,
             style: AppTypography.bodyLargeSemi.copyWith(
-              color: colors.textPrimary,
+              color: colors.onSurface,
               decoration: TextDecoration.none,
             ),
           ),
@@ -54,7 +54,7 @@ class SubbyTooltip extends StatelessWidget {
           Text(
             description,
             style: AppTypography.body.copyWith(
-              color: colors.textSecondary,
+              color: colors.onSurfaceVariant,
               decoration: TextDecoration.none,
             ),
           ),
@@ -84,7 +84,7 @@ class CoachMarkOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return GestureDetector(
       onTap: onTap,
@@ -118,7 +118,7 @@ class CoachMarkOverlay extends StatelessWidget {
                         width: size.width + 16,
                         height: size.height + 16,
                         decoration: BoxDecoration(
-                          color: colors.bgPrimary,
+                          color: colors.surface,
                           borderRadius: AppRadius.lgAll,
                         ),
                       ),

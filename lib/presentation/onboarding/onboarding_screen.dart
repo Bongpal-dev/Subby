@@ -36,10 +36,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -54,7 +54,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: colors.bgAccent,
+                        color: colors.primary,
                         borderRadius: BorderRadius.circular(AppSpacing.s4),
                       ),
                       alignment: Alignment.center,
@@ -62,7 +62,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       child: SvgPicture.asset(
                         'assets/icons/subby_place_holder.svg',
                         colorFilter: ColorFilter.mode(
-                          colors.textOnAccent,
+                          colors.onPrimary,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -72,7 +72,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Text(
                       'Subby에 오신 걸 환영해요!',
                       style: AppTypography.title.copyWith(
-                        color: colors.textPrimary,
+                        color: colors.onSurface,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.s2),
@@ -80,7 +80,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Text(
                       'Subby를 처음 사용하시나요?',
                       style: AppTypography.body.copyWith(
-                        color: colors.textSecondary,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ],

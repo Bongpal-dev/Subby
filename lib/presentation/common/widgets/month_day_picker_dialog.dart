@@ -74,7 +74,7 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -82,7 +82,7 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: colors.bgSecondary,
+          color: colors.surfaceContainer,
           borderRadius: BorderRadius.circular(AppSpacing.s4),
         ),
         child: Padding(
@@ -93,7 +93,7 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
               // Title
               Text(
                 '결제일 선택',
-                style: AppTypography.title.copyWith(color: colors.textPrimary),
+                style: AppTypography.title.copyWith(color: colors.onSurface),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: AppSpacing.s6),
@@ -107,13 +107,13 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
                     child: Icon(
                       Icons.chevron_left,
                       size: 24,
-                      color: colors.iconPrimary,
+                      color: colors.onSurface,
                     ),
                   ),
                   Text(
                     '$_selectedMonth월',
                     style: AppTypography.bodyLargeSemi.copyWith(
-                      color: colors.textPrimary,
+                      color: colors.onSurface,
                     ),
                   ),
                   GestureDetector(
@@ -121,7 +121,7 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
                     child: Icon(
                       Icons.chevron_right,
                       size: 24,
-                      color: colors.iconPrimary,
+                      color: colors.onSurface,
                     ),
                   ),
                 ],
@@ -157,7 +157,7 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? colors.bgAccent
+                                        ? colors.primary
                                         : Colors.transparent,
                                     shape: BoxShape.circle,
                                   ),
@@ -166,8 +166,8 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
                                       '$day',
                                       style: AppTypography.body.copyWith(
                                         color: isSelected
-                                            ? colors.textOnAccent
-                                            : colors.textPrimary,
+                                            ? colors.onPrimary
+                                            : colors.onSurface,
                                       ),
                                     ),
                                   ),

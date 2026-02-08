@@ -31,7 +31,7 @@ class SubbyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     final backgroundColor = _getBackgroundColor(colors);
     final textColor = _getTextColor(colors);
@@ -87,10 +87,10 @@ class SubbyButton extends StatelessWidget {
     return button;
   }
 
-  Color _getBackgroundColor(AppColorScheme colors) {
+  Color _getBackgroundColor(SubbyColor colors) {
     switch (type) {
       case SubbyButtonType.primary:
-        return isEnabled ? colors.buttonPrimaryBg : colors.buttonDisableBg;
+        return isEnabled ? colors.primaryContainer : colors.surfaceContainerHighest;
       case SubbyButtonType.outline:
         return Colors.transparent;
       case SubbyButtonType.text:
@@ -98,27 +98,27 @@ class SubbyButton extends StatelessWidget {
     }
   }
 
-  Color _getTextColor(AppColorScheme colors) {
+  Color _getTextColor(SubbyColor colors) {
     if (!isEnabled) {
-      return colors.buttonDisableText;
+      return colors.onSurfaceVariant;
     }
 
     switch (type) {
       case SubbyButtonType.primary:
-        return colors.buttonPrimaryText;
+        return colors.onPrimaryContainer;
       case SubbyButtonType.outline:
-        return colors.buttonSecondaryText;
+        return colors.onSurface;
       case SubbyButtonType.text:
-        return colors.buttonSecondaryText;
+        return colors.onSurface;
     }
   }
 
-  Color? _getBorderColor(AppColorScheme colors) {
+  Color? _getBorderColor(SubbyColor colors) {
     switch (type) {
       case SubbyButtonType.primary:
         return null;
       case SubbyButtonType.outline:
-        return isEnabled ? colors.borderPrimary : colors.borderSecondary;
+        return isEnabled ? colors.outline : colors.outlineVariant;
       case SubbyButtonType.text:
         return null;
     }

@@ -27,14 +27,14 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return GestureDetector(
       onTap: () => _focusSink.requestFocus(),
       child: Focus(
         focusNode: _focusSink,
         child: Scaffold(
-          backgroundColor: colors.bgPrimary,
+          backgroundColor: colors.surface,
           appBar: const SubbyAppBar(
             title: '구독 추가',
             showBackButton: true,
@@ -91,7 +91,7 @@ class _PlanSection extends ConsumerWidget {
     }
 
     final vm = ref.read(provider.notifier);
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final locale = Localizations.localeOf(context);
 
     // 현재 선택된 결제주기에 맞는 요금제만 필터링
@@ -104,7 +104,7 @@ class _PlanSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('요금제', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+        Text('요금제', style: AppTypography.label.copyWith(color: colors.onSurface)),
         const SizedBox(height: AppSpacing.s2),
         Row(
           children: plans.asMap().entries.map((entry) {
@@ -174,7 +174,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
     final currency = ref.watch(provider.select((s) => s.currency));
     final vm = ref.read(provider.notifier);
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     _syncAmountController(amount, currency);
 
@@ -186,14 +186,14 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('금액', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+              Text('금액', style: AppTypography.label.copyWith(color: colors.onSurface)),
               const SizedBox(height: AppSpacing.s2),
               Container(
                 height: 52,
                 decoration: BoxDecoration(
-                  color: colors.bgTertiary,
+                  color: colors.surfaceContainerHighest,
                   borderRadius: AppRadius.mdAll,
-                  border: Border.all(color: colors.borderSecondary),
+                  border: Border.all(color: colors.outlineVariant),
                 ),
                 child: ClipRRect(
                   borderRadius: AppRadius.mdAll,
@@ -202,7 +202,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
                     focusNode: _amountFocusNode,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
-                    style: AppTypography.body.copyWith(color: colors.textPrimary),
+                    style: AppTypography.body.copyWith(color: colors.onSurface),
                     decoration: const InputDecoration(
                       filled: false,
                       border: InputBorder.none,
@@ -263,7 +263,7 @@ class _BillingDaySection extends ConsumerWidget {
     final period = ref.watch(provider.select((s) => s.period));
     final vm = ref.read(provider.notifier);
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final isYearly = period == 'YEARLY';
 
     // 표시 텍스트
@@ -274,7 +274,7 @@ class _BillingDaySection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('결제일', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+        Text('결제일', style: AppTypography.label.copyWith(color: colors.onSurface)),
         const SizedBox(height: AppSpacing.s2),
         GestureDetector(
           onTap: () async {
@@ -303,19 +303,19 @@ class _BillingDaySection extends ConsumerWidget {
             height: 52,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
             decoration: BoxDecoration(
-              color: colors.bgTertiary,
+              color: colors.surfaceContainerHighest,
               borderRadius: AppRadius.mdAll,
-              border: Border.all(color: colors.borderSecondary),
+              border: Border.all(color: colors.outlineVariant),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     displayText,
-                    style: AppTypography.body.copyWith(color: colors.textPrimary),
+                    style: AppTypography.body.copyWith(color: colors.onSurface),
                   ),
                 ),
-                AppIcon(AppIconType.calendar, size: 24, color: colors.iconSecondary),
+                AppIcon(AppIconType.calendar, size: 24, color: colors.onSurfaceVariant),
               ],
             ),
           ),
@@ -337,14 +337,14 @@ class _PeriodSection extends ConsumerWidget {
     final period = ref.watch(provider.select((s) => s.period));
     final vm = ref.read(provider.notifier);
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     const periods = [('MONTHLY', '매월'), ('YEARLY', '매년')];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('결제 주기', style: AppTypography.label.copyWith(color: colors.textPrimary)),
+        Text('결제 주기', style: AppTypography.label.copyWith(color: colors.onSurface)),
         const SizedBox(height: AppSpacing.s2),
         Row(
           children: periods.map((p) {
@@ -436,12 +436,12 @@ class _SaveButton extends ConsumerWidget {
     final provider = subscriptionAddViewModelProvider;
     final isSaving = ref.watch(provider.select((s) => s.isSaving));
 
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.bgPrimary,
-        border: Border(top: BorderSide(color: colors.borderSecondary)),
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.outlineVariant)),
       ),
       padding: EdgeInsets.only(
         left: AppSpacing.s4,

@@ -23,7 +23,7 @@ class InviteDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
@@ -33,7 +33,7 @@ class InviteDialog extends StatelessWidget {
         insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
         child: Container(
           decoration: BoxDecoration(
-            color: colors.bgSecondary,
+            color: colors.surfaceContainer,
             borderRadius: AppRadius.lgAll,
           ),
           padding: const EdgeInsets.all(AppSpacing.s6),
@@ -46,7 +46,7 @@ class InviteDialog extends StatelessWidget {
                   Text(
                     '그룹 초대하기',
                     style: AppTypography.title.copyWith(
-                      color: colors.textPrimary,
+                      color: colors.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -54,7 +54,7 @@ class InviteDialog extends StatelessWidget {
                   Text(
                     '아래 초대 코드를 공유하여\n"$groupName" 그룹에 초대하세요',
                     style: AppTypography.body.copyWith(
-                      color: colors.textSecondary,
+                      color: colors.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -67,9 +67,9 @@ class InviteDialog extends StatelessWidget {
               Container(
                 height: 52,
                 decoration: BoxDecoration(
-                  color: colors.bgTertiary,
+                  color: colors.surfaceContainerHighest,
                   borderRadius: AppRadius.mdAll,
-                  border: Border.all(color: colors.borderSecondary),
+                  border: Border.all(color: colors.outlineVariant),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
                 child: Row(
@@ -78,7 +78,7 @@ class InviteDialog extends StatelessWidget {
                       child: Text(
                         groupCode,
                         style: AppTypography.body.copyWith(
-                          color: colors.textPrimary,
+                          color: colors.onSurface,
                           letterSpacing: 1,
                         ),
                       ),
@@ -88,7 +88,7 @@ class InviteDialog extends StatelessWidget {
                       child: Icon(
                         Icons.copy_outlined,
                         size: 20,
-                        color: colors.iconSecondary,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ],

@@ -144,11 +144,11 @@ class SubscriptionDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final subscriptionAsync = ref.watch(subscriptionDetailProvider(subscriptionId));
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       appBar: SubbyAppBar(
         title: '구독 상세',
         showBackButton: true,
@@ -158,7 +158,7 @@ class SubscriptionDetailScreen extends ConsumerWidget {
             onPressed: () => subscriptionAsync.whenData(
               (sub) => sub != null ? _showDeleteDialog(context, ref, sub) : null,
             ),
-            color: colors.iconPrimary,
+            color: colors.onSurface,
           ),
         ],
       ),
@@ -208,12 +208,12 @@ class SubscriptionDetailScreen extends ConsumerWidget {
   }
 
   void _showDeleteDialog(BuildContext context, WidgetRef ref, SubscriptionDetailUiModel subscription) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     showSubbyDialog(
       context: context,
       iconType: AppIconType.trash,
-      iconColor: colors.statusError,
+      iconColor: colors.error,
       title: '구독 삭제',
       description: '"${subscription.name}"를 정말 삭제할까요?',
       actions: [
@@ -246,7 +246,7 @@ class _HeaderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Column(
       children: [
@@ -255,7 +255,7 @@ class _HeaderSection extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: colors.buttonDisableBg,
+            color: colors.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(AppSpacing.s3),
           ),
           alignment: Alignment.center,
@@ -264,7 +264,7 @@ class _HeaderSection extends StatelessWidget {
             width: 28,
             height: 28,
             colorFilter: ColorFilter.mode(
-              colors.buttonDisableText,
+              colors.onSurfaceVariant,
               BlendMode.srcIn,
             ),
           ),
@@ -274,7 +274,7 @@ class _HeaderSection extends StatelessWidget {
         // 서비스명
         Text(
           subscription.name,
-          style: AppTypography.title.copyWith(color: colors.textPrimary),
+          style: AppTypography.title.copyWith(color: colors.onSurface),
         ),
         const SizedBox(height: AppSpacing.s2),
 
@@ -282,7 +282,7 @@ class _HeaderSection extends StatelessWidget {
         if (subscription.category != null)
           Text(
             subscription.category!,
-            style: AppTypography.label.copyWith(color: colors.textSecondary),
+            style: AppTypography.label.copyWith(color: colors.onSurfaceVariant),
           ),
         const SizedBox(height: AppSpacing.s2),
 
@@ -348,7 +348,7 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return SizedBox(
       width: double.infinity,
@@ -357,12 +357,12 @@ class _InfoRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: AppTypography.label.copyWith(color: colors.textSecondary),
+            style: AppTypography.label.copyWith(color: colors.onSurfaceVariant),
           ),
           const SizedBox(height: AppSpacing.s1),
           Text(
             value,
-            style: AppTypography.body.copyWith(color: colors.textPrimary),
+            style: AppTypography.body.copyWith(color: colors.onSurface),
           ),
         ],
       ),
@@ -378,14 +378,14 @@ class _BottomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const SubbyDivider(),
         Container(
-          color: colors.bgPrimary,
+          color: colors.surface,
           padding: EdgeInsets.only(
             left: AppSpacing.s4,
             right: AppSpacing.s4,

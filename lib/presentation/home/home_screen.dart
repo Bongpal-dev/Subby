@@ -61,17 +61,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
 
     final state = ref.watch(homeViewModelProvider);
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Scaffold(
-      backgroundColor: colors.bgPrimary,
+      backgroundColor: colors.surface,
       appBar: SubbyAppBar(
         title: state.hasGroup ? state.currentGroupName : null,
         useAccentBackground: state.hasGroup,
         leading: Builder(
           builder: (ctx) => SubbyAppBarIconButton(
             icon: AppIconType.menu,
-            color: state.hasGroup ? colors.iconOnAccent : colors.iconPrimary,
+            color: state.hasGroup ? colors.onPrimary : colors.onSurface,
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
@@ -79,7 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ? [
                 SubbyAppBarIconButton(
                   icon: AppIconType.share,
-                  color: colors.iconOnAccent,
+                  color: colors.onPrimary,
                   onPressed: () => _onInvite(
                     state.currentGroupName,
                     state.selectedGroupCode,
@@ -128,12 +128,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onDelete(SubscriptionUiModel sub) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     showSubbyDialog(
       context: context,
       iconType: AppIconType.trash,
-      iconColor: colors.statusError,
+      iconColor: colors.error,
       title: '구독 삭제',
       description: '"${sub.name}"를 정말 삭제할까요?',
       actions: [
@@ -217,7 +217,7 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
@@ -228,18 +228,18 @@ class _HeaderCard extends StatelessWidget {
           horizontal: AppSpacing.s4,
         ),
         decoration: BoxDecoration(
-          color: colors.bgAccent,
+          color: colors.primary,
           borderRadius: BorderRadius.circular(AppSpacing.s4),
         ),
         child: Column(
           children: [
             Text(
               '이번 달 예상 구독료',
-              style: AppTypography.body.copyWith(color: colors.textOnAccent),
+              style: AppTypography.body.copyWith(color: colors.onPrimary),
             ),
             Text(
               formattedTotal,
-              style: AppTypography.display.copyWith(color: colors.textOnAccent),
+              style: AppTypography.display.copyWith(color: colors.onPrimary),
             ),
           ],
         ),
@@ -327,7 +327,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
@@ -340,7 +340,7 @@ class _EmptyState extends StatelessWidget {
             width: 56,
             height: 56,
             colorFilter: ColorFilter.mode(
-              colors.textSecondary,
+              colors.onSurfaceVariant,
               BlendMode.srcIn,
             ),
           ),
@@ -349,13 +349,13 @@ class _EmptyState extends StatelessWidget {
           // 텍스트 그룹
           Text(
             '아직 추가된 서비스가 없어요',
-            style: AppTypography.title.copyWith(color: colors.textSecondary),
+            style: AppTypography.title.copyWith(color: colors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.s1),
           Text(
             '아래 버튼을 눌러 구독중인 서비스를 추가해보세요',
-            style: AppTypography.body.copyWith(color: colors.textTertiary),
+            style: AppTypography.body.copyWith(color: colors.secondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -369,7 +369,7 @@ class _NoGroupState extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
@@ -383,7 +383,7 @@ class _NoGroupState extends ConsumerWidget {
             width: 56,
             height: 56,
             colorFilter: ColorFilter.mode(
-              colors.textSecondary,
+              colors.onSurfaceVariant,
               BlendMode.srcIn,
             ),
           ),
@@ -393,7 +393,7 @@ class _NoGroupState extends ConsumerWidget {
           Text(
             '참여중인 그룹이 없어요',
             style: AppTypography.title.copyWith(
-              color: colors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
@@ -401,7 +401,7 @@ class _NoGroupState extends ConsumerWidget {
           Text(
             '새 그룹을 만들거나 초대 코드로 참여하세요',
             style: AppTypography.body.copyWith(
-              color: colors.textTertiary,
+              color: colors.secondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -487,7 +487,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
     final sub = widget.subscription;
 
     return GestureDetector(
@@ -507,14 +507,14 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                   Text(
                     '삭제하기',
                     style: AppTypography.bodyLargeSemi.copyWith(
-                      color: colors.statusError,
+                      color: colors.error,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.s2),
                   AppIcon(
                     AppIconType.trash,
                     size: 24,
-                    color: colors.statusError,
+                    color: colors.error,
                   ),
                 ],
               ),
@@ -525,7 +525,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
             offset: Offset(_dragOffset, 0),
             child: Container(
               decoration: BoxDecoration(
-                color: colors.bgSecondary,
+                color: colors.surfaceContainer,
                 borderRadius: BorderRadius.circular(AppSpacing.s4),
               ),
               child: Material(
@@ -542,7 +542,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: colors.buttonDisableBg,
+                            color: colors.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(AppSpacing.s3),
                           ),
                           alignment: Alignment.center,
@@ -551,7 +551,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             width: 28,
                             height: 28,
                             colorFilter: ColorFilter.mode(
-                              colors.buttonDisableText,
+                              colors.onSurfaceVariant,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -565,14 +565,14 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                               Text(
                                 sub.name,
                                 style: AppTypography.bodySemi.copyWith(
-                                  color: colors.textPrimary,
+                                  color: colors.onSurface,
                                 ),
                               ),
                               const SizedBox(height: AppSpacing.s1),
                               Text(
                                 sub.billingDayLabel,
                                 style: AppTypography.caption.copyWith(
-                                  color: colors.textTertiary,
+                                  color: colors.secondary,
                                 ),
                               ),
                             ],
@@ -585,7 +585,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             Text(
                               sub.formattedAmount,
                               style: AppTypography.bodyLargeSemi.copyWith(
-                                color: colors.textPrimary,
+                                color: colors.onSurface,
                               ),
                             ),
                             if (sub.convertedAmount != null) ...[
@@ -593,7 +593,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                               Text(
                                 sub.convertedAmount!,
                                 style: AppTypography.caption.copyWith(
-                                  color: colors.textTertiary,
+                                  color: colors.secondary,
                                 ),
                               ),
                             ],
@@ -601,7 +601,7 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
                             Text(
                               sub.periodLabel,
                               style: AppTypography.caption.copyWith(
-                                color: colors.textTertiary,
+                                color: colors.secondary,
                               ),
                             ),
                           ],

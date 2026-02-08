@@ -21,7 +21,7 @@ class SubbyToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return GestureDetector(
       onTap: onChanged != null ? () => onChanged!(!value) : null,
@@ -32,7 +32,7 @@ class SubbyToggle extends StatelessWidget {
         height: 28,
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          color: value ? colors.bgAccent : colors.bgTertiary,
+          color: value ? colors.primary : colors.surfaceContainerHighest,
           borderRadius: AppRadius.fullAll,
         ),
         child: AnimatedAlign(

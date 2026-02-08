@@ -16,11 +16,11 @@ class SubbyFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
-    // Figma: buttonPrimaryBg 배경, buttonPrimaryText 아이콘
+    // Figma: primary 배경, onPrimary 아이콘
     return Material(
-      color: colors.buttonPrimaryBg,
+      color: colors.primary,
       borderRadius: AppRadius.lgAll,
       elevation: 4,
       shadowColor: Colors.black26,
@@ -34,7 +34,7 @@ class SubbyFab extends StatelessWidget {
           child: AppIcon(
             icon,
             size: 24,
-            color: colors.buttonPrimaryText,
+            color: colors.onPrimary,
           ),
         ),
       ),

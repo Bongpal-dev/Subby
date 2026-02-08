@@ -26,7 +26,7 @@ class SubbyDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,14 +36,14 @@ class SubbyDropdown<T> extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: AppTypography.label.copyWith(color: colors.textPrimary),
+            style: AppTypography.label.copyWith(color: colors.onSurface),
           ),
           const SizedBox(height: AppSpacing.s2),
         ],
 
         // Dropdown Button
         Material(
-          color: colors.bgSecondary,
+          color: colors.surfaceContainer,
           borderRadius: AppRadius.mdAll,
           child: InkWell(
             onTap: () => _showDropdownMenu(context, colors),
@@ -55,7 +55,7 @@ class SubbyDropdown<T> extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 borderRadius: AppRadius.mdAll,
-                border: Border.all(color: colors.borderSecondary),
+                border: Border.all(color: colors.outlineVariant),
               ),
               child: Row(
                 children: [
@@ -64,15 +64,15 @@ class SubbyDropdown<T> extends StatelessWidget {
                       value?.toString() ?? hint ?? '',
                       style: AppTypography.body.copyWith(
                         color: value != null
-                            ? colors.textPrimary
-                            : colors.textTertiary,
+                            ? colors.onSurface
+                            : colors.onSurfaceVariant,
                       ),
                     ),
                   ),
                   AppIcon(
                     AppIconType.dropdown,
                     size: 20,
-                    color: colors.iconSecondary,
+                    color: colors.onSurfaceVariant,
                   ),
                 ],
               ),
@@ -83,7 +83,7 @@ class SubbyDropdown<T> extends StatelessWidget {
     );
   }
 
-  void _showDropdownMenu(BuildContext context, AppColorScheme colors) {
+  void _showDropdownMenu(BuildContext context, SubbyColor colors) {
     // 메뉴 열기 전 포커스 해제 (키보드 닫기)
     FocusScope.of(context).unfocus();
 
@@ -102,7 +102,7 @@ class SubbyDropdown<T> extends StatelessWidget {
       ),
       constraints: const BoxConstraints(maxHeight: 240),
       shape: RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-      color: colors.bgSecondary,
+      color: colors.surfaceContainer,
       elevation: 4,
       shadowColor: Colors.black.withValues(alpha: 0.32),
       surfaceTintColor: Colors.transparent,
@@ -117,7 +117,7 @@ class SubbyDropdown<T> extends StatelessWidget {
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
             decoration: BoxDecoration(
-              color: isSelected ? colors.bgTertiary : Colors.transparent,
+              color: isSelected ? colors.surfaceContainerHighest : Colors.transparent,
               borderRadius: AppRadius.smAll,
             ),
             child: itemBuilder?.call(item) ??
@@ -126,14 +126,14 @@ class SubbyDropdown<T> extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.toString(),
-                        style: AppTypography.body.copyWith(color: colors.textPrimary),
+                        style: AppTypography.body.copyWith(color: colors.onSurface),
                       ),
                     ),
                     if (isSelected)
                       AppIcon(
                         AppIconType.check,
                         size: 24,
-                        color: colors.bgAccent,
+                        color: colors.primary,
                       ),
                   ],
                 ),
@@ -163,21 +163,21 @@ class SubbyDropdownItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final colors = context.subbyColor;
 
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
-            style: AppTypography.body.copyWith(color: colors.textPrimary),
+            style: AppTypography.body.copyWith(color: colors.onSurface),
           ),
         ),
         if (isSelected)
           AppIcon(
             AppIconType.check,
             size: 24,
-            color: colors.bgAccent,
+            color: colors.primary,
           ),
       ],
     );
