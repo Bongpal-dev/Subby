@@ -47,8 +47,8 @@ class AppDrawer extends ConsumerWidget {
           padding: EdgeInsets.only(
             left: AppSpacing.s4,
             right: AppSpacing.s4,
-            top: AppSpacing.s4,
-            bottom: AppSpacing.s4 + bottomPadding,
+            top: AppSpacing.s6,
+            bottom: AppSpacing.s6 + bottomPadding,
           ),
           child: Column(
             children: [
@@ -298,8 +298,8 @@ class _ProfileSection extends ConsumerWidget {
           onTap: onEditNicknameTap,
           child: SvgPicture.asset(
             'assets/icons/ic_edit.svg',
-            width: 20,
-            height: 20,
+            width: 24,
+            height: 24,
             colorFilter: ColorFilter.mode(
               colors.onSurface,
               BlendMode.srcIn,
@@ -398,7 +398,7 @@ class _GroupItem extends StatelessWidget {
     final colors = context.subbyColor;
 
     return Material(
-      color: isSelected ? colors.surfaceContainerHighest : Colors.transparent,
+      color: isSelected ? colors.primary : Colors.transparent,
       borderRadius: AppRadius.smAll,
       child: InkWell(
         onTap: onTap,
@@ -437,7 +437,7 @@ class _GroupItem extends StatelessWidget {
                     Text(
                       memberCount > 1 ? '$memberCount명 참여중' : '나만 사용중',
                       style: AppTypography.caption.copyWith(
-                        color: colors.secondary,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -451,7 +451,7 @@ class _GroupItem extends StatelessWidget {
                   width: 24,
                   height: 24,
                   colorFilter: ColorFilter.mode(
-                    colors.primary,
+                    colors.onSurface,
                     BlendMode.srcIn,
                   ),
                 ),
