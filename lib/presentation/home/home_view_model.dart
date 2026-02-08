@@ -40,6 +40,7 @@ class HomeState {
   final List<SubscriptionGroup> groups;
   final String? selectedGroupCode;
   final String? selectedCategory;
+  final List<String> categories;
   final bool isLoading;
   final String formattedTotal;
 
@@ -48,6 +49,7 @@ class HomeState {
     this.groups = const [],
     this.selectedGroupCode,
     this.selectedCategory,
+    this.categories = const [],
     this.isLoading = true,
     this.formattedTotal = '',
   });
@@ -60,18 +62,6 @@ class HomeState {
     return group?.effectiveName ?? '내 구독';
   }
 
-  /// 구독 목록에서 고유한 카테고리 목록 추출
-  List<String> get categories {
-    final cats = subscriptions
-        .map((s) => s.category)
-        .where((c) => c != null && c.isNotEmpty)
-        .cast<String>()
-        .toSet()
-        .toList();
-    cats.sort();
-    return cats;
-  }
-
   HomeState copyWith({
     List<SubscriptionUiModel>? subscriptions,
     List<SubscriptionGroup>? groups,
@@ -79,6 +69,7 @@ class HomeState {
     bool clearSelectedGroup = false,
     String? selectedCategory,
     bool clearSelectedCategory = false,
+    List<String>? categories,
     bool? isLoading,
     String? formattedTotal,
   }) {
@@ -87,6 +78,7 @@ class HomeState {
       groups: groups ?? this.groups,
       selectedGroupCode: clearSelectedGroup ? null : (selectedGroupCode ?? this.selectedGroupCode),
       selectedCategory: clearSelectedCategory ? null : (selectedCategory ?? this.selectedCategory),
+      categories: categories ?? this.categories,
       isLoading: isLoading ?? this.isLoading,
       formattedTotal: formattedTotal ?? this.formattedTotal,
     );
@@ -170,15 +162,28 @@ class HomeViewModel extends Notifier<HomeState> {
 
   void _updateState() {
     final groupFiltered = _filterByGroup(_rawSubscriptions);
+    final categories = _extractCategories(groupFiltered);
     final categoryFiltered = _filterByCategory(groupFiltered);
     final uiModels = _mapToUiModels(categoryFiltered);
     final formattedTotal = _calculateFormattedTotal(categoryFiltered);
 
     state = state.copyWith(
       subscriptions: uiModels,
+      categories: categories,
       isLoading: false,
       formattedTotal: formattedTotal,
     );
+  }
+
+  List<String> _extractCategories(List<UserSubscription> subscriptions) {
+    final cats = subscriptions
+        .map((s) => s.category)
+        .where((c) => c != null && c.isNotEmpty)
+        .cast<String>()
+        .toSet()
+        .toList();
+    cats.sort();
+    return cats;
   }
 
   List<UserSubscription> _filterByGroup(List<UserSubscription> subscriptions) {

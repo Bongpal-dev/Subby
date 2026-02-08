@@ -10,11 +10,13 @@ class SubbyChip extends StatelessWidget {
     super.key,
     required this.label,
     this.isSelected = false,
+    this.leadingIcon,
     this.onTap,
   });
 
   final String label;
   final bool isSelected;
+  final Widget? leadingIcon;
   final VoidCallback? onTap;
 
   @override
@@ -22,8 +24,8 @@ class SubbyChip extends StatelessWidget {
     final colors = context.subbyColor;
 
     final backgroundColor = isSelected ? colors.primary : colors.secondaryContainer;
-    final textColor = isSelected ? colors.onPrimary : colors.onSecondaryContainer;
-    final borderColor = isSelected ? null : colors.outlineVariant;
+    final textColor = isSelected ? colors.onPrimary : colors.onSurfaceVariant;
+    final borderColor = isSelected ? null : colors.outline;
 
     return Material(
       color: backgroundColor,
@@ -40,10 +42,18 @@ class SubbyChip extends StatelessWidget {
             borderRadius: AppRadius.fullAll,
             border: borderColor != null ? Border.all(color: borderColor) : null,
           ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: AppTypography.label.copyWith(color: textColor),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (leadingIcon != null) ...[
+                leadingIcon!,
+                const SizedBox(width: AppSpacing.s2),
+              ],
+              Text(
+                label,
+                style: AppTypography.label.copyWith(color: textColor),
+              ),
+            ],
           ),
         ),
       ),

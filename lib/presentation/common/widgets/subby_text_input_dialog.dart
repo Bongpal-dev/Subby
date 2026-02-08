@@ -147,10 +147,10 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
                     Container(
                       height: 52,
                       decoration: BoxDecoration(
-                        color: colors.surfaceContainerHighest,
+                        color: colors.surfaceContainer,
                         borderRadius: AppRadius.mdAll,
                         border: Border.all(
-                          color: _isFocused ? colors.primary : colors.outlineVariant,
+                          color: _isFocused ? colors.onSurface : colors.outline,
                         ),
                       ),
                       child: TextFormField(

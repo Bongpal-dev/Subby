@@ -67,9 +67,9 @@ class InviteDialog extends StatelessWidget {
               Container(
                 height: 52,
                 decoration: BoxDecoration(
-                  color: colors.surfaceContainerHighest,
+                  color: colors.surfaceContainer,
                   borderRadius: AppRadius.mdAll,
-                  border: Border.all(color: colors.outlineVariant),
+                  border: Border.all(color: colors.outline),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
                 child: Row(

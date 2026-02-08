@@ -92,7 +92,7 @@ class SubbyColor {
   // === Light Theme ===
   static const light = SubbyColor(
     // Primary
-    primary: Color(0xFFBFFF00),
+    primary: Color(0xFFE0FF00),
     onPrimary: Color(0xFF1A1A1A),
     primaryContainer: Color(0xFF1A1A1A),
     onPrimaryContainer: Color(0xFFFFFFFF),

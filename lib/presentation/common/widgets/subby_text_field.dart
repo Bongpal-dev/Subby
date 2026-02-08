@@ -87,7 +87,7 @@ class _SubbyTextFieldState extends State<SubbyTextField> {
 
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
     final borderColor = _getBorderColor(colors, hasError);
-    final fillColor = widget.enabled ? colors.surfaceContainerHighest : colors.surfaceContainerHighest;
+    final fillColor = widget.enabled ? colors.surfaceContainer : colors.secondaryContainer;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,14 +201,14 @@ class _SubbyTextFieldState extends State<SubbyTextField> {
 
   Color _getBorderColor(SubbyColor colors, bool hasError) {
     if (!widget.enabled) {
-      return colors.outlineVariant;
+      return colors.outline;
     }
     if (hasError) {
       return colors.error;
     }
     if (_isFocused) {
-      return colors.primary;
+      return colors.onSurface;
     }
-    return colors.outlineVariant;
+    return colors.outline;
   }
 }

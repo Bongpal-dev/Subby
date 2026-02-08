@@ -71,7 +71,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         leading: Builder(
           builder: (ctx) => SubbyAppBarIconButton(
             icon: AppIconType.menu,
-            color: state.hasGroup ? colors.onPrimary : colors.onSurface,
+            color: state.hasGroup ? colors.onPrimaryContainer : colors.onSurface,
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
@@ -79,7 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ? [
                 SubbyAppBarIconButton(
                   icon: AppIconType.share,
-                  color: colors.onPrimary,
+                  color: colors.onPrimaryContainer,
                   onPressed: () => _onInvite(
                     state.currentGroupName,
                     state.selectedGroupCode,
@@ -228,18 +228,18 @@ class _HeaderCard extends StatelessWidget {
           horizontal: AppSpacing.s4,
         ),
         decoration: BoxDecoration(
-          color: colors.primary,
+          color: colors.surfaceContainer,
           borderRadius: BorderRadius.circular(AppSpacing.s4),
         ),
         child: Column(
           children: [
             Text(
               '이번 달 예상 구독료',
-              style: AppTypography.body.copyWith(color: colors.onPrimary),
+              style: AppTypography.body.copyWith(color: colors.onSurfaceVariant),
             ),
             Text(
               formattedTotal,
-              style: AppTypography.display.copyWith(color: colors.onPrimary),
+              style: AppTypography.display.copyWith(color: colors.onSurface),
             ),
           ],
         ),

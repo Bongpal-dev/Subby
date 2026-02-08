@@ -90,7 +90,7 @@ class SubbyButton extends StatelessWidget {
   Color _getBackgroundColor(SubbyColor colors) {
     switch (type) {
       case SubbyButtonType.primary:
-        return isEnabled ? colors.primaryContainer : colors.surfaceContainerHighest;
+        return isEnabled ? colors.primary : colors.surfaceContainerHighest;
       case SubbyButtonType.outline:
         return Colors.transparent;
       case SubbyButtonType.text:
@@ -105,7 +105,7 @@ class SubbyButton extends StatelessWidget {
 
     switch (type) {
       case SubbyButtonType.primary:
-        return colors.onPrimaryContainer;
+        return colors.onPrimary;
       case SubbyButtonType.outline:
         return colors.onSurface;
       case SubbyButtonType.text:
@@ -118,7 +118,7 @@ class SubbyButton extends StatelessWidget {
       case SubbyButtonType.primary:
         return null;
       case SubbyButtonType.outline:
-        return isEnabled ? colors.outline : colors.outlineVariant;
+        return isEnabled ? colors.primary : colors.outlineVariant;
       case SubbyButtonType.text:
         return null;
     }
