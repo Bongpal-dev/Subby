@@ -44,6 +44,7 @@ class SubbyChip extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (leadingIcon != null) ...[
                 leadingIcon!,

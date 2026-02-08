@@ -560,8 +560,6 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
     final currency = ref.watch(provider.select((s) => s.currency));
     final vm = ref.read(provider.notifier);
 
-    final colors = context.subbyColor;
-
     // 초기값 동기화
     if (!_initialized && amount > 0) {
       _syncAmountController(amount, currency);
@@ -574,48 +572,18 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('금액', style: AppTypography.label.copyWith(color: colors.onSurface)),
-              const SizedBox(height: AppSpacing.s2),
-              Container(
-                height: 52,
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainerHighest,
-                  borderRadius: AppRadius.mdAll,
-                  border: Border.all(color: colors.outlineVariant),
-                ),
-                child: ClipRRect(
-                  borderRadius: AppRadius.mdAll,
-                  child: TextField(
-                    controller: _amountController,
-                    focusNode: _amountFocusNode,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    textAlign: TextAlign.center,
-                    style: AppTypography.body.copyWith(color: colors.onSurface),
-                    decoration: const InputDecoration(
-                      filled: false,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.s4,
-                        vertical: AppSpacing.s4,
-                      ),
-                    ),
-                    onChanged: (value) {
-                      final parsed = double.tryParse(value) ?? 0;
-                      vm.setAmount(currency == 'KRW'
-                          ? parsed.roundToDouble()
-                          : (parsed * 100).round() / 100);
-                    },
-                  ),
-                ),
-              ),
-            ],
+          child: SubbyTextField(
+            label: '금액',
+            controller: _amountController,
+            focusNode: _amountFocusNode,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textAlign: TextAlign.center,
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0;
+              vm.setAmount(currency == 'KRW'
+                  ? parsed.roundToDouble()
+                  : (parsed * 100).round() / 100);
+            },
           ),
         ),
         const SizedBox(width: 10),
@@ -640,7 +608,7 @@ class _AmountCurrencySectionState extends ConsumerState<_AmountCurrencySection> 
 }
 
 /// 결제일 섹션
-class _BillingDaySection extends ConsumerWidget {
+class _BillingDaySection extends ConsumerStatefulWidget {
   final String subscriptionId;
   final FocusNode focusSink;
 
@@ -650,8 +618,21 @@ class _BillingDaySection extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final provider = subscriptionEditViewModelProvider(subscriptionId);
+  ConsumerState<_BillingDaySection> createState() => _BillingDaySectionState();
+}
+
+class _BillingDaySectionState extends ConsumerState<_BillingDaySection> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = subscriptionEditViewModelProvider(widget.subscriptionId);
     final billingDay = ref.watch(provider.select((s) => s.billingDay));
     final billingMonth = ref.watch(provider.select((s) => s.billingMonth));
     final period = ref.watch(provider.select((s) => s.period));
@@ -660,61 +641,36 @@ class _BillingDaySection extends ConsumerWidget {
     final colors = context.subbyColor;
     final isYearly = period == 'YEARLY';
 
-    // 표시 텍스트
     final displayText = isYearly && billingMonth != null
         ? '매년 $billingMonth월 $billingDay일'
         : '매월 $billingDay일';
+    _controller.text = displayText;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('결제일', style: AppTypography.label.copyWith(color: colors.onSurface)),
-        const SizedBox(height: AppSpacing.s2),
-        GestureDetector(
-          onTap: () async {
-            focusSink.requestFocus();
-            if (isYearly) {
-              // 연간: 월/일 선택
-              final result = await showMonthDayPickerDialog(
-                context: context,
-                initialMonth: billingMonth ?? DateTime.now().month,
-                initialDay: billingDay,
-              );
-              if (result != null) {
-                vm.setBillingMonth(result.month);
-                vm.setBillingDay(result.day);
-              }
-            } else {
-              // 월간: 일만 선택
-              final result = await showDayPickerDialog(
-                context: context,
-                initialDay: billingDay,
-              );
-              if (result != null) vm.setBillingDay(result);
-            }
-          },
-          child: Container(
-            height: 52,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: AppRadius.mdAll,
-              border: Border.all(color: colors.outlineVariant),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    displayText,
-                    style: AppTypography.body.copyWith(color: colors.onSurface),
-                  ),
-                ),
-                AppIcon(AppIconType.calendar, size: 24, color: colors.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return SubbyTextField(
+      label: '결제일',
+      controller: _controller,
+      readOnly: true,
+      onTap: () async {
+        widget.focusSink.requestFocus();
+        if (isYearly) {
+          final result = await showMonthDayPickerDialog(
+            context: context,
+            initialMonth: billingMonth ?? DateTime.now().month,
+            initialDay: billingDay,
+          );
+          if (result != null) {
+            vm.setBillingMonth(result.month);
+            vm.setBillingDay(result.day);
+          }
+        } else {
+          final result = await showDayPickerDialog(
+            context: context,
+            initialDay: billingDay,
+          );
+          if (result != null) vm.setBillingDay(result);
+        }
+      },
+      suffix: AppIcon(AppIconType.calendar, size: 24, color: colors.onSurfaceVariant),
     );
   }
 }
