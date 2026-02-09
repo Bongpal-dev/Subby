@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:subby/core/theme/app_colors.dart';
+import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
 import 'package:subby/presentation/common/widgets/subby_button.dart';
@@ -76,15 +79,17 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
   Widget build(BuildContext context) {
     final colors = context.subbyColor;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.surfaceContainer,
-          borderRadius: BorderRadius.circular(AppSpacing.s4),
-        ),
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colors.surfaceContainer,
+            borderRadius: AppRadius.lgAll,
+          ),
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.s6),
           child: Column(
@@ -195,6 +200,7 @@ class _MonthDayPickerDialogState extends State<MonthDayPickerDialog> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

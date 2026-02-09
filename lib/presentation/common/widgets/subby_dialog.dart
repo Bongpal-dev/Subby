@@ -10,7 +10,7 @@ import 'package:subby/core/theme/app_typography.dart';
 /// - 배경: surfaceContainer, 라운드: 16dp
 /// - 패딩: 24dp, gap: 20dp
 /// - 버튼: 높이 44dp, 라운드 12dp, gap 12dp
-/// - 아이콘: 48px 고정
+/// - 아이콘: 24px 고정
 class SubbyDialog extends StatelessWidget {
   const SubbyDialog({
     super.key,
@@ -19,7 +19,7 @@ class SubbyDialog extends StatelessWidget {
     required this.title,
     this.description,
     this.content,
-    required this.actions,
+    this.actions,
   });
 
   final AppIconType? iconType;
@@ -27,7 +27,7 @@ class SubbyDialog extends StatelessWidget {
   final String title;
   final String? description;
   final Widget? content;
-  final List<SubbyDialogAction> actions;
+  final List<SubbyDialogAction>? actions;
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +48,11 @@ class SubbyDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon (optional) - 48px 고정
+              // Icon (optional) - 24px 고정
               if (iconType != null) ...[
                 AppIcon(
                   iconType!,
-                  size: 48,
+                  size: 24,
                   color: iconColor ?? colors.onSurface,
                 ),
                 const SizedBox(height: AppSpacing.s5),
@@ -88,28 +88,30 @@ class SubbyDialog extends StatelessWidget {
               ],
 
               // ButtonRow
-              const SizedBox(height: AppSpacing.s5),
-              Row(
-                children: actions.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final action = entry.value;
+              if (actions != null && actions!.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.s5),
+                Row(
+                  children: actions!.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final action = entry.value;
 
-                  return Expanded(
-                    child: Row(
-                      children: [
-                        if (index > 0)
-                          const SizedBox(width: AppSpacing.s3),
-                        Expanded(
-                          child: _DialogButton(
-                            action: action,
-                            isPrimary: action.isPrimary,
+                    return Expanded(
+                      child: Row(
+                        children: [
+                          if (index > 0)
+                            const SizedBox(width: AppSpacing.s3),
+                          Expanded(
+                            child: _DialogButton(
+                              action: action,
+                              isPrimary: action.isPrimary,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ],
           ),
         ),
@@ -131,8 +133,8 @@ class _DialogButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.subbyColor;
 
-    final bgColor = isPrimary ? colors.primaryContainer : Colors.transparent;
-    final textColor = isPrimary ? colors.onPrimaryContainer : colors.onSurface;
+    final bgColor = isPrimary ? colors.primary : Colors.transparent;
+    final textColor = isPrimary ? colors.onPrimary : colors.onSurface;
     final borderColor = isPrimary ? Colors.transparent : colors.outline;
 
     return Material(
@@ -180,7 +182,7 @@ Future<T?> showSubbyDialog<T>({
   required String title,
   String? description,
   Widget? content,
-  required List<SubbyDialogAction> actions,
+  List<SubbyDialogAction>? actions,
   bool barrierDismissible = true,
 }) {
   return showGeneralDialog<T>(

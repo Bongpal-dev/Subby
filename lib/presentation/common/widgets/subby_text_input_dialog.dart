@@ -98,7 +98,9 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
   Widget build(BuildContext context) {
     final colors = context.subbyColor;
 
-    return BackdropFilter(
+    return PopScope(
+      canPop: widget.showCancelButton,
+      child: BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
       child: Dialog(
         backgroundColor: Colors.transparent,
@@ -270,6 +272,7 @@ class _SubbyTextInputDialogState extends State<SubbyTextInputDialog> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

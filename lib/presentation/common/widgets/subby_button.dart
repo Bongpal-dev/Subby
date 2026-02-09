@@ -118,7 +118,7 @@ class SubbyButton extends StatelessWidget {
       case SubbyButtonType.primary:
         return null;
       case SubbyButtonType.outline:
-        return isEnabled ? colors.primary : colors.outlineVariant;
+        return isEnabled ? colors.outline : colors.outlineVariant;
       case SubbyButtonType.text:
         return null;
     }

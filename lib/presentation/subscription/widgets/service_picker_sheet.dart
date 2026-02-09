@@ -121,43 +121,23 @@ class _ServicePickerSheetState extends ConsumerState<ServicePickerSheet> {
     );
   }
 
-  void _showManualInputDialog(SubscriptionAddViewModel vm) {
-    final controller = TextEditingController();
-    final colors = context.subbyColor;
-
-    showDialog(
+  Future<void> _showManualInputDialog(SubscriptionAddViewModel vm) async {
+    final result = await showSubbyTextInputDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (ctx) => AlertDialog(
-        backgroundColor: colors.surfaceContainer,
-        title: Text('서비스명 입력', style: AppTypography.title),
-        content: AppTextField(
-          hint: '예: Netflix, Spotify',
-          controller: controller,
-          onSubmitted: (value) {
-            if (value.isNotEmpty) {
-              vm.setName(value);
-              Navigator.pop(ctx);
-            }
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('취소', style: TextStyle(color: colors.onSurfaceVariant)),
-          ),
-          TextButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                vm.setName(controller.text);
-                Navigator.pop(ctx);
-              }
-            },
-            child: Text('확인', style: TextStyle(color: colors.primary)),
-          ),
-        ],
-      ),
+      title: '서비스명 입력',
+      hint: '예: Netflix, Spotify',
+      confirmLabel: '확인',
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return '서비스명을 입력해주세요';
+        }
+        return null;
+      },
     );
+
+    if (result != null) {
+      vm.setName(result);
+    }
   }
 }
 
