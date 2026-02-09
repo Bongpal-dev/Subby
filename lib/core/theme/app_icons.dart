@@ -17,6 +17,7 @@ enum AppIconType {
   next('ic_next'),
   plus('ic_plus'),
   plusSmall('ic_plus_small'),
+  report('ic_report'),
   search('ic_search'),
   setting('ic_setting'),
   share('ic_share'),

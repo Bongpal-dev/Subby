@@ -41,6 +41,7 @@ import 'package:subby/domain/usecase/get_exchange_rate_usecase.dart';
 import 'package:subby/domain/usecase/watch_is_anonymous_usecase.dart';
 import 'package:subby/domain/usecase/get_current_nickname_usecase.dart';
 import 'package:subby/domain/usecase/restart_subscription_sync_usecase.dart';
+import 'package:subby/domain/usecase/send_inquiry_usecase.dart';
 
 final createGroupUseCaseProvider = Provider<CreateGroupUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
@@ -362,4 +363,9 @@ final getCurrentNicknameUseCaseProvider = Provider<GetCurrentNicknameUseCase>((r
 final restartSubscriptionSyncUseCaseProvider = Provider<RestartSubscriptionSyncUseCase>((ref) {
   final subscriptionRepository = ref.watch(subscriptionRepositoryProvider);
   return RestartSubscriptionSyncUseCase(subscriptionRepository: subscriptionRepository);
+});
+
+// Inquiry UseCase
+final sendInquiryUseCaseProvider = Provider<SendInquiryUseCase>((ref) {
+  return SendInquiryUseCase();
 });

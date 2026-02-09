@@ -8,6 +8,7 @@ import 'package:subby/presentation/setup/setup_screen.dart';
 import 'package:subby/presentation/subscription/subscription_add_screen.dart';
 import 'package:subby/presentation/subscription/subscription_detail_screen.dart';
 import 'package:subby/presentation/subscription/subscription_edit_screen.dart';
+import 'package:subby/presentation/inquiry/inquiry_screen.dart';
 import 'package:subby/presentation/webview/webview_screen.dart';
 
 abstract class AppRoutes {
@@ -19,6 +20,7 @@ abstract class AppRoutes {
   static const subscriptionAdd = '/subscription/add';
   static const subscriptionDetail = '/subscription/:id';
   static const subscriptionEdit = 'edit';
+  static const inquiry = '/inquiry';
   static const webview = '/webview';
 
   static String subscriptionDetailPath(String id) => '/subscription/$id';
@@ -50,6 +52,10 @@ GoRouter createRouter(String initialLocation) => GoRouter(
     GoRoute(
       path: AppRoutes.settings,
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.inquiry,
+      builder: (context, state) => const InquiryScreen(),
     ),
     GoRoute(
       path: AppRoutes.webview,

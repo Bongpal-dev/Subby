@@ -105,6 +105,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   type: SettingItemType.none,
                 ),
                 SettingItem(
+                  title: '문의하기',
+                  type: SettingItemType.chevron,
+                  onTap: () {
+                    context.push(AppRoutes.inquiry);
+                  },
+                ),
+                SettingItem(
                   title: '이용약관',
                   type: SettingItemType.chevron,
                   onTap: () {

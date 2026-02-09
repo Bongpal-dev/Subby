@@ -8,6 +8,7 @@ import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
+import 'package:subby/core/util/billing_date_calculator.dart';
 import 'package:subby/core/util/currency_formatter.dart';
 import 'package:subby/presentation/common/widgets/widgets.dart';
 import 'package:subby/presentation/home/home_view_model.dart';
@@ -84,42 +85,21 @@ final subscriptionDetailProvider = FutureProvider.autoDispose.family<Subscriptio
 
   // 다음 결제일 계산
   final now = DateTime.now();
-  String nextBillingDate;
+  final String nextBillingDate;
 
   if (isYearly && subscription.billingMonth != null) {
-    // 연간 결제: 특정 월/일
-    int year = now.year;
-    final billingMonth = subscription.billingMonth!;
-    final billingDay = subscription.billingDay;
-
-    // 올해 결제일이 지났으면 내년
-    final thisYearBillingDate = DateTime(year, billingMonth, 1);
-    final lastDayOfBillingMonth = DateTime(year, billingMonth + 1, 0).day;
-    final actualBillingDay = billingDay > lastDayOfBillingMonth ? lastDayOfBillingMonth : billingDay;
-    final thisYearActualDate = DateTime(year, billingMonth, actualBillingDay);
-
-    if (now.isAfter(thisYearActualDate)) {
-      year++;
-    }
-    final nextLastDayOfMonth = DateTime(year, billingMonth + 1, 0).day;
-    final nextBillingDay = billingDay > nextLastDayOfMonth ? nextLastDayOfMonth : billingDay;
-    nextBillingDate = '$year.${billingMonth.toString().padLeft(2, '0')}.${nextBillingDay.toString().padLeft(2, '0')}';
+    final next = BillingDateCalculator.nextYearlyBillingDate(
+      billingDay: subscription.billingDay,
+      billingMonth: subscription.billingMonth!,
+      from: now,
+    );
+    nextBillingDate = BillingDateCalculator.format(next);
   } else {
-    // 월간 결제
-    int year = now.year;
-    int month = now.month;
-    if (now.day > subscription.billingDay) {
-      month++;
-      if (month > 12) {
-        month = 1;
-        year++;
-      }
-    }
-    final lastDayOfMonth = DateTime(year, month + 1, 0).day;
-    final billingDay = subscription.billingDay > lastDayOfMonth
-        ? lastDayOfMonth
-        : subscription.billingDay;
-    nextBillingDate = '$year.${month.toString().padLeft(2, '0')}.${billingDay.toString().padLeft(2, '0')}';
+    final next = BillingDateCalculator.nextMonthlyBillingDate(
+      billingDay: subscription.billingDay,
+      from: now,
+    );
+    nextBillingDate = BillingDateCalculator.format(next);
   }
 
   return SubscriptionDetailUiModel(
@@ -153,6 +133,11 @@ class SubscriptionDetailScreen extends ConsumerWidget {
         title: '구독 상세',
         showBackButton: true,
         actions: [
+          SubbyAppBarIconButton(
+            icon: AppIconType.report,
+            onPressed: () => context.push(AppRoutes.inquiry),
+            color: colors.onSurface,
+          ),
           SubbyAppBarIconButton(
             icon: AppIconType.trash,
             onPressed: () => subscriptionAsync.whenData(

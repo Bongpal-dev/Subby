@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_spacing.dart';
@@ -34,9 +36,16 @@ class _SubscriptionAddScreenState extends ConsumerState<SubscriptionAddScreen> {
         focusNode: _focusSink,
         child: Scaffold(
           backgroundColor: colors.surface,
-          appBar: const SubbyAppBar(
+          appBar: SubbyAppBar(
             title: '구독 추가',
             showBackButton: true,
+            actions: [
+              SubbyAppBarIconButton(
+                icon: AppIconType.report,
+                onPressed: () => context.push(AppRoutes.inquiry),
+                color: colors.onSurface,
+              ),
+            ],
           ),
           body: Column(
             children: [

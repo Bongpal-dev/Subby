@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subby/core/router/app_router.dart';
 import 'package:subby/firebase_options.dart';
@@ -39,13 +40,14 @@ Future<void> main() async {
     initialRoute = AppRoutes.home;
   }
 
-  runApp(ProviderScope(child: SubbyApp(initialRoute: initialRoute)));
+  final router = createRouter(initialRoute);
+  runApp(ProviderScope(child: SubbyApp(router: router)));
 }
 
 class SubbyApp extends ConsumerWidget {
-  final String initialRoute;
+  final GoRouter router;
 
-  const SubbyApp({super.key, required this.initialRoute});
+  const SubbyApp({super.key, required this.router});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -65,7 +67,7 @@ class SubbyApp extends ConsumerWidget {
         Locale('ko', 'KR'),
         Locale('en', 'US'),
       ],
-      routerConfig: createRouter(initialRoute),
+      routerConfig: router,
       builder: (context, child) {
         return AppInitializationWrapper(
           child: ConflictListener(
