@@ -128,12 +128,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onDelete(SubscriptionUiModel sub) {
-    final colors = context.subbyColor;
-
     showSubbyDialog(
       context: context,
-      iconType: AppIconType.trash,
-      iconColor: colors.error,
       title: '구독 삭제',
       description: '"${sub.name}"를 정말 삭제할까요?',
       actions: [

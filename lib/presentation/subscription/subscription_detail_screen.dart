@@ -208,12 +208,8 @@ class SubscriptionDetailScreen extends ConsumerWidget {
   }
 
   void _showDeleteDialog(BuildContext context, WidgetRef ref, SubscriptionDetailUiModel subscription) {
-    final colors = context.subbyColor;
-
     showSubbyDialog(
       context: context,
-      iconType: AppIconType.trash,
-      iconColor: colors.error,
       title: '구독 삭제',
       description: '"${subscription.name}"를 정말 삭제할까요?',
       actions: [

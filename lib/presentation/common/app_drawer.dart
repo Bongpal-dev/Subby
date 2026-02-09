@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,7 +8,6 @@ import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/core/router/app_router.dart';
 import 'package:subby/core/theme/app_colors.dart';
-import 'package:subby/core/theme/app_icons.dart';
 import 'package:subby/core/theme/app_radius.dart';
 import 'package:subby/core/theme/app_spacing.dart';
 import 'package:subby/core/theme/app_typography.dart';
@@ -222,23 +223,37 @@ class AppDrawer extends ConsumerWidget {
     String groupCode,
     String groupName,
   ) {
-    showDialog(
+    showGeneralDialog(
       context: context,
+      barrierDismissible: true,
+      barrierLabel: '',
       barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (context) => _LeaveGroupDialog(
-        groupCode: groupCode,
-        groupName: groupName,
-      ),
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return _LeaveGroupDialog(
+          groupCode: groupCode,
+          groupName: groupName,
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return FadeTransition(
+          opacity: curvedAnimation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.95, end: 1.0).animate(curvedAnimation),
+            child: child,
+          ),
+        );
+      },
     );
   }
 
   void _showSignOutDialog(BuildContext context, WidgetRef ref) {
-    final colors = context.subbyColor;
-
     showSubbyDialog(
       context: context,
-      iconType: AppIconType.logout,
-      iconColor: colors.error,
       title: '로그아웃 할까요?',
       description: '로그아웃하면 다른 기기에서\n동기화되지 않아요',
       actions: [
@@ -697,11 +712,28 @@ Future<void> showLoginDialog({
   required BuildContext context,
   required WidgetRef ref,
 }) {
-  return showDialog(
+  return showGeneralDialog(
     context: context,
-    barrierColor: Colors.black.withValues(alpha: 0.5),
     barrierDismissible: false,
-    builder: (context) => LoginDialog(ref: ref),
+    barrierLabel: '',
+    barrierColor: Colors.black.withValues(alpha: 0.5),
+    transitionDuration: const Duration(milliseconds: 200),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return LoginDialog(ref: ref);
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      return FadeTransition(
+        opacity: curvedAnimation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.95, end: 1.0).animate(curvedAnimation),
+          child: child,
+        ),
+      );
+    },
   );
 }
 
@@ -722,82 +754,85 @@ class _LoginDialogState extends State<LoginDialog> {
   Widget build(BuildContext context) {
     final colors = context.subbyColor;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.surfaceContainer,
-          borderRadius: AppRadius.lgAll,
-        ),
-        padding: const EdgeInsets.all(AppSpacing.s6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // TextGroup
-            Text(
-              '로그인',
-              style: AppTypography.title.copyWith(
-                color: colors.onSurface,
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colors.surfaceContainer,
+            borderRadius: AppRadius.lgAll,
+          ),
+          padding: const EdgeInsets.all(AppSpacing.s6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // TextGroup
+              Text(
+                '로그인',
+                style: AppTypography.title.copyWith(
+                  color: colors.onSurface,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.s2),
-            Text(
-              '로그인하면 데이터가 안전하게 저장되고\n다른 기기에서도 동기화돼요',
-              style: AppTypography.body.copyWith(
-                color: colors.onSurfaceVariant,
+              const SizedBox(height: AppSpacing.s2),
+              Text(
+                '로그인하면 데이터가 안전하게 저장되고\n다른 기기에서도 동기화돼요',
+                style: AppTypography.body.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
 
-            const SizedBox(height: AppSpacing.s5),
+              const SizedBox(height: AppSpacing.s5),
 
-            // Google 로그인 버튼
-            Material(
-              color: colors.surfaceContainer,
-              borderRadius: AppRadius.mdAll,
-              child: InkWell(
-                onTap: _isLoading ? null : _signInWithGoogle,
+              // Google 로그인 버튼
+              Material(
+                color: colors.surfaceContainer,
                 borderRadius: AppRadius.mdAll,
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    borderRadius: AppRadius.mdAll,
-                    border: Border.all(color: colors.outline),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (_isLoading)
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                child: InkWell(
+                  onTap: _isLoading ? null : _signInWithGoogle,
+                  borderRadius: AppRadius.mdAll,
+                  child: Container(
+                    height: 44,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadius.mdAll,
+                      border: Border.all(color: colors.outline),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_isLoading)
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.onSurface,
+                            ),
+                          )
+                        else
+                          SvgPicture.asset(
+                            'assets/icons/ic_google.svg',
+                            width: 20,
+                            height: 20,
+                          ),
+                        const SizedBox(width: 10),
+                        Text(
+                          _isLoading ? '로그인 중...' : 'Google로 계속하기',
+                          style: AppTypography.body.copyWith(
                             color: colors.onSurface,
                           ),
-                        )
-                      else
-                        SvgPicture.asset(
-                          'assets/icons/ic_google.svg',
-                          width: 20,
-                          height: 20,
                         ),
-                      const SizedBox(width: 10),
-                      Text(
-                        _isLoading ? '로그인 중...' : 'Google로 계속하기',
-                        style: AppTypography.body.copyWith(
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
