@@ -35,10 +35,15 @@ class SetupViewModel extends AutoDisposeFamilyNotifier<SetupState, bool> {
   SetupState build(bool nicknameOnly) {
     Future.microtask(() async {
       if (nicknameOnly) {
-        // 로그아웃 후 재진입: 익명 로그인 후 닉네임 단계로
-        final signInAnonymouslyUseCase = ref.read(signInAnonymouslyUseCaseProvider);
-        await signInAnonymouslyUseCase();
+        // 닉네임 다이얼로그 먼저 표시 (signIn 완료를 기다리지 않음)
         state = state.copyWith(step: SetupStep.nickname);
+        // 익명 로그인은 백그라운드에서 처리
+        try {
+          final signInAnonymouslyUseCase = ref.read(signInAnonymouslyUseCaseProvider);
+          await signInAnonymouslyUseCase();
+        } catch (e) {
+          print('[Setup] signInAnonymously failed: $e');
+        }
       } else {
         state = state.copyWith(step: SetupStep.cloudSync);
       }
@@ -94,8 +99,12 @@ class SetupViewModel extends AutoDisposeFamilyNotifier<SetupState, bool> {
   Future<void> handleNicknameSet(String nickname) async {
     state = state.copyWith(isProcessing: true);
 
-    final saveUserInfoUseCase = ref.read(saveUserInfoUseCaseProvider);
-    await saveUserInfoUseCase(nickname: nickname);
+    try {
+      final saveUserInfoUseCase = ref.read(saveUserInfoUseCaseProvider);
+      await saveUserInfoUseCase(nickname: nickname);
+    } catch (e) {
+      print('[Setup] saveUserInfo failed: $e');
+    }
 
     ref.invalidate(currentNicknameStateProvider);
     await _completeSetup();
