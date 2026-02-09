@@ -13,6 +13,7 @@ admin.initializeApp();
 const db = admin.firestore();
 const RTDB_URL = "https://subby-91b88-default-rtdb.asia-southeast1.firebasedatabase.app";
 const openExchangeRatesAppId = defineSecret("OPENEXCHANGERATES_APP_ID");
+const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
 
 // ============================================================
 // Types
@@ -23,6 +24,20 @@ interface ExchangeRatesResponse {
   rates: {
     [key: string]: number;
   };
+}
+
+interface SendInquiryRequest {
+  category: string;
+  title: string;
+  content: string;
+  deviceModel?: string;
+  osVersion?: string;
+  appVersion?: string;
+}
+
+interface SendInquiryResponse {
+  success: boolean;
+  error?: string;
 }
 
 interface JoinGroupRequest {
@@ -369,5 +384,98 @@ export const onSubscriptionChange = onDocumentWritten(
       changeType,
       groupCode,
     });
+  }
+);
+
+/**
+ * 문의하기 (Slack 웹훅)
+ */
+export const sendInquiry = functions.https.onCall(
+  {secrets: [slackWebhookUrl]},
+  async (request): Promise<SendInquiryResponse> => {
+    const auth = request.auth;
+
+    if (!auth) {
+      return {success: false, error: "인증이 필요합니다"};
+    }
+
+    const data = request.data as SendInquiryRequest;
+    const {category, title, content, deviceModel, osVersion, appVersion} = data;
+
+    if (!category || !title || !content) {
+      return {success: false, error: "모든 항목을 입력해주세요"};
+    }
+
+    const webhookUrl = slackWebhookUrl.value();
+
+    if (!webhookUrl) {
+      console.error("[sendInquiry] SLACK_WEBHOOK_URL not configured");
+      return {success: false, error: "서버 설정 오류"};
+    }
+
+    const userId = auth.uid;
+
+    const slackPayload = {
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: `📩 [${category}] ${title}`,
+            emoji: true,
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {type: "mrkdwn", text: `*카테고리:*\n${category}`},
+            {type: "mrkdwn", text: `*사용자 ID:*\n${userId}`},
+          ],
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*내용:*\n${content}`,
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {type: "mrkdwn", text: `*기기:*\n${deviceModel || "알 수 없음"}`},
+            {type: "mrkdwn", text: `*OS:*\n${osVersion || "알 수 없음"}`},
+            {type: "mrkdwn", text: `*앱 버전:*\n${appVersion || "알 수 없음"}`},
+          ],
+        },
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: `📅 ${new Date().toLocaleString("ko-KR", {timeZone: "Asia/Seoul"})}`,
+            },
+          ],
+        },
+      ],
+    };
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(slackPayload),
+      });
+
+      if (!response.ok) {
+        console.error("[sendInquiry] Slack webhook error:", response.statusText);
+        return {success: false, error: "전송에 실패했습니다"};
+      }
+
+      console.log(`[sendInquiry] Inquiry sent by ${userId}: [${category}] ${title}`);
+      return {success: true};
+    } catch (error) {
+      console.error("[sendInquiry] Error:", error);
+      return {success: false, error: "전송 중 오류가 발생했습니다"};
+    }
   }
 );
