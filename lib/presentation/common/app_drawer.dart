@@ -273,7 +273,8 @@ class AppDrawer extends ConsumerWidget {
             ref.invalidate(homeViewModelProvider);
             ref.invalidate(currentNicknameStateProvider);
 
-            // setup 화면으로 이동 (닉네임만 설정)
+            // 다이얼로그 닫고 SetupScreen으로 이동 (go가 페이지 교체하면서 Drawer도 제거됨)
+            if (context.mounted) Navigator.pop(context);
             if (context.mounted) {
               context.go('${AppRoutes.setup}?nicknameOnly=true');
             }
@@ -714,8 +715,8 @@ Future<void> showLoginDialog({
 }) {
   return showGeneralDialog(
     context: context,
-    barrierDismissible: false,
-    barrierLabel: '',
+    barrierDismissible: true,
+    barrierLabel: '닫기',
     barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
@@ -831,6 +832,15 @@ class _LoginDialogState extends State<LoginDialog> {
                   ),
                 ),
               ),
+
+              const SizedBox(height: AppSpacing.s3),
+
+              // 나중에 버튼
+              SubbyButton(
+                label: '나중에',
+                type: SubbyButtonType.text,
+                onPressed: _isLoading ? null : () => Navigator.pop(context),
+              ),
             ],
           ),
         ),
@@ -861,6 +871,7 @@ class _LoginDialogState extends State<LoginDialog> {
         case GoogleSignInCancelled():
           print('[Setup] GoogleSignInCancelled');
           setState(() => _isLoading = false);
+          if (mounted) Navigator.pop(context);
         case GoogleSignInError(:final message):
           print('[Setup] GoogleSignInError: $message');
           setState(() => _isLoading = false);
