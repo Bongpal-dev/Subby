@@ -114,6 +114,7 @@ class PendingChanges extends Table {
 @DriftDatabase(tables: [UserSubscriptions, FxRatesDaily, PresetCache, SubscriptionGroups, PaymentLogs, PendingChanges])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+  AppDatabase.forTesting(super.executor);
 
   @override
   int get schemaVersion => 7;
