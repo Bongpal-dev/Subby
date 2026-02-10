@@ -26,6 +26,17 @@ interface ExchangeRatesResponse {
   };
 }
 
+interface MigrateAnonymousUserRequest {
+  previousUserId: string;
+  groupCodes: string[];
+}
+
+interface MigrateAnonymousUserResponse {
+  success: boolean;
+  migratedCount: number;
+  error?: string;
+}
+
 interface SendInquiryRequest {
   category: string;
   title: string;
@@ -476,6 +487,87 @@ export const sendInquiry = functions.https.onCall(
     } catch (error) {
       console.error("[sendInquiry] Error:", error);
       return {success: false, error: "전송 중 오류가 발생했습니다"};
+    }
+  }
+);
+
+/**
+ * 익명→Google 계정 전환 시 그룹 멤버 마이그레이션
+ * Admin SDK로 보안 규칙을 우회하여 멤버 교체
+ */
+export const migrateAnonymousUser = functions.https.onCall(
+  async (request): Promise<MigrateAnonymousUserResponse> => {
+    const auth = request.auth;
+
+    if (!auth) {
+      return {success: false, migratedCount: 0, error: "인증이 필요합니다"};
+    }
+
+    const data = request.data as MigrateAnonymousUserRequest;
+    const {previousUserId, groupCodes} = data;
+    const newUserId = auth.uid;
+
+    if (!previousUserId || typeof previousUserId !== "string") {
+      return {success: false, migratedCount: 0, error: "이전 사용자 ID가 필요합니다"};
+    }
+
+    if (!groupCodes || !Array.isArray(groupCodes) || groupCodes.length === 0) {
+      return {success: true, migratedCount: 0};
+    }
+
+    try {
+      const batch = db.batch();
+      let migratedCount = 0;
+
+      for (const groupCode of groupCodes) {
+        const groupRef = db.collection("groups").doc(groupCode);
+        const groupDoc = await groupRef.get();
+
+        if (!groupDoc.exists) continue;
+
+        const groupData = groupDoc.data()!;
+        const members = groupData.members || {};
+
+        // 이미 새 userId가 멤버인 경우 skip (멱등성)
+        if (newUserId in members) continue;
+
+        // 이전 userId가 멤버가 아닌 경우 skip
+        if (!(previousUserId in members)) continue;
+
+        // 멤버 교체: old → new
+        const oldMemberData = members[previousUserId];
+        const updateData: Record<string, unknown> = {
+          [`members.${newUserId}`]: oldMemberData,
+          [`members.${previousUserId}`]: admin.firestore.FieldValue.delete(),
+          memberUids: (groupData.memberUids || [])
+            .filter((uid: string) => uid !== previousUserId)
+            .concat(newUserId),
+        };
+
+        // ownerId 갱신
+        if (groupData.ownerId === previousUserId) {
+          updateData.ownerId = newUserId;
+        }
+
+        batch.update(groupRef, updateData);
+        migratedCount++;
+      }
+
+      await batch.commit();
+
+      console.log(
+        `[migrateAnonymousUser] ${previousUserId} → ${newUserId}, ` +
+        `migrated ${migratedCount}/${groupCodes.length} groups`
+      );
+
+      return {success: true, migratedCount};
+    } catch (error) {
+      console.error("[migrateAnonymousUser] Error:", error);
+      return {
+        success: false,
+        migratedCount: 0,
+        error: "멤버 마이그레이션 중 오류가 발생했습니다",
+      };
     }
   }
 );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
 import 'package:subby/presentation/common/providers/app_state_providers.dart';
 import 'package:subby/core/router/app_router.dart';
@@ -867,7 +868,21 @@ class _LoginDialogState extends State<LoginDialog> {
       switch (result) {
         case GoogleSignInSuccess(:final isNewUser):
           print('[Setup] GoogleSignInSuccess, isNewUser: $isNewUser');
-          await _syncUserDataAfterLogin(previousUserId);
+          try {
+            await _syncUserDataAfterLogin(previousUserId);
+          } catch (e) {
+            // 동기화 실패 → Google 로그아웃 후 익명 복원
+            print('[Setup] Sync failed, rolling back login: $e');
+            final authRepository = widget.ref.read(authRepositoryProvider);
+            await authRepository.signOut();
+            await authRepository.signInAnonymously();
+            widget.ref.invalidate(isAnonymousStateProvider);
+            widget.ref.invalidate(currentNicknameStateProvider);
+            if (mounted) {
+              setState(() => _isLoading = false);
+              _showErrorSnackBar('로그인에 실패했습니다. 다시 시도해주세요.');
+            }
+          }
         case GoogleSignInCancelled():
           print('[Setup] GoogleSignInCancelled');
           setState(() => _isLoading = false);
