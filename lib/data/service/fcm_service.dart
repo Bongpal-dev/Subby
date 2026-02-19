@@ -167,7 +167,7 @@ class FcmService {
       Fluttertoast.showToast(
         msg: notification.body!,
         toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.TOP,
+        gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.black87,
         textColor: Colors.white,
       );
