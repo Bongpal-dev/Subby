@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subby/data/datasource/fcm_token_remote_datasource.dart';
@@ -159,22 +161,15 @@ class FcmService {
     final updatedBy = message.data['updatedBy'];
     if (updatedBy != null && updatedBy == _currentUserId) return;
 
-    // 포그라운드에서 로컬 알림 표시
+    // 포그라운드에서는 토스트로 표시
     final notification = message.notification;
-    if (notification != null) {
-      await _localNotifications.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'subby_sync_channel',
-            '구독 동기화 알림',
-            channelDescription: '그룹 구독 변경 알림',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-        ),
+    if (notification != null && notification.body != null) {
+      Fluttertoast.showToast(
+        msg: notification.body!,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.black87,
+        textColor: Colors.white,
       );
     }
   }
