@@ -328,7 +328,8 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
   }
 
   Future<bool> save() async {
-    if (state.name.isEmpty || state.amount <= 0) {
+    final trimmedName = state.name.trim();
+    if (trimmedName.isEmpty || state.amount <= 0) {
       return false;
     }
 
@@ -343,7 +344,7 @@ class SubscriptionAddViewModel extends AutoDisposeNotifier<SubscriptionAddState>
       final subscription = UserSubscription(
         id: const Uuid().v4(),
         groupCode: groupCode,
-        name: state.name,
+        name: trimmedName,
         amount: state.amount,
         currency: state.currency,
         billingDay: state.billingDay,
