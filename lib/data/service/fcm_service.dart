@@ -155,6 +155,10 @@ class FcmService {
 
     if (!notificationEnabled) return;
 
+    // 본인이 변경한 알림은 무시
+    final updatedBy = message.data['updatedBy'];
+    if (updatedBy != null && updatedBy == _currentUserId) return;
+
     // 포그라운드에서 로컬 알림 표시
     final notification = message.notification;
     if (notification != null) {

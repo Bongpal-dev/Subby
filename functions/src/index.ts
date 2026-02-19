@@ -394,6 +394,7 @@ export const onSubscriptionChange = onDocumentWritten(
       type: "subscription_change",
       changeType,
       groupCode,
+      updatedBy: updatedBy || "",
     });
   }
 );
