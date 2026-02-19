@@ -104,20 +104,23 @@ class _InquiryScreenState extends ConsumerState<InquiryScreen> {
     final vm = ref.read(inquiryViewModelProvider.notifier);
 
     if (state.category.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('카테고리를 선택해주세요')),
+      Fluttertoast.showToast(
+        msg: '카테고리를 선택해주세요',
+        toastLength: Toast.LENGTH_SHORT,
       );
       return;
     }
     if (state.title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('제목을 입력해주세요')),
+      Fluttertoast.showToast(
+        msg: '제목을 입력해주세요',
+        toastLength: Toast.LENGTH_SHORT,
       );
       return;
     }
     if (state.content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('내용을 입력해주세요')),
+      Fluttertoast.showToast(
+        msg: '내용을 입력해주세요',
+        toastLength: Toast.LENGTH_SHORT,
       );
       return;
     }

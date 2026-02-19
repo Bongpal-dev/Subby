@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subby/core/di/domain/repository_providers.dart';
 import 'package:subby/core/di/domain/usecase_providers.dart';
@@ -702,8 +703,9 @@ class _LeaveGroupDialogState extends ConsumerState<_LeaveGroupDialog> {
     } on Exception catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      Fluttertoast.showToast(
+        msg: e.toString().replaceFirst('Exception: ', ''),
+        toastLength: Toast.LENGTH_SHORT,
       );
     }
   }
@@ -880,7 +882,7 @@ class _LoginDialogState extends State<LoginDialog> {
             widget.ref.invalidate(currentNicknameStateProvider);
             if (mounted) {
               setState(() => _isLoading = false);
-              _showErrorSnackBar('로그인에 실패했습니다. 다시 시도해주세요.');
+              _showErrorToast('로그인에 실패했습니다. 다시 시도해주세요.');
             }
           }
         case GoogleSignInCancelled():
@@ -890,13 +892,13 @@ class _LoginDialogState extends State<LoginDialog> {
         case GoogleSignInError(:final message):
           print('[Setup] GoogleSignInError: $message');
           setState(() => _isLoading = false);
-          _showErrorSnackBar(message);
+          _showErrorToast(message);
       }
     } catch (e) {
       print('[Setup] Exception: $e');
       if (mounted) {
         setState(() => _isLoading = false);
-        _showErrorSnackBar(e.toString());
+        _showErrorToast(e.toString());
       }
     }
   }
@@ -918,20 +920,24 @@ class _LoginDialogState extends State<LoginDialog> {
     final restoredCount = result.restoredCount;
 
     if (linkedCount > 0 && restoredCount > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$linkedCount개 그룹 연결, $restoredCount개 그룹 복구됨')),
+      Fluttertoast.showToast(
+        msg: '$linkedCount개 그룹 연결, $restoredCount개 그룹 복구됨',
+        toastLength: Toast.LENGTH_SHORT,
       );
     } else if (linkedCount > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$linkedCount개 그룹이 계정에 연결되었습니다')),
+      Fluttertoast.showToast(
+        msg: '$linkedCount개 그룹이 계정에 연결되었습니다',
+        toastLength: Toast.LENGTH_SHORT,
       );
     } else if (restoredCount > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$restoredCount개의 그룹을 복구했습니다')),
+      Fluttertoast.showToast(
+        msg: '$restoredCount개의 그룹을 복구했습니다',
+        toastLength: Toast.LENGTH_SHORT,
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인되었습니다')),
+      Fluttertoast.showToast(
+        msg: '로그인되었습니다',
+        toastLength: Toast.LENGTH_SHORT,
       );
     }
 
@@ -939,9 +945,10 @@ class _LoginDialogState extends State<LoginDialog> {
     widget.ref.invalidate(isAnonymousStateProvider);
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('로그인 실패: $message')),
+  void _showErrorToast(String message) {
+    Fluttertoast.showToast(
+      msg: '로그인 실패: $message',
+      toastLength: Toast.LENGTH_SHORT,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:subby/core/theme/app_colors.dart';
 import 'package:subby/core/theme/app_radius.dart';
@@ -117,8 +118,9 @@ class InviteDialog extends StatelessWidget {
 
   void _copyCode(BuildContext context) {
     Clipboard.setData(ClipboardData(text: groupCode));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('초대 코드가 복사되었습니다')),
+    Fluttertoast.showToast(
+      msg: '초대 코드가 복사되었습니다',
+      toastLength: Toast.LENGTH_SHORT,
     );
   }
 

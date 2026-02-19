@@ -429,14 +429,16 @@ class _SaveButton extends ConsumerWidget {
     final vm = ref.read(provider.notifier);
 
     if (state.name.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('서비스를 선택해주세요')),
+      Fluttertoast.showToast(
+        msg: '서비스를 선택해주세요',
+        toastLength: Toast.LENGTH_SHORT,
       );
       return;
     }
     if (state.amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('금액을 입력해주세요')),
+      Fluttertoast.showToast(
+        msg: '금액을 입력해주세요',
+        toastLength: Toast.LENGTH_SHORT,
       );
       return;
     }
