@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subby/domain/model/sync_event.dart';
 import 'package:subby/presentation/common/providers/sync_notification_provider.dart';
 
-/// 동기화 이벤트를 감지하고 스낵바를 표시하는 위젯
+/// 동기화 이벤트를 감지하는 위젯 (알림은 FCM에서 처리)
 class SyncNotificationListener extends ConsumerWidget {
   final Widget child;
 
@@ -11,30 +11,9 @@ class SyncNotificationListener extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<SyncEvent>>(syncEventStreamProvider, (previous, next) {
-      next.whenData((event) {
-        if (event.hasChanges) {
-          _showSyncSnackBar(context, event);
-        }
-      });
-    });
+    // SyncEvent 구독 유지 (로컬 데이터 갱신 감지용)
+    ref.listen<AsyncValue<SyncEvent>>(syncEventStreamProvider, (previous, next) {});
 
     return child;
-  }
-
-  void _showSyncSnackBar(BuildContext context, SyncEvent event) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.sync, color: Colors.white, size: 20),
-            const SizedBox(width: 12),
-            Text(event.message),
-          ],
-        ),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 }
